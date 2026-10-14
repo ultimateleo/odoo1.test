@@ -1,0 +1,1 @@
+from . import snk_product_grade, product_attribute, product_attribute_value, product_template, product, product_category, product_pricelist

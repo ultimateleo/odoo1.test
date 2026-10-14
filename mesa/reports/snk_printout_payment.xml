@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_printout_payment" model="report.paperformat">
+            <field name="name">paperformat printout payment</field>
+            <field name="default" eval="False" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+        </record>
+
+        <record id="snk_report_printout_payment" model="ir.actions.report">
+            <field name="name">Print Out Pyment</field>
+            <field name="model">account.payment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.report_payment</field>
+            <field name="report_file">mesa.report_payment</field>
+            <field name="print_report_name">'Printout Pyment - %s' % (object .name)</field>
+            <field name="binding_model_id" ref="account.model_account_payment" />
+            <field name="paperformat_id" ref="paperformat_printout_payment" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Template Utama -->
+        <template id="report_payment_custom">
+            <t t-call="web.basic_layout">
+                <div class="page" style="font-family: Arial, sans-serif;">
+
+                    <!-- Header dengan Logo dan Info Perusahaan -->
+                    <div style="text-align:center; padding:10px 0; margin-bottom: 20px;">
+                        <!-- Logo -->
+                        <t t-if="env.company.logo">
+                            <img t-att-src="image_data_uri(env.company.logo)"
+                                alt="Company Logo"
+                                style="max-width:120px; max-height:120px; margin-bottom:8px;" />
+                        </t>
+                        <t t-else="">
+                            <img t-att-src="'/web/static/src/img/placeholder.png'"
+                                style="width:120px; height:120px; margin-bottom:8px;" />
+                        </t>
+
+                        <!-- Nama Perusahaan -->
+                        <div
+                            style="font-size:18px; font-weight:bold; text-transform:uppercase; margin-bottom:4px;">
+                            <span t-esc="env.company.name" />
+                        </div>
+
+                        <!-- Alamat Perusahaan -->
+                        <div style="text-align:center;">
+                            <div
+                                style="font-size:15px; font-weight:bold; display:inline-block; max-width:60%; line-height:1.4;">
+                                <span t-esc="env.company.street" />
+                                <t t-if="env.company.street2">, <span
+                                        t-esc="env.company.street2" /></t>, <span
+                                    t-esc="env.company.city" />
+                                <t t-if="env.company.state_id">, <span
+                                        t-esc="env.company.state_id.name" /></t>
+                                <t
+                                    t-if="env.company.zip">
+                                    <span t-esc="env.company.zip" />
+                                </t><br />
+                                <t
+                                    t-if="env.company.country_id">
+                                    <span t-esc="env.company.country_id.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Judul Dokumen -->
+                    <div
+                        style="text-align: right; margin-bottom: 10px; font-size: 14px; font-weight: bold;">
+                        <t t-if="o.payment_type == 'inbound'">BUKTI PENERIMAAN BANK</t>
+                        <t t-if="o.payment_type == 'outbound'">BUKTI PENGELUARAN BANK</t>
+                        <br />
+                        <span style="font-size: 12px;" t-field="o.name" />
+                        <br />
+                        <span style="font-size: 12px;" t-field="o.date" />
+                    </div>
+
+                    <!-- Tabel Transaksi -->
+                    <table
+                        style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: #f5f5f5;">
+                                <th
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">Chart
+                                    Of Account</th>
+                                <th
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                    Currency</th>
+                                <th
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                    Debit</th>
+                                <th
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                    Credit</th>
+                                <th
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                    Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.move_id.line_ids" t-as="l">
+                                <tr>
+                                    <td style="border: 1px solid #000; padding: 8px;"><span
+                                            t-field="l.account_id.code" /> - <span
+                                            t-field="l.account_id.name" /></td>
+                                    <td
+                                        style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                        <span t-field="l.currency_id" />
+                                    </td>
+
+                                    <td
+                                        style="border: 1px solid #000; padding: 8px; text-align: right;">
+                                        <span t-field="l.debit" />
+                                    </td>
+
+                                    <td
+                                        style="border: 1px solid #000; padding: 8px; text-align: right;">
+                                        <span t-field="l.credit" />
+                                    </td>
+
+                                    <td style="border: 1px solid #000; padding: 8px;">
+                                        <span t-field="l.name" />
+                                    </td>
+
+
+                                </tr>
+                            </t>
+                            <!-- Total -->
+                            <tr style="font-weight: bold;">
+                                <td style="border: 1px solid #000; padding: 8px;"></td>
+                                <td
+                                    style="border: 1px solid #000; padding: 8px; text-align: center;">
+                                    Total</td>
+                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">
+                                    <span t-esc="sum(o.move_id.line_ids.mapped('debit'))"
+                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                </td>
+                                <td style="border: 1px solid #000; padding: 8px; text-align: right;">
+                                    <span t-esc="sum(o.move_id.line_ids.mapped('credit'))"
+                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                </td>
+                                <td style="border: 1px solid #000; padding: 8px;"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Informasi Customer/Vendor -->
+                    <div style="margin-bottom: 30px; font-size: 12px;">
+                        <table class="table table-borderless" style="border-collapse: collapse;">
+                            <tr>
+                                <td style="padding: 2px 10px 2px 0; font-weight: bold;">
+                                    <t t-if="o.payment_type == 'inbound'">Customer</t>
+                                    <t t-if="o.payment_type == 'outbound'">Vendor</t>
+                                </td>
+                                <td style="padding: 2px;">: <span t-field="o.partner_id.name" /></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px 10px 2px 0; font-weight: bold;">Memo</td>
+                                <td style="padding: 2px;">: <span t-field="o.memo" /></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 2px 10px 2px 0; font-weight: bold;">Terbilang</td>
+                                <td style="padding: 2px;"> : <span
+                                        t-esc="o.amount_to_text_id(o.amount)" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Area Tanda Tangan -->
+                    <div style="margin-top: 60px;">
+                        <table class="table table-borderless" style="width: 100%; font-size: 12px;">
+                            <tr>
+                                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                                    <div style="margin-bottom: 80px; font-weight: bold;">Disiapkan
+                                        Oleh</div>
+                                    <div style="padding-top: 5px;">
+                                        _________________________
+                                    </div>
+                                </td>
+                                <td style="width: 50%; text-align: center; vertical-align: bottom;">
+                                    <div style="margin-bottom: 80px; font-weight: bold;">Disetujui
+                                        Oleh</div>
+                                    <div style="padding-top: 5px;">
+                                        _________________________
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_payment">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="mesa.report_payment_custom" />
+                </t>
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey;"> Page <span
+                            class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

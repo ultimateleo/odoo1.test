@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data>
+
+        <record id="paperformat_purchase_order_subcount_mesa" model="report.paperformat">
+            <field name="name">Purchase Format</field>
+            <field name="default" eval="False" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">20</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+        </record>
+
+        <record id="action_report_purchase_order_subcont_mesa" model="ir.actions.report">
+            <field name="name">Purchase Order Subcont / Factory</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.report_purchase_order_subcont</field>
+            <field name="report_file">mesa.report_purchase_order_subcont</field>
+            <field name="print_report_name">'Purchase Order Subcont - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_purchase_order" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_purchase_order_subcount_mesa" />
+        </record>
+        <template id="report_purchase_order_subcont_template">
+            <t t-call="web.basic_layout">
+                <!-- header section -->
+                <div style="padding:10px;">
+                    <div>
+                        <div
+                            style="font-size:18px; text-align:center; font-weight:bold; text-transform:uppercase; margin-bottom:4px;">
+                            <span t-esc="env.company.name" />
+                        </div>
+                        <div style="font-size:10px; text-align:center; margin-bottom:4px;">
+                            <t t-if="env.company.street">
+                                <span t-esc="env.company.street" />
+                            </t>
+                            <t t-if="env.company.street2">, <span t-esc="env.company.street2" /></t>
+                            <t t-if="env.company.city">, <span t-esc="env.company.city" /></t>
+                            <t t-if="env.company.state_id">, <span t-esc="env.company.state_id.name" /></t>
+                            <t t-if="env.company.zip">, <span t-esc="env.company.zip" /></t>
+                            <t t-if="env.company.country_id">, <span t-esc="env.company.country_id.name" /></t>
+                        </div>
+                        <div style="font-size:10px; text-align:center; margin-bottom:4px;">
+                            <t t-if="env.company.phone">Telp. <span t-esc="env.company.phone" /></t>
+                        </div>
+                        <div style="margin-top: 30px;">
+                            <table class="table table-borderless"
+                                style="float: left; width: 55%; border-collapse: collapse; font-size: 12px; margin-right: 4%; border-spacing: 0;">
+                                <tr>
+                                    <td
+                                        style="vertical-align: bottom; padding: 0 3px 0 0; white-space: nowrap;">
+                                        <strong>SUPPLIER:</strong>
+                                    </td>
+                                    <td style="vertical-align: bottom; padding: 0;">
+                                        <span t-field="o.partner_id.name" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0;"></td>
+                                    <td colspan="2" style="padding: 0;">
+                                        <div t-if="o.partner_id.street">
+                                            <span t-field="o.partner_id.street" />
+                                            <t t-if="o.partner_id.street2">, <span
+                                                    t-field="o.partner_id.street2" /></t>
+                                            <t t-if="o.partner_id.city">, <span
+                                                    t-field="o.partner_id.city" /></t>
+                                            <t t-if="o.partner_id.state_id">, <span
+                                                    t-field="o.partner_id.state_id.name" /></t>
+                                            <t t-if="o.partner_id.zip">, <span
+                                                    t-field="o.partner_id.zip" /></t>
+                                            <t t-if="o.partner_id.country_id">, <span
+                                                    t-field="o.partner_id.country_id.name" /></t>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <table class="table table-borderless"
+                                style="float: right; width: 38%; border-collapse: collapse; border-spacing: 0; font-size: 12px;">
+                                <tr>
+                                    <td style="padding: 0 4px 0 0; white-space: nowrap;">No:</td>
+                                    <td style="padding: 0;">
+                                        <span t-field="o.snk_po_number" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0 4px 0 0; white-space: nowrap;">Ref:</td>
+                                    <td style="padding: 0;">
+                                        <span t-field="o.requisition_id.snk_pr_number" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0 4px 0 0; white-space: nowrap;">Date:</td>
+                                    <td style="padding: 0;">
+                                        <span t-field="o.date_order"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                            </table>
+
+
+                            <div style="clear: both;"></div>
+                        </div>
+                        <div style="margin-top:-30px;">
+
+                            <table
+                                class="table"
+                                style="width:100%; border: 1px solid black; border-collapse:collapse; font-size:12px; margin-top:30px;"
+                                border="1   ">
+                                <thead>
+                                    <!-- Header utama -->
+                                    <tr style="text-align:center; font-weight:bold;">
+                                        <th rowspan="2" style="padding:5px; padding:10px">ITEM</th>
+                                        <th colspan="4" style="padding:5px; text-align:center;">JENIS
+                                            BAHAN</th>
+                                        <th rowspan="2" style="padding:5px; padding:10px">QTY</th>
+                                        <th rowspan="2" style="padding:5px; padding:10px">MOTIF /
+                                            DESIGN / ART
+                                            WORK</th>
+                                        <th rowspan="2" style="padding:5px;">UNIT PRICE</th>
+                                    </tr>
+                                    <!-- Sub-header -->
+                                    <tr style="text-align:center; font-weight:bold;  padding:10px">
+                                        <th style="padding:5px;">KODE</th>
+                                        <th style="padding:5px;">NAMA BAHAN</th>
+                                        <th style="padding:5px;">UK.</th>
+                                        <th style="padding:5px;">WARNA</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="enumerate(o.order_line, start=1)" t-as="line">
+                                        <tr>
+                                            <!-- Nomor urut -->
+                                            <td>
+                                                <span t-esc="line[0]" />
+                                            </td>
+                                            <!-- Kode bahan -->
+                                            <td style="text-align:center;">
+                                                <span
+                                                    t-field="line[1].product_id.product_tmpl_id.snk_material_code" />
+                                            </td>
+                                            <!-- Nama bahan -->
+                                            <td>
+                                                <span style="padding:10px;"
+                                                    t-field="line[1].product_id.name" />
+                                            </td>
+                                            <!-- Ukuran -->
+
+                                            <!-- Kolom SIZE -->
+                                            <td>
+                                                <t
+                                                    t-esc="([attr.product_attribute_value_id.name 
+              for attr in line[1].product_id.product_template_attribute_value_ids 
+              if attr.attribute_id.name == 'SIZE'][:1] or [''])[0]" />
+                                            </td>
+
+                                            <!-- Kolom COLOR -->
+                                            <td>
+                                                <t
+                                                    t-esc="([attr.product_attribute_value_id.name 
+              for attr in line[1].product_id.product_template_attribute_value_ids 
+              if attr.attribute_id.name == 'COLOR'][:1] or [''])[0]" />
+                                            </td>
+
+
+                                            <!-- Qty -->
+                                            <td style="text-align:center;">
+                                                <span t-field="line[1].product_qty" />
+                                                <span t-field="line[1].product_uom" />
+                                            </td>
+                                            <!-- UoM -->
+
+                                            <!-- Motif/Design/Art Work -->
+                                            <td>
+                                                <span t-field="line[1].snk_description" />
+                                            </td>
+                                            <!-- Unit Price -->
+                                            <td style="text-align:right;">
+                                                <span t-field="line[1].price_unit" />
+                                            </td>
+                                        </tr>
+
+                                    </t>
+                                    <tr>
+                                        <td colspan="4"></td>
+
+                                        <td>
+                                            <span>Total QTY</span>
+                                        </td>
+                                        <td
+                                            style="border: 1px solid #333; padding: 12px; text-align: center;">
+                                            <t t-set="total_qty" t-value="0" />
+                                            <t t-foreach="o.order_line" t-as="line">
+                                                <t t-set="total_qty"
+                                                    t-value="total_qty + line.product_qty" />
+                                            </t>
+                                            <strong>
+                                                <span t-esc="total_qty" />
+                                            </strong>
+                                        </td>
+                                        <td colspan="2"></td>
+
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                            <div style="margin-top:20px">
+                                <table class="table table-borderless"
+                                    style="width: 100%; border-collapse: collapse; margin-top: 20px; font-family: Arial, sans-serif; font-size: 12px;">
+                                    <!-- Delivery Row -->
+                                    <tr>
+                                        <td
+                                            style="font-weight: bold; width: 15%;  padding: 6px 8px; vertical-align: top;">
+                                            Delivery
+                                        </td>
+                                        <td
+                                            style="font-weight: bold; width: 2%; text-align: center;  padding: 6px 8px; vertical-align: top;">
+                                            :
+                                        </td>
+                                        <td
+                                            style="width: 28%;  padding: 6px 8px; vertical-align: top;">
+                                            <span t-field="o.date_planned"
+                                                t-options='{"widget": "date", "format" : "dd MMM yyyy"}' />
+                                        </td>
+                                        <td
+                                            style="width: 55%;  padding: 6px 8px; vertical-align: top;">
+                                        </td>
+                                    </tr>
+
+                                    <!-- Remarks Row with Lines -->
+                                    <tr>
+                                        <td
+                                            style="font-weight: bold; width: 15%;  padding: 6px 8px; vertical-align: top;">
+                                            Remarks
+                                        </td>
+                                        <td
+                                            style="font-weight: bold; width: 2%; text-align: center;  padding: 6px 8px; vertical-align: top;">
+                                            :
+                                        </td>
+                                        <td colspan="2"
+                                            style=" padding: 6px 8px; vertical-align: top;">
+                                            <div
+                                                style="background-image: repeating-linear-gradient(transparent, transparent 18px, #000 18px, #000 19px); min-height: 60px; line-height: 20px; padding: 2px 0;">
+                                                <div
+                                                    style="background-color: transparent; line-height: 20px; margin: 0; padding: 0;">
+
+                                                    <span t-field="o.origin" />
+
+
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Distribution List Row -->
+                                    <tr>
+                                        <td
+                                            style="font-weight: bold; width: 15%;  padding: 6px 8px; vertical-align: top;">
+                                            Lembar Asli
+                                        </td>
+                                        <td
+                                            style="font-weight: bold; width: 2%; text-align: center;  padding: 6px 8px; vertical-align: top;">
+                                            :
+                                        </td>
+                                        <td
+                                            style="width: 43%;  padding: 6px 8px; vertical-align: top;">
+                                            <div>Supplier</div>
+                                            <div>Copy 1 : Purchasing</div>
+                                            <div>Copy 2 : R &amp; D</div>
+                                            <div>Copy 3 : Accounting</div>
+                                            <div>Copy 4 : Ware House</div>
+                                        </td>
+                                        <td
+                                            style="width: 40%; padding: 6px 8px; vertical-align: bottom; text-align: center; height: 80px; position: relative;">
+                                            <div
+                                                style="position: absolute; bottom: 5px; left: 50%; transform: translateX(-50%); text-align: center; font-size: 10px; line-height: 12px;">
+                                                <t t-if="o.snk_approve">
+                                                    <span t-field="o.snk_approve"
+                                                        style="display:block; font-size: 11px; font-weight: bold;" />
+                                                </t>
+                                                <t t-else="o.user_id">
+                                                    <span t-field="o.user_id.name"
+                                                        style="display:block; font-size: 11px; font-weight: bold;" />
+                                                </t>
+                                                <span>Authorised Signature</span>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                </table>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_purchase_order_subcont">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="mesa.report_purchase_order_subcont_template" />
+                </t>
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey; margin-top: 20px;">
+                        No. PO : <t t-esc="o.snk_po_number" /> <span style="margin: 0 8px;">|</span>
+                        Page <span class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </template>
+
+    </data>
+
+</odoo>

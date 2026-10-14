@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format -->
+    <!-- <record id="paperformat_delivery_mutasi" model="report.paperformat">
+        <field name="name">Delivery Mutasi Format</field>
+        <field name="default" eval="False" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">10</field>
+         <field name="dpi">90</field>
+    </record> -->
+    
+    <!-- PAPERFORMAT -->
+    <record id="paperformat_delivery_mutasi" model="report.paperformat">
+        <field name="name">Delivery Mutasi Format</field>
+        <field name="default" eval="False" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">10</field>
+         <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_mutasi" model="ir.actions.report">
+        <field name="name">Form Mutasi</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_mutasi_template</field>
+        <field name="report_file">mesa.report_delivery_mutasi_template</field>
+        <field name="print_report_name">'Form Mutasi - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_mutasi" />
+    </record>
+
+    <template id="report_delivery_mutasi_template">
+        <t t-call="web.basic_layout">
+            <t t-set="processed_pickings" t-value="processed_pickings or []" />
+
+            <t t-foreach="processed_pickings" t-as="picking_data">
+                <t t-set="picking" t-value="picking_data['picking']" />
+                <t t-set="moves_with_data" t-value="picking_data['moves_with_data']" />
+                <t t-set="from_site" t-value="picking_data.get('from_site', {})" />
+                <t t-set="to_site" t-value="picking_data.get('to_site', {})" />
+                <t t-set="total_amount" t-value="picking_data.get('total_amount', 0)" />
+
+                <t t-if="not picking_data_first">
+                    <div style="page-break-before:always;"></div>
+                </t>
+
+                <div class="page">
+                    <!-- Inisialisasi awal dokumen -->
+                    <t t-set="total_qty" t-value="0"/>
+
+                    <style>
+                        .page {
+                            <!-- font-family: Arial, sans-serif !important; -->
+                            font-family: DejaVu Sans !important;
+                            font-size: 10pt !important;
+                            padding: 10px;
+                        }
+                        
+                        /* HEADER SECTIONS */
+                        .header-container {
+                            width: 100%;
+                            display: table;
+                            margin-bottom: 20px;
+                            border-bottom: 2px double #000; /* Separator optional */
+                        }
+                        .header-logo-company {
+                            display: table-cell;
+                            width: 50%;
+                            vertical-align: top;
+                        }
+                        .header-sender-receiver {
+                             display: table-cell;
+                             width: 50%;
+                             vertical-align: top;
+                        }
+                        
+                        /* Company Info */
+                        .company-name {
+                            font-weight: bold;
+                            font-size: 14px;
+                            text-transform: uppercase;
+                        }
+                        .company-address {
+                            font-size: 9pt !important;
+                        }
+
+                        /* Sender Receiver Table */
+                        .sr-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            border: 2px solid #000;
+                        }
+                        .sr-table td {
+                            border: 1px solid #000;
+                            padding: 2px;
+                            vertical-align: top;
+                            width: 50%;
+                            font-size: 9pt !important;
+                        }
+                        .sr-header {
+                            text-align: center;
+                            font-weight: bold;
+                            padding-top: 2px;
+                            padding-bottom: 2px;
+                            background-color: #f0f0f0;
+                        }
+                        .sr-label {
+                            padding-top: 2px;
+                            padding-bottom: 2px;
+                            font-weight: bold;
+                        }
+
+                        /* Title */
+                        .doc-title {
+                            text-align: center;
+                            font-size: 14px;
+                            font-weight: bold;
+                            margin: 15px 0;
+                            <!-- text-decoration: underline; -->
+                            letter-spacing: 2px;
+                        }
+
+                        /* MIDDLE INFO BOX */
+                        .info-box {
+                            width: 100%;    
+                            border: 1px solid #000;
+                            display: table;
+                            margin-bottom: 15px;
+                        }
+                        .info-col-left, .info-col-mid, .info-col-right {
+                            display: table-cell;
+                            vertical-align: top;
+                            padding: 5px;
+                            border-right: 1px solid #000;
+                        }
+                        .info-col-right { border-right: none; }
+                        
+                        .info-col-left { width: 35%; }
+                        .info-col-mid { width: 35%; }
+                        .info-col-right { width: 30%; }
+
+                        .info-label { font-weight: bold; }
+                        
+                        /* ITEMS TABLE */
+                        .items-table {
+                            width: 100%;
+                            margin-bottom: 20px;
+                            border-collapse: collapse;
+                        }
+                        .items-table th {
+                            text-align: left; /* Default left */
+                            padding: 5px;
+                            font-weight: bold;
+                            border-bottom: 1px solid #000;
+                        }
+                        .items-table td {
+                            padding: 4px;
+                            vertical-align: top;
+                            font-size: 8pt !important;
+                            border:none;
+                        }
+                        .items-table tr{
+                            <!-- border:none; -->
+                        }
+                        .text-right { text-align: right !important; }
+                        .text-center { text-align: center !important; }
+                        
+                        .total-row td {
+                            border-top: 1px double #000; /* Double line for total */
+                            font-weight: bold;
+                            padding-top: 5px;
+                        }
+                        .grand-total {
+                             border-bottom: 3px double #000;
+                             display: inline-block;
+                        }
+
+                        /* FOOTER SIGNATURES */
+                        .footer-signatures {
+                            width: 100%;
+                            margin-top: 50px; 
+                            display: table;
+                        }
+                        .sig-block {
+                            display: table-cell;
+                            width: 25%;
+                            text-align: center;
+                            vertical-align: top;
+                        }
+                        .sig-name {
+                            margin-top: 60px; /* Space for signature */
+                        }
+                        .note-inline p{
+                            display: inline;
+                            margin-top: 0;
+                            margin-bottom: 50px;
+                        }
+
+                    </style>
+
+                    <!-- HEADER -->
+                    <div style="display: table; width: 100%; margin-bottom: 10px;">
+                        <div style="display: table-cell; width: 45%; vertical-align: top;">
+                            <table class="table table-borderless" style="width: 100%;">
+                                <tr>
+                                    <td style="width: 60px; vertical-align: top;">
+                                        <t t-if="picking.company_id.logo">
+                                            <img t-att-src="image_data_uri(picking.company_id.logo)" style="max-height: 50px; max-width: 50px;"/>
+                                        </t>
+                                    </td>
+                                    <td style="vertical-align: top; padding-left: 10px;">
+                                        <div class="company-name">
+                                            <t t-esc="picking.company_id.name"/>
+                                        </div>
+                                        <div class="company-address">
+                                            <t t-esc="picking.company_id.street"/>
+                                            <t t-if="picking.company_id.street2">, <t t-esc="picking.company_id.street2"/></t>
+                                            <t t-if="picking.company_id.city">, <t t-esc="picking.company_id.city"/></t>
+                                            <t t-if="picking.company_id.phone"><br/>Telp: <t t-esc="picking.company_id.phone"/></t>
+                                            <t t-if="picking.company_id.email"><br/>Email: <t t-esc="picking.company_id.email"/></t>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div style="display: table-cell; width: 55%; vertical-align: top;">
+                             <table class="sr-table">
+                                <tr class="sr-header">
+                                    <td>PENGIRIM</td>
+                                    <td>PENERIMA</td>
+                                </tr>
+                                <tr>
+                                    <!-- PENGIRIM -->
+                                    <td>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 75px;">Nama</span>
+                                            <span>: </span>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 75px;">NIK</span>
+                                            <span>: </span>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 75px;">Tgl.Kirim</span>
+                                            <span>: 
+                                                <!-- <t t-if="picking.snk_physical_date">
+                                                    <t t-esc="picking.snk_physical_date.strftime('%d.%m.%Y')"/>
+                                                </t>
+                                                <t t-elif="picking.date_done">
+                                                    <t t-esc="picking.date_done.strftime('%d.%m.%Y')"/>
+                                                </t> -->
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <!-- PENERIMA -->
+                                    <td>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 85px;">Nama</span>
+                                            <span> : </span>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 85px;">NIK</span>
+                                            <span> : </span>
+                                        </div>
+                                        <div style="display: flex;">
+                                            <span class="sr-label" style="display: inline-block; width: 85px; white-space: nowrap;">Tgl.Terima</span>
+                                            <span> : </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                             </table>
+                        </div>
+                    </div>
+
+                    <!-- TITLE (Moved back to left side) -->
+                    <div class="doc-title" style="text-align: left; padding-left:20px; font-size: 16px; margin-bottom: 5px;">
+                        FORM <t t-if="picking.picking_type_id" t-esc="picking.picking_type_id.name.upper()"/>
+                        <t t-else="">MUTASI</t>
+                    </div>
+
+                    <div class="info-box" style="display: table; width: 100%; border: 1px solid #000; font-size: 8pt !important; border-collapse: collapse;">
+                        <!-- Left: FROM -->
+                        <div style="display: table-cell; width: 32%; border-right: 1px solid #000; padding: 4px; vertical-align: top; font-size: 8pt;">
+                            <!-- Label -->
+                            <div style="font-weight: bold; margin-bottom: 2px;">
+                                FROM :
+                                    <!-- Kode Toko -->
+                                    <t t-esc="from_site.get('site_code', '')"/>
+                            </div>
+
+                            <div>
+                                <!-- Nama Toko -->
+                                <t t-esc="picking.snk_source_site_name or '-'"/>
+                            </div>
+
+                            <!-- Alamat -->
+                            <div>
+                                <t t-esc="from_site.get('street', '')"/>
+                            </div>
+                            <div>
+                                <t t-esc="from_site.get('street2', '')"/>
+                            </div>
+
+                            <!-- Kota (paling bawah) -->
+                            <div style="margin-bottom: 4px;">
+                                <t t-esc="from_site.get('city', '')"/>
+                            </div>
+
+                            <!-- POS Status -->
+                            <div>
+                                <span style="font-weight: bold;">POS Status :</span>
+                                <t t-esc="from_site.get('pos_status', '-')"/>
+                            </div>
+
+                            <!-- Garis -->
+                            <div style="border-top: 1px solid #000; margin: 4px -4px;"></div>
+
+                            <!-- No Retur -->
+                            <div>
+                                <span style="font-weight: bold;">No. Retur :</span>
+                                <t t-esc="picking.origin or '-'"/>
+                            </div>
+
+                        </div>
+                        
+                        <!-- Mid: TO -->
+                        <div style="display: table-cell; width: 43%; border-right: 1px solid #000; padding: 4px; vertical-align: top; font-size: 8pt;">
+
+                            <!-- Label -->
+                            <div style="font-weight: bold; margin-bottom: 2px;">
+                                TO :
+                                <t t-esc="to_site.get('site_code', '')"/>
+                            </div>
+
+                            <div>
+                                <!-- Nama Toko -->
+                                <t t-esc="picking.snk_dest_site_name or '-'"/>
+
+                            </div>
+
+                            <!-- Alamat -->
+                            <div>
+                                <t t-esc="to_site.get('street', '')"/>
+                            </div>
+                            <div>
+                                <t t-esc="to_site.get('street2', '')"/>
+                            </div>
+
+                            <!-- Kota -->
+                            <div style="margin-bottom: 4px;">
+                                <t t-esc="to_site.get('city', '')"/>
+                            </div>
+
+                            <!-- POS Status -->
+                            <div>
+                                <span style="font-weight: bold;">POS Status :</span>
+                                <t t-esc="to_site.get('pos_status', '-')"/>
+                            </div>
+
+                            <!-- Garis (Pecahkan padding dengan negative margin) -->
+                            <div style="border-top: 1px solid #000; margin: 4px -4px; display: block;"></div>
+
+                            <!-- Note -->
+                            <div>
+                                <span style="font-weight:bold; display:inline-block; width:60px; vertical-align:top;">Note</span>
+                                <span style="display:inline-block; width:10px; vertical-align:top;">:</span>
+                                <span class="note-inline" style="display:inline-block; vertical-align:top; width: calc(100% - 80px);">
+                                    <t t-raw="picking.note or '-'"/>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Right: DOC INFO -->
+                        <div style="display: table-cell; width: 25%; padding: 0px; vertical-align: top;">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 8pt;" class="table table-borderless">
+                                <tr>
+                                    <td class="info-label" style="width: 1%; white-space: nowrap; padding-right: 5px; font-size: 8pt;">Doc. No. :</td>
+                                    <td style="font-size: 8pt;"><t t-esc="picking.name"/></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2" style="border-top: 1px solid #000; padding-top: 2px; margin-top: 2px;">
+                                        <table style="width: 100%; border-collapse: collapse; font-size: 8pt;">
+                                            <tr>
+                                                <td class="info-label" style="width: 1%; white-space: nowrap; padding-right: 5px; font-size: 8pt;">Doc Date :</td>
+                                                <td style="font-size: 8pt;"><t t-out="picking.scheduled_date and context_timestamp(picking.scheduled_date).strftime('%d.%m.%Y') or ''"/></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- ITEMS TABLE -->
+                    <!-- ===================================================== -->
+
+                    <!-- ================= ITEMS TABLE ================= -->
+                    <table class="items-table table table-borderless">
+                        <thead>
+                            <tr>
+                                <th style="width:10%;"  class="text-center">Grade</th>
+                                <th style="width:15%;"  class="text-center">Article</th>
+                                <th style="width:6%;"   class="text-center">Qty</th>
+                                <th style="width:6%;"   class="text-center">Uom</th>
+                                <th style="width:15%;"  class="text-right">Price</th>
+                                <th style="width:20%;"  class="text-right">Total Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="moves_with_data" t-as="move_data">
+                                <t t-set="total_qty" t-value="total_qty + move_data['quantity']"/>
+                                <tr>
+                                    <!-- Grade -->
+                                    <td class="text-center">
+                                        <t t-esc="move_data.get('grade_name', '')"/>
+                                    </td>
+
+                                    <!-- Article -->
+                                    <td>
+                                        <t t-set="product" t-value="move_data['product']"/>
+                                        <t t-set="article" t-value="product.product_tmpl_id.default_code or ''"/>
+                                        <t t-set="attr_codes" t-value="' '.join(product.product_template_attribute_value_ids.mapped('name'))"/>
+                                        <t t-out="article"/> <t t-out="attr_codes"/>
+                                    </td>
+
+                                    <!-- Qty -->
+                                    <td class="text-center">
+                                       <t t-esc="'{:,.0f}'.format(move_data['quantity']).replace(',', '.')" />
+                                    </td>
+
+                                    <!-- UoM -->
+                                    <td class="text-center">
+                                        <t t-esc="move_data['uom'].name"/>
+                                    </td>
+
+                                    <!-- Price -->
+                                    <td class="text-right">
+                                        <t t-esc="'{:,.2f}'.format(move_data.get('price', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                    </td>
+                                    <!-- Subtotal -->
+                                    <td class="text-right">
+                                        <t t-esc="'{:,.2f}'.format(move_data.get('subtotal', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+
+
+                    <!-- ================= TOTALS ================= -->
+                    <table class="items-table table table-borderless" style="width:100%; border-collapse:collapse;">
+                        <tr>
+                            <td style="width:27%; text-align:right; font-size:14px; font-weight:bold;">
+                                Total
+                            </td>
+
+                            <td style="width:6%; font-size:14px; font-weight:bold;">
+                                <t t-esc="'%.0f' % total_qty"/>
+                            </td>
+
+                            <td style="width:21%;"></td>
+
+                            <td style="width:20%; text-align:right; font-size:14px; font-weight:bold;">
+                                <t t-esc="'{:,.2f}'.format(total_amount or 0).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- SIGNATURES -->
+                    <div class="footer-signatures">
+                         <div class="sig-block">
+                             <div>Disetujui Oleh,</div>
+                                <div class="sig-name">
+                                    <t t-if="picking.snk_approve">
+                                        (<t t-esc="picking.snk_approve"/>)
+                                    </t>
+                                    <t t-else="">
+                                        (.................................. )
+                                    </t>
+                                </div>
+                            </div>
+                         <div class="sig-block">
+                             <div>SPG Pengirim,</div>
+                             <div class="sig-name">(.................................. )</div>
+                         </div>
+                         <div class="sig-block">
+                             <div>SPV Coordinator,</div>
+                             <div class="sig-name">(.................................. )</div>
+                         </div>
+                         <div class="sig-block">
+                             <div>Diambil Oleh,</div>
+                             <div class="sig-name">(.................................. )</div>
+                         </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer per dokumen: diekstrak Odoo, di-render dengan subst=True -->
+                <!-- wkhtmltopdf inject sitepage dan sitepages ke URL, JS subst() mengisi span -->
+                <div class="footer" style="text-align: right; font-size: 9pt; font-family: DejaVu Sans; padding-right: 5px;">
+                    DOC.NO : <t t-esc="picking.name"/> | PAGE <span class="page"/> OF <span class="topage"/>
+                </div>
+
+            </t>
+
+        </t>
+    </template>
+</odoo>

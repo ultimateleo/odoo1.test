@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_report_monitoring_sto_list" model="ir.ui.view">
+        <field name="name">report.monitoring.sto.list</field>
+        <field name="model">report.monitoring.sto</field>
+        <field name="arch" type="xml">
+            <list string="Monitoring STO" create="0" edit="0" delete="0">
+                <header>
+                    <button name="%(action_report_monitoring_sto_wizard)d" 
+                            type="action" 
+                            string="Generate Report" 
+                            class="btn-primary" 
+                            display="always"/>
+                </header>
+                <!-- Product & Location Info -->
+                <field name="source_document" optional="show"/>
+                <field name="date" optional="show"/>
+                <field name="source_site_id"/>
+                <field name="destination_site_id"/>
+                <field name="product_template_id" optional="hide"/>
+                <field name="product_tmpl_default_code" optional="hide"/>
+                <field name="product_id" optional="hide"/>
+                <field name="product_default_code" optional="show"/>
+                <field name="analytic_id" optional="hide"/>
+                <field name="snk_grade_id" optional="hide"/>
+                <field name="snk_pos_ref" optional="show"/>
+                <field name="pos_status_site" optional="show"/>
+                <field name="snk_material_code" optional="hide"/>
+                
+                <!-- 1. PR Info -->
+                <field name="transfer_id" string="PR Ref" optional="show"/>
+                <field name="pr_demand_qty" string="PR Demand Qty" sum="Total PR Demand" decoration-bf="1" optional="show"/>
+                <field name="pr_actual_qty" string="PR Actual Qty (DO Demand)" sum="Total PR Actual" decoration-bf="1" optional="show"/>
+                <field name="gap_pr" string="Gap PR" sum="Total Gap PR" decoration-danger="gap_pr != 0" decoration-success="gap_pr == 0" optional="hide"/>
+                
+                <!-- 2. Delivery Info -->
+                <field name="delivery_picking_id" string="Delivery Ref" optional="show"/>
+                <field name="delivery_date" optional="hide"/>
+                <field name="physical_delivery_date" optional="hide"/>
+                <field name="do_initial_qty" string="DO Demand Qty" sum="Total DO Demand" optional="show"/>
+                <field name="do_actual_qty" string="DO Actual Qty" sum="Total DO Actual" decoration-bf="1" optional="show"/>
+                <field name="gap_delivery" string="Gap Delivery" sum="Total Gap Delivery" optional="hide" decoration-danger="gap_delivery != 0" decoration-success="gap_delivery == 0"/>
+                <field name="delivery_status" optional="show" decoration-info="delivery_status == 'draft'" decoration-warning="delivery_status in ('waiting', 'confirmed')" decoration-success="delivery_status == 'done'" decoration-danger="delivery_status == 'cancel'"/>
+                
+                <!-- 3. Receipt Info -->
+                <field name="receipt_picking_id" string="Receipt Ref" optional="show"/>
+                <field name="receipt_date" optional="hide"/>
+                <field name="physical_receipt_date" optional="hide"/>
+                <field name="in_initial_qty" string="Receipt Demand Qty" sum="Total Receipt Demand" optional="show"/>
+                <field name="in_actual_qty" string="Receipt Actual Qty" sum="Total Receipt Actual" decoration-bf="1" optional="show"/>
+                <field name="gap_receipt" string="Gap Receipt" sum="Total Gap Receipt" optional="hide" decoration-danger="gap_receipt != 0" decoration-success="gap_receipt == 0"/>
+                <field name="unit_price" string="Unit Price" optional="show"/>
+                <field name="total_amount" string="Total Amount" sum="Total Amount" optional="show"/>
+                <field name="receipt_status" optional="show" decoration-info="receipt_status == 'draft'" decoration-warning="receipt_status in ('waiting', 'confirmed')" decoration-success="receipt_status == 'done'" decoration-danger="receipt_status == 'cancel'"/>
+                
+                <!-- 4. Source & Pricing -->
+
+                <!-- 5. Conclusion -->
+                <field name="fulfillment_rate" widget="percentage" string="Fulfillment %" decoration-success="fulfillment_rate &gt;= 1.0" decoration-warning="fulfillment_rate &lt; 1.0 and fulfillment_rate &gt; 0.0" decoration-danger="fulfillment_rate == 0.0" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_report_monitoring_sto_pivot" model="ir.ui.view">
+        <field name="name">report.monitoring.sto.pivot</field>
+        <field name="model">report.monitoring.sto</field>
+        <field name="arch" type="xml">
+            <pivot string="Monitoring STO" disable_linking="True">
+                <field name="product_id" type="row"/>
+                <field name="destination_site_id" type="col"/>
+                <field name="pr_demand_qty" type="measure"/>
+                <field name="do_actual_qty" type="measure"/>
+                <field name="gap_delivery" type="measure"/>
+                <field name="in_actual_qty" type="measure"/>
+                <field name="gap_receipt" type="measure"/>
+                <field name="fulfillment_rate" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <record id="view_report_monitoring_sto_search" model="ir.ui.view">
+        <field name="name">report.monitoring.sto.search</field>
+        <field name="model">report.monitoring.sto</field>
+        <field name="arch" type="xml">
+            <search string="Search Monitoring STO">
+                <field name="transfer_id"/>
+                <field name="delivery_picking_id"/>
+                <field name="receipt_picking_id"/>
+                <field name="snk_pos_ref"/>
+                <field name="product_id" filter_domain="['|', '|', ('product_id', 'ilike', self), ('product_default_code', 'ilike', self), ('product_tmpl_default_code', 'ilike', self)]"/>
+                <field name="source_site_id"/>
+                <field name="destination_site_id"/>
+                <field name="analytic_id"/>
+                <field name="snk_grade_id"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_src_site" string="Source Site" context="{'group_by':'source_site_id'}"/>
+                    <filter name="group_dest_site" string="Destination Site" context="{'group_by':'destination_site_id'}"/>
+                    <filter name="group_product" string="Product Variant" context="{'group_by':'product_id'}"/>
+                    <filter name="group_product_template" string="Product Template" context="{'group_by':'product_template_id'}"/>
+                    <filter name="group_brand" string="Brand" context="{'group_by':'analytic_id'}"/>
+                    <filter name="group_grade" string="Grade" context="{'group_by':'snk_grade_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by':'date:month'}"/>
+                    <filter name="group_delivery" string="Delivery" context="{'group_by':'delivery_picking_id'}"/>
+                    <filter name="group_delivery_status" string="Delivery Status" context="{'group_by':'delivery_status'}"/>
+                    <filter name="group_receipt" string="Receipt" context="{'group_by':'receipt_picking_id'}"/>
+                    <filter name="group_receipt_status" string="Receipt Status" context="{'group_by':'receipt_status'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_report_monitoring_sto_window" model="ir.actions.act_window">
+        <field name="name">Monitoring STO</field>
+        <field name="res_model">report.monitoring.sto</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="search_view_id" ref="view_report_monitoring_sto_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_monitoring_sto'))]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data Monitoring STO.
+            </p>
+            <p>
+                Klik tombol <b>Generate Report</b> untuk menarik riwayat STO / Manual Transit beserta pencapaian Delivery dan Receipt.
+            </p>
+        </field>
+    </record>    
+</odoo>

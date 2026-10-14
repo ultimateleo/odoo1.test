@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_report_stock_balance_site_gudang_wizard_form" model="ir.ui.view">
+        <field name="name">report.stock.balance.site.gudang.wizard.form</field>
+        <field name="model">report.stock.balance.site.gudang.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Stock Balance Site vs Gudang">
+                <div class="alert alert-info" role="alert" style="margin-bottom: 20px;">
+                    <strong>Petunjuk:</strong><br/>
+                    Pilih Site dan Gudang untuk menarik report Stock Balance Site vs Gudang.<br/>
+                    Sistem akan otomatis menghitung <strong>Available Stock</strong> dari seluruh site yang dipilih.<br/>
+                    Sistem akan otomatis menghitung <strong>Stock Gudang</strong> dari seluruh gudang yang dipilih.<br/>
+                    Pilih Brand, Category, Grade, Product Template dan Product untuk memfilter data. Persempit(lebih spesifik) data yang dipilih untuk menjaga performa.
+                </div>
+                <group>
+                    <group string="Locations">
+                        <field name="site_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="gudang_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group string="Filters (Optional)">
+                        <field name="analytic_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="category_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="grade_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="product_tmpl_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="product_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate" string="Generate Report" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_report_stock_balance_site_gudang_wizard" model="ir.actions.act_window">
+        <field name="name">Stock Balance Site vs Gudang</field>
+        <field name="res_model">report.stock.balance.site.gudang.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- Menu Item -->
+    <!-- <menuitem id="menu_report_stock_balance_site_gudang"
+              name="Stock Balance Site vs Gudang"
+              parent="menu_reports_inventory_mesa"
+              action="action_report_stock_balance_site_gudang"
+              sequence="125"/> -->
+
+</odoo>

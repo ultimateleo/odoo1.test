@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_default_type_sequence" model="ir.sequence">
+            <field name="name">Default Type Sequence</field>
+            <field name="code">snk.default.type.number</field>
+            <field name="prefix">%(year)s%(month)s</field>
+            <field eval="1" name="number_next" />
+            <field eval="1" name="number_increment" />
+            <field name="padding">4</field>
+            <field name="company_id" eval="False" />
+        </record>
+    </data>
+    <record id="view_purchase_requisition_filter" model="ir.ui.view">
+        <field name="name">purchase.requisition.filter</field>
+        <field name="model">purchase.requisition</field>
+        <field
+            name="inherit_id"
+            ref="purchase_requisition.view_purchase_requisition_filter"
+        />
+
+        <field name="arch" type="xml">
+            <search position="inside">
+                <field name="snk_pr_number" string="PR Number"
+                    filter_domain="[('snk_pr_number', 'ilike', self)]" />
+            </search>
+            <filter name="my_agreements" position="after">
+                <separator />
+                <filter
+                    name="needs_review"
+                    string="Needs my Review"
+                    domain="[('reviewer_ids', 'in', uid), ('state', 'not in', ['ongoing', 'in_progress', 'done', 'cancel'])]"
+                    help="My Purchase Agreements to review"
+                />
+                <filter
+                    name="tier_validated"
+                    string="Validated"
+                    domain="[('validated', '=', True)]"
+                    help="Purchase Agreements validated and ready to be confirmed"
+                />
+            </filter>
+        </field>
+    </record>
+
+    <record id="snk_purchase_requisition_form_inherit" model="ir.ui.view">
+        <field name="name">snk.purchase.requisition.form.view.inherit</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='requisition_type']" position="after">
+                <field name="snk_purchase_type_id" required="1"
+                    domain="[('snk_type', '=', 'agreement')]" />
+                <field name="snk_pr_number" readonly="1" />
+            </xpath>
+            <xpath expr="//field[@name='reference']" position="after">
+                <field name="analytic_account_ids" required="1" widget="many2many_tags" />
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_id']" position="after">
+                <field name="analytic_account_id" />
+                <field name="template_code" optional="show" readonly="1" />
+                <field name="variant_reference" optional="show" readonly="1" />
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_id']"
+                position="attributes">
+                <attribute name="domain"><![CDATA[[('analytic_id', 'in', parent.analytic_account_ids)] if parent.analytic_account_ids else []]]></attribute>
+            </xpath>
+
+            <xpath
+                expr="//button[@name='%(purchase_requisition.action_purchase_requisition_to_so)d']"
+                position="attributes">
+                <attribute name="context">{
+                    'default_analytic_account_ids': analytic_account_ids,
+                    'default_reference': reference,
+                    'default_snk_site_id': snk_site_id,
+                    }
+                </attribute>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_description_variants']"
+                position="after">
+                <field name="snk_material_code" optional="show" />
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_id']" position="before">
+                <field name="product_product_id" />
+            </xpath>
+            <xpath expr="//field[@name='vendor_id']" position="attributes">
+                <attribute name="domain">[('supplier_rank','>', 0)]
+                </attribute>
+            </xpath>
+            <xpath expr="//group/field[@name='company_id']" position="after">
+                <field name="snk_approve" />
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list/field[@name='product_uom_id']"
+                position="after">
+                <field name="snk_remaining_order" readonly="0" />
+            </xpath>
+            <xpath expr="//field[@name='line_ids']/list" position="inside">
+                <control>
+                    <create name="add_product_control" string="Add a line" />
+                    <button name="action_add_from_catalog" string="Catalog" type="object"
+                        class="px-4 btn-link" context="{'order_id': parent.id}" />
+                </control>
+            </xpath>
+            <xpath expr="//field[@name='reference']" position="after">
+                <field name="date_planned" />
+            </xpath>
+
+            <xpath expr="//field[@name='picking_type_id']" position="before">
+                <field name="snk_site_id" required="1" />
+                <field name="snk_site_name" />
+                <field name="snk_site_warehouse_id" invisible="1" />
+            </xpath>
+            <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                <attribute name="domain">[('code','=','incoming'), ('warehouse_id', '=',
+                    snk_site_warehouse_id)] if snk_site_id else ['|',('warehouse_id', '=', False),
+                    ('warehouse_id.company_id', '=', company_id)]</attribute>
+            </xpath>
+
+
+        </field>
+    </record>
+    <record id="snk_purchase_requisition_tree_inherit" model="ir.ui.view">
+        <field name="name">snk.purchase.requisition.tree.view.inherit</field>
+        <field name="model">purchase.requisition</field>
+        <field name="inherit_id" ref="purchase_requisition.view_purchase_requisition_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="before">
+                <field name="snk_pr_number" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+
+</odoo>

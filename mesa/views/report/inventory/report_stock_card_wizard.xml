@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="snk_report_stock_card_wizard_view" model="ir.ui.view">
+        <field name="name">snk.report.stock.card.wizard.view</field>
+        <field name="model">snk.report.stock.card.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Stock Card">
+                <div class="alert alert-info" role="alert" style="margin-bottom: 20px;">
+                    <strong>Petunjuk:</strong>
+                    Pilih Site dan Periode untuk menarik report Stock Card.
+                    Sistem akan otomatis menghitung <strong>Initial Balance</strong> dari seluruh mutasi sebelum Start Date.
+                    Data historis hasil penarikan sebelumnya akan tertimpa secara otomatis untuk menjaga performa.
+                </div>
+                
+                <group>
+                    <group string="Filter Parameter">
+                        <field name="site_id" options="{'no_create': True, 'no_open': True}"/>
+                        <label for="date_start" string="Period"/>
+                        <div class="o_row">
+                            <field name="date_start" widget="datetime"/>
+                            <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                            <field name="date_end" widget="datetime"/>
+                        </div>
+                    </group>
+                    <group string="Display Options">
+                        <field name="group_by" widget="radio"/>
+                    </group>
+                </group>
+
+                <footer>
+                    <!-- Menggunakan btn-primary supaya mencolok -->
+                    <button name="action_generate" type="object" string="Generate Report" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action untuk memanggil wizard -->
+    <record id="action_snk_report_stock_card_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Stock Card</field>
+        <field name="res_model">snk.report.stock.card.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

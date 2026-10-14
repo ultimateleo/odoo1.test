@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="server_action_form_inherit" model="ir.ui.view">
+        <field name="name">server.action.view.form.inherit</field>
+        <field name="model">ir.actions.server</field>
+        <field name="inherit_id" ref="base.view_server_action_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='model_id']" position="after">
+                <field name="confirmation_active" widget="boolean_toggle"/>
+                <field name="confirmation" invisible="confirmation_active == False"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--list view-->
+        <record id="snk_pi_outbound_view_list" model="ir.ui.view">
+            <field name="name">snk.pi.outbound.view.list</field>
+            <field name="model">snk.pi.outbound</field>
+            <field name="arch" type="xml">
+                <list create="0" edit="1" duplicate="0" limit="100" sample="1">
+                    <field name="name"/>
+                    <field name="ref_data"/>
+                    <field name="state"
+                        decoration-success="state == 'done'"
+                        decoration-info="state == 'pending'"
+                        decoration-danger="state == 'failed'"
+                        decoration-warning="state == 'duplicated'"
+                        widget="badge"/>
+                    <field name="log_info"/>
+                    <field name="origin" optional="hide"/>
+                    <field name="brand" optional="hide"/>
+                    <field name="create_uid" optional="hide"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="write_uid" optional="hide"/>
+                    <field name="write_date" optional="hide"/>
+                    <field name="resend_count" optional="hide"/>
+                    <field name="last_resend_reason" optional="hide"/>
+                    <field name="last_resend_at" optional="hide"/>
+                    <field name="last_resend_uid" optional="hide"/>
+                    <field name="data" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="snk_pi_outbound_view_form" model="ir.ui.view">
+            <field name="name">snk.pi.outbound.view.form</field>
+            <field name="model">snk.pi.outbound</field>
+            <field name="arch" type="xml">
+                <form string="Outbound Record">
+                    <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="state in 'done'"/>
+                            <field name="ref_data" readonly="1"/>
+                            <field name="ref_model" readonly="1"/>
+                            <field name="ref_id" readonly="1"/>
+                            <field name="origin" readonly="1"/>
+                            <field name="brand" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="state"
+                                widget="badge"
+                                decoration-success="state == 'done'"
+                                decoration-warning="state == 'duplicated'"
+                                decoration-info="state == 'pending'"
+                                decoration-danger="state == 'failed'"/>
+                            <field name="resend_count" readonly="1"/>
+                            <field name="last_resend_reason" readonly="1"/>
+                            <field name="last_resend_at" readonly="1"/>
+                            <field name="last_resend_uid" readonly="1"/>
+                            <field name="log_info" widget="html" readonly="1"/>
+                        </group>
+                    </group>
+                        <group string="Data">
+                            <field name="data" readonly="state in 'done'"/>
+                            <!-- <field name="create_uid" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                            <field name="write_uid" readonly="1"/>
+                            <field name="write_date" readonly="1"/> -->
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!--search view-->
+        <record id="snk_pi_outbound_view_search" model="ir.ui.view">
+            <field name="name">snk.pi.outbound.view_search</field>
+            <field name="model">snk.pi.outbound</field>
+            <field name="arch" type="xml">
+                <search string="Outbound">
+                    <field name="name" string="Reference"/>
+                    <field name="data" string="Data"/>
+                    <field name="origin" string="Origin"/>
+                    <field name="brand" string="Brand"/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                    <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                    <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Data" name="ref_data" domain="[]" context="{'group_by': 'ref_data'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!--menu action-->
+        <record id="snk_pi_outbound_view_action" model="ir.actions.act_window">
+            <field name="name">Outbound</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.pi.outbound</field>
+            <field name="path">snk-pi-outbound</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No Outbound for display
+                </p><p>
+                    The Outbound be displayed here.
+                </p>
+            </field>
+        </record>
+
+        <!--menus-->
+        <menuitem id="snk_pi_outbound_menu" action="snk_pi_outbound_view_action" parent="snk_pi_integration_menu" sequence="1"/>
+
+        <!--action_server-->
+        <record id="snk_action_outbound_process" model="ir.actions.server">
+            <field name="name">Process</field>
+           <field name="model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_process()
+           </field>
+        </record>
+
+        <record id="snk_action_outbound_cancel" model="ir.actions.server">
+            <field name="name">Cancel</field>
+           <field name="model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_cancel()
+           </field>
+            <field name="confirmation_active" eval="True"/>
+            <field name="confirmation">This action will cancel all selected data.
+Are you sure will perform this action?</field>
+        </record>
+
+        <record id="snk_action_outbound_retry" model="ir.actions.server">
+            <field name="name">Retry</field>
+           <field name="model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_outbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_retry()
+           </field>
+        </record>
+
+        <record id="snk_action_outbound_resend" model="ir.actions.server">
+            <field name="name">Resend to SFTP</field>
+            <field name="model_id" ref="mesa.model_snk_pi_outbound"/>
+            <field name="binding_model_id" ref="mesa.model_snk_pi_outbound"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">action</field>
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_open_resend_wizard()
+            </field>
+        </record>
+    </data>
+
+    <record id="snk_pi_outbound_opening_balance_action" model="ir.cron">
+        <field name="name">Integration : outgoing data - opening balance</field>
+        <field name="model_id" ref="model_snk_pi_outbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_opening_balance()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_pi_outbound_process_action" model="ir.cron">
+        <field name="name">Integration : outgoing data - process</field>
+        <field name="model_id" ref="model_snk_pi_outbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_process(type='store', brand=False)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+
+    <record id="snk_pi_outbound_synchronize_action" model="ir.cron">
+        <field name="name">Integration : outgoing data - synchronize</field>
+        <field name="model_id" ref="model_snk_pi_outbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_synchronize(ref_data=False)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+</odoo>

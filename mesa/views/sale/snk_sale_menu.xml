@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Search view inherit untuk Pricelist Item -->
+    <record id="snk_view_pricelist_items_search" model="ir.ui.view">
+        <field name="name">product.pricelist.item.search.inherit</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//search" position="inside">
+                <field name="template_reference"
+                    string="Internal Reference"
+                    filter_domain="['|', '|', '|', '|', ('template_reference', 'ilike', self), ('variant_reference', 'ilike', self), ('product_tmpl_id', 'ilike', self), ('product_id', 'ilike', self), ('pricelist_id', 'ilike', self)]" />
+                <field name="variant_reference" />
+            </xpath>
+        </field>
+    </record>
+    <!-- View List Pricelist Item Custom -->
+    <record id="snk_view_pricelist_items_list" model="ir.ui.view">
+        <field name="name">snk.product.pricelist.item.list</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_tree_view" />
+        <field name="arch" type="xml">
+            <!-- <xpath expr="//list" position="before"> -->
+            <!-- </xpath> -->
+            <xpath expr="//list" position="replace">
+                <list string="Pricelist Items">
+                    <header>
+                        <button string="Export Latest Pricelist"
+                            name="action_export_latest_items"
+                            type="object"
+                            class="btn btn-secondary"
+                            display="always" />
+                    </header>
+                    <field name="applied_on" optional="hide" />
+                    <field name="product_tmpl_id" />
+                    <field name="product_id" optional="show" />
+                    <field name="template_reference" optional="hide" />
+                    <field name="variant_reference" optional="hide" />
+                    <!-- <field name="product_active" optional="hide" widget="boolean_toggle" /> -->
+                    <field name="date_start" optional="show" />
+                    <field name="date_end" optional="hide" />
+                    <field name="analytic_id" optional="hide" />
+                    <field name="snk_grade_id" optional="hide" />
+                    <field name="fixed_price" optional="show" groups="mesa.group_snk_view_cost_price" />
+                </list>
+
+
+            </xpath>
+
+
+        </field>
+    </record>
+
+    <!-- Form inherit -->
+    <record id="snk_view_pricelist_item_form" model="ir.ui.view">
+        <field name="name">product.pricelist.item.form.inherit</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view" />
+        <field name="arch" type="xml">
+            <field name="display_applied_on" position="before">
+                <field name="pricelist_id" />
+            </field>
+            <!-- <field name="pricelist_id" position="after">
+                <field name="applied_on"/>
+            </field> -->
+            <field name="product_tmpl_id" position="after">
+                <field name="template_reference" />
+            </field>
+            <field name="product_id" position="after">
+                <field name="variant_reference" invisible="not product_id" />
+                <field name="snk_grade_id" />
+                <field name="analytic_id" />
+            </field>
+        </field>
+    </record>
+
+    <!-- Action pakai name (bukan ref id) -->
+    <record id="action_product_pricelist_item_list" model="ir.actions.act_window">
+        <field name="name">Pricelist Item</field>
+        <field name="res_model">product.pricelist.item</field>
+        <field name="view_mode">list,form</field>
+        <!-- <field name="search_view_id" ref="snk_view_pricelist_items_search" /> -->
+        <field name="context">{}</field>
+        <!-- Domain: Tampilkan semua items (template dan variant) -->
+        <field name="domain">[('pricelist_active', '=', True), '|', ('product_active', '=', True), ('product_template_active', '=', True)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Buat item daftar harga untuk menetapkan aturan harga spesifik untuk produk.
+            </p>
+            <p>
+                Definisikan harga khusus, diskon, dan kondisi penetapan harga khusus
+                untuk pelanggan yang berbeda, kategori produk, atau kuantitas tertentu.
+            </p>
+        </field>
+    </record>
+
+
+    <!-- Menu Item -->
+    <menuitem id="menu_product_pricelist_items"
+        name="Pricelist Items"
+        action="action_product_pricelist_item_list"
+        groups="product.group_product_pricelist"
+        parent="sale.product_menu_catalog"
+        sequence="35" />
+</odoo>

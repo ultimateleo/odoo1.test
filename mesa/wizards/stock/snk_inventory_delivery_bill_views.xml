@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_stock_inventory_delivery_bill_wizard_form" model="ir.ui.view">
+            <field name="name">snk.stock.inventory.delivery.bill.wizard.form</field>
+            <field name="model">snk.inventory.delivery.bill.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create Shipping Bills">
+                    <group>
+                        <group>
+                            <field name="snk_carrier_id"/>
+                            <field name="snk_partner_id"/>
+                            <field name="snk_journal_id"/>
+                        </group>
+                        <group>
+                            <field name="snk_bill_date"/>
+                            <field name="snk_product_id"/>
+                            <field name="company_id" invisible="1"/>
+                            <label for="snk_amount"/>
+                            <div class="d-flex">
+                                <field name="snk_amount"/>
+                                <span class="o_form_label mx-3 oe_edit_only">
+                                    <span>in </span>
+                                </span>
+                                <div class="w-100" style="white-space: pre;">
+                                    <field name="currency_id" readonly="0" class="oe_inline" options="{'no_create': True}" context="{'search_default_active': 1, 'search_default_inactive': 1}"/>
+                                </div>
+                            </div>
+                            <field name="snk_memo"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Create" type="object" name="action_create_bill" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

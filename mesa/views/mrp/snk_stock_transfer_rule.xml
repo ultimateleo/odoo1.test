@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--list view-->
+        <record id="snk_stock_transfer_rule_view_list" model="ir.ui.view">
+            <field name="name">snk.stock.rule.view.list</field>
+            <field name="model">snk.stock.rule</field>
+            <field name="arch" type="xml">
+                <list editable="top">
+                    <field name="active" invisible="1"/>
+                    <field name="site_id" />
+                    <field name="partner_id" />
+                    <!-- <field name="days" invisible="1" /> -->
+                    <!-- <field name="warehouse_ids" widget="many2many_tags" /> -->
+                    <field name="warehouse_id" />
+                    <field name ="source_site_id"/>
+                    <field name="source_warehouse_id" />
+                    <field name="location_id" optional="hide" />
+                    <!-- <field name="location_ids" widget="many2many_tags" optional="hide" /> -->
+                    <field name="company_id" />
+                    <field name="product_id" />
+                    <field name="template_reference" optional="show" readonly="1" />
+                    <field name="variant_reference" optional="show" readonly="1" />
+                    <field name="reorder_point" />
+                    <field name="target_point" />
+                    <field name="analytic_id" optional="hide" readonly="1" />
+                    <field name="grade_id" optional="hide" readonly="1" />
+                    <field name="available_route_ids" widget="many2many_tags" column_invisible="1" />
+                    <field name="route_ids" widget="many2many_tags" optional="hide" domain="[('id', 'in', available_route_ids)]" />
+                    <field name="available_qty" optional="hide" readonly="1" />
+                    <field name="min_stock" />
+                    <field name="max_stock" />
+                    <field name="to_order" />
+                </list>
+            </field>
+        </record>
+
+        <!-- Search view -->
+        <record id="snk_stock_rule_view_search" model="ir.ui.view">
+            <field name="name">snk.stock.rule.view.search</field>
+            <field name="model">snk.stock.rule</field>
+            <field name="arch" type="xml">
+                <search string="Search Stock Rule">
+                    <field name="site_id"/>
+                    <field name="source_site_id"/>
+                    <field name="product_id"/>
+                    <field name="warehouse_id"/>
+                    <separator/>
+                    <filter string="Active" name="active" domain="[('active', '=', True)]"/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                    <filter string="Active Product" name="active_product" domain="[('product_id.active', '=', True)]"/>
+                    <filter string="Has Order" name="has_order" domain="[('to_order', '>', 0)]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter string="Site" name="group_by_site" context="{'group_by': 'site_id'}"/>
+                        <filter string="Source Site" name="group_by_source_site" context="{'group_by': 'source_site_id'}"/>
+                        <filter string="Product" name="group_by_product" context="{'group_by': 'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="snk_stock_rule_action" model="ir.actions.act_window">
+            <field name="name">Stock Rule</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.stock.rule</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_active': 1}</field>
+        </record>
+
+        
+
+        <menuitem
+            id="snk_mrp_stock_transfer_order_configuration_view_main"
+            parent="snk_mrp_view_menu_root"
+            name="Configuration"
+            groups="group_snk_configuration_user,group_snk_configuration_admin"
+            sequence="10" />
+        <menuitem
+            id="snk_mrp_ir_cron_menu"
+            parent="snk_mrp_stock_transfer_order_configuration_view_main"
+            name="Scheduled Action"
+            action="snk_mrp_ir_cron_act"
+            sequence="0"/>
+        <menuitem
+            id="snk_mrp_stock_rule_menu_main"
+            parent="snk_mrp_stock_transfer_order_configuration_view_main"
+            name="Stock Rule"
+            action="snk_stock_rule_action"
+            sequence="1" />
+    </data>
+</odoo>

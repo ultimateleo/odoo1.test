@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Action Wizard — harus di atas view list yang mereferensikannya via %(...)d -->
+    <record id="action_snk_report_stock_periode_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Stock Summary</field>
+        <field name="res_model">snk.report.stock.periode.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_snk_report_stock_periode"/>
+        <field name="binding_view_types">list</field>
+    </record>
+
+    <!-- View List Utama untuk Report Stock Periode / Summary -->
+    <record id="view_snk_report_stock_periode_tree" model="ir.ui.view">
+        <field name="name">snk.report.stock.periode.tree</field>
+        <field name="model">snk.report.stock.periode</field>
+        <field name="arch" type="xml">
+            <list string="Stock Summary" create="false" edit="false" delete="false">
+                <header>
+                    <button name="%(action_snk_report_stock_periode_wizard)d" type="action" string="Generate Report" class="btn-primary" display="always"/>
+                </header>
+                <field name="period_name"/>
+                <field name="site_id" optional="show"/>
+                <field name="template_default_code" optional="show"/>
+                <field name="default_code" optional="show"/>
+                <field name="product_id" optional="show"/>
+                <field name="category_id" optional="show"/>
+                <field name="analytic_id" optional="show"/>
+                <field name="snk_grade_id" optional="show"/>
+
+                <!-- Quantities -->
+                <field name="opening_balance" sum="Total Opening"/>
+                <field name="qty_in" sum="Total IN"/>
+                <field name="qty_sales_return" sum="Total SALES RETURN"/>
+                <field name="qty_sales" sum="Total SALES"/>
+                <field name="qty_out" sum="Total OUT"/>
+                <field name="qty_adj_in" sum="Total ADJUSTMENT IN" optional="show"/>
+                <field name="qty_adj_out" sum="Total ADJUSTMENT OUT" optional="show"/>
+                
+                <field name="ending_balance" sum="Total Ending"/>
+                
+                <!-- Pricing -->
+                <field name="currency_id" column_invisible="1"/>
+                <field name="price_unit" optional="show" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                <field name="total_amount" sum="Total Amount" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Mengikuti Wizard: Search, Filter, Group By -->
+    <record id="view_snk_report_stock_periode_search" model="ir.ui.view">
+        <field name="name">snk.report.stock.periode.search</field>
+        <field name="model">snk.report.stock.periode</field>
+        <field name="arch" type="xml">
+            <search string="Stock Summary Search">
+                <field name="product_id" string="Product"/>
+                <field name="template_default_code"/>
+                <field name="default_code"/>
+                <field name="category_id"/>
+                <field name="analytic_id"/>
+                <field name="snk_grade_id"/>
+                
+                <separator/>
+                <group expand="0" string="Group By">
+                    <filter string="Period" name="group_period" context="{'group_by':'period_name'}"/>
+                    <filter string="Site" name="group_site" context="{'group_by':'site_id'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by':'category_id'}"/>
+                    <filter string="Brand" name="group_brand" context="{'group_by':'analytic_id'}"/>
+                    <filter string="Grade" name="group_grade" context="{'group_by':'snk_grade_id'}"/>
+                    <filter string="Product Template" name="group_template" context="{'group_by':'product_template_id'}"/>
+                    <filter string="Product Variant" name="group_product" context="{'group_by':'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- View Pivot -->
+    <record id="view_snk_report_stock_periode_pivot" model="ir.ui.view">
+        <field name="name">snk.report.stock.periode.pivot</field>
+        <field name="model">snk.report.stock.periode</field>
+        <field name="arch" type="xml">
+            <pivot string="Stock Summary Analysis" sample="1">
+                <field name="period_name" type="col"/>
+                <field name="site_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="ending_balance" type="measure"/>
+                <field name="total_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Wizard Form -->
+    <record id="view_snk_report_stock_periode_wizard_form" model="ir.ui.view">
+        <field name="name">snk.report.stock.periode.wizard.form</field>
+        <field name="model">snk.report.stock.periode.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Stock Summary">
+                <sheet>
+                    <group>
+                        <group string="Period &amp; Site">
+                            <field name="site_id" options="{'no_create': True}"/>
+                            <field name="interval_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="date_start" widget="date"/>
+                            <field name="date_end" widget="date"/>
+                        </group>
+                        <group string="Filters">
+                            <field name="category_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="template_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="product_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="analytic_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="snk_grade_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_generate" string="Generate Report" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action untuk membuka report result -->
+    <record id="action_snk_report_stock_periode_result" model="ir.actions.act_window">
+        <field name="name">Stock Summary</field>
+        <field name="res_model">snk.report.stock.periode</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="search_view_id" ref="view_snk_report_stock_periode_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_summary'))]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data Stock Summary.
+            </p>
+            <p>
+                Klik tombol <b>Generate Report</b> di bagian atas list untuk menarik laporan Mutasi Anda.
+            </p>
+        </field>
+    </record>
+
+</odoo>

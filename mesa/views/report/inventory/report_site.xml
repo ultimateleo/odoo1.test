@@ -1,0 +1,75 @@
+<odoo>
+    <data>
+       <record id="view_snk_site_list_report" model="ir.ui.view">
+            <field name="name">snk.site.list.report</field>
+            <field name="model">snk.site</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="full_name"/>
+                    <field name="snk_code"/>
+                    <field name="company_id"/>
+                    <field name="customer_id" optional="hide"/>
+                    <field name="partner_id" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="industry_id" optional="hide"/>
+                    <field name="snk_analytic_id" optional="hide" required="1"/>
+                    <field name="snk_tag_ids" optional="hide" widget="many2many_tags"/>
+                    <field name="snk_grade_id" optional="hide"/>
+                    <field name="snk_pos_status" optional="hide"/>
+                    <field name="snk_state"/>
+                    <field name="snk_reason_id" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <!-- <record id="view_snk_site_form_report" model="ir.ui.view">
+            <field name="name">snk.site.form.report</field>
+            <field name="model">snk.site</field>
+            <field name="inherit_id" ref="mesa.view_snk_site_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="replace">
+                    <header/>
+                </xpath>
+            </field>
+        </record> -->
+
+        <record id="action_snk_site_report" model="ir.actions.act_window">
+            <field name="name">Sites</field>
+            <field name="res_model">snk.site</field>
+            <field name="view_mode">list,form</field>
+            <field name="views" eval="[
+                (ref('view_snk_site_list_report'), 'list'),
+                (ref('view_snk_site_form'), 'form')
+            ]"/>
+            <field name="groups_id" eval="[(4, ref('mesa.group_report_sites'))]"/>
+            <field name="domain">[]</field>
+            <field name="context">{ 'create': False, 'edit': False, 'delete': False }</field>
+        </record>
+
+        <record id="view_snk_site_history_list_report" model="ir.ui.view">
+            <field name="name">snk.site.history.list.report</field>
+            <field name="model">snk.site.history</field>
+            <field name="arch" type="xml">
+                <list string="Site History">
+                    <field name="name" string="Reason"/>
+                    <field name="site_id"/>
+                    <field name="action"/>
+                    <field name="datetime"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_snk_site_history_report" model="ir.actions.act_window">
+            <field name="name">Sites History</field>
+            <field name="res_model">snk.site.history</field>
+            <field name="view_mode">list,pivot</field>
+            <field name="views" eval="[
+                (ref('view_snk_site_history_list_report'), 'list')
+            ]"/>
+            <field name="groups_id" eval="[(4, ref('mesa.group_report_sites_history'))]"/>
+            <field name="domain">[]</field>
+            <field name="context">{ 'create': False, 'edit': False, 'delete': False }</field>
+        </record>
+    </data>
+</odoo>

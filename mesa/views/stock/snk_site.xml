@@ -1,0 +1,308 @@
+<odoo>
+    <data>
+        <!-- List View -->
+        <record id="view_snk_site_list" model="ir.ui.view">
+            <field name="name">snk.site.list</field>
+            <field name="model">snk.site</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="full_name"/>
+                    <field name="snk_code"/>
+                    <field name="company_id"/>
+                    <field name="customer_id" optional="hide"/>
+                    <field name="partner_id" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="industry_id" optional="hide"/>
+                    <field name="snk_analytic_id" optional="hide" required="1"/>
+                    <field name="snk_tag_ids" optional="hide" widget="many2many_tags"/>
+                    <field name="snk_grade_id" optional="hide"/>
+                    <field name="snk_pos_status" optional="hide"/>
+                    <field name="snk_state"/>
+                    <field name="snk_reason_id" optional="hide"/>
+
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_snk_site_form" model="ir.ui.view">
+            <field name="name">snk.site.form</field>
+            <field name="model">snk.site</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="snk_state" widget="statusbar"/>
+                        <!-- <button name="action_create" string="Save" type="object" class="btn-primary"/> -->
+                        <button name="action_open" string="Open" type="object" class="btn-primary" invisible="snk_state != 'new'" groups="stock.group_stock_manager"/>
+                        <button name="action_close" string="Close" type="object" class="btn-primary" invisible="snk_state != 'open'" groups="stock.group_stock_manager"/>
+                        <button name="action_reopen" string="Re-Open" type="object" class="btn-primary" invisible="snk_state != 'close'" groups="stock.group_stock_manager"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="snk_name"/>
+                                <field name="snk_code"/>
+                                <field name="company_id"/>
+                                <field name="customer_id"/>
+                                <field name="partner_id"/>
+                                <field name="snk_lead_time"/>
+                                <field name="delay_lead_time"/>
+                                <field name="expected_arrival_time"/>
+                            </group>
+                            <group>
+                                <field name="warehouse_id"/>
+                                <field name="industry_id"/>
+                                <field name="snk_analytic_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                                <field name="snk_grade_id"/>
+                                <field name="snk_tag_ids" widget="many2many_tags" options="{'no_create': False}"/>
+                                <field name="snk_pos_status" />
+                                <field name="snk_reason_id" invisible="snk_state != 'close'"/>
+                            </group>
+                        </group>
+                        <notebook colspan="4">
+                            <page string="Contacts &amp; Addresses" name="contact_addresses" autofocus="autofocus">
+                                <field name="contact_ids" mode="kanban">
+                                    <kanban color="color">
+                                        <field name="color"/>
+                                        <field name="type"/>
+                                        <field name="is_company"/>
+                                        <templates>
+                                            <t t-name="card" class="flex-row">
+                                                <aside class="o_kanban_aside_full">
+                                                    <field name="avatar_128" class="o_kanban_image_fill w-100" widget="image" options="{'img_class': 'object-fit-cover'}" alt="Contact image"/>
+                                                </aside>
+                                                <main class="ps-2 ps-md-0">
+                                                    <field name="name" class="fw-bold"/>
+                                                    <field name="function"/>
+                                                    <field name="email" widget="email"/>
+                                                    <div t-if="record.type.raw_value != 'contact'">
+                                                        <div>
+                                                            <field class="me-1" name="zip"/>
+                                                            <field name="city"/>
+                                                        </div>
+                                                        <field class="me-1" name="state_id"/>
+                                                        <field name="country_id"/>
+                                                    </div>
+                                                    <div t-if="record.phone.raw_value">Phone: <field name="phone"/></div>
+                                                    <div t-if="record.mobile.raw_value">Mobile: <field name="mobile"/></div>
+                                                </main>
+                                            </t>
+                                        </templates>
+                                    </kanban>
+                                    <form string="Contact / Address">
+                                        <sheet>
+                                            <field name="type" required="1" widget="radio" options="{'horizontal': true}"/>
+                                            <div class="text-muted oe_edit_only">
+                                                <p class="mb-0" invisible="type != 'contact'">
+                                                    <span>Use this to organize the contact details of employees of a given company (e.g. CEO, CFO, ...).</span>
+                                                </p>
+                                                <p class="mb-0" invisible="type != 'invoice'">
+                                                    <span>Preferred address for all invoices. Selected by default when you invoice an order that belongs to this company.</span>
+                                                </p>
+                                                <p class="mb-0" invisible="type != 'delivery'">
+                                                    <span>Preferred address for all deliveries. Selected by default when you deliver an order that belongs to this company.</span>
+                                                </p>
+                                                <p class="mb-0" invisible="type != 'other'">
+                                                    <span>Other address for the company (e.g. subsidiary, ...)</span>
+                                                </p>
+                                            </div>
+                                            <hr/>
+                                            <group>
+                                                <group>
+                                                    <field name="name" string="Contact Name" required="type == 'contact'"
+                                                            placeholder="e.g. New Address"/>
+                                                    <field name="title" options="{'no_open': True}" placeholder="e.g. Mr."
+                                                        invisible="type != 'contact'"/>
+                                                    <field name="function" placeholder="e.g. Sales Director"
+                                                        invisible="type != 'contact'"/>
+                                                    <label for="street" string="Address" invisible="type == 'contact'"/>
+                                                    <div invisible="type == 'contact'">
+                                                        <div class="o_address_format" name="div_address">
+                                                            <field name="street" placeholder="Street..." class="o_address_street"/>
+                                                            <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                                            <field name="city" placeholder="City" class="o_address_city"/>
+                                                            <field name="state_id" class="o_address_state" placeholder="State" options="{'no_open': True, 'no_quick_create': True}" context="{'country_id': country_id, 'default_country_id': country_id, 'zip': zip}"/>
+                                                            <field name="zip" placeholder="ZIP" class="o_address_zip"/>
+                                                            <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+                                                        </div>
+                                                    </div>
+                                                </group>
+                                                <group>
+                                                    <field name="email" widget="email"/>
+                                                    <field name="phone" widget="phone"/>
+                                                    <field name="mobile" widget="phone"/>
+                                                    <field name="company_id" invisible="1"/>    <!-- Need to save value from parented record, cf onchange -->
+                                                </group>
+                                            </group>
+                                            <group>
+                                                <field name="comment" placeholder="Internal notes..." nolabel="1"/>
+                                            </group>
+                                            <field name="lang" invisible="True"/>  <!-- Need to add lang to save default value from parented record -->
+                                        </sheet>
+                                    </form>
+                                </field>
+                            </page>
+                            <page string="History" name="history">
+                                <field name="history_ids" readonly="1">
+                                    <list>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                   <chatter>
+                            <field name="message_follower_ids" widget="mail_followers"/>
+                            <field name="activity_ids" widget="mail_activity"/>
+                            <field name="message_ids" widget="mail_thread"/>
+                    </chatter>
+                </form>
+            </field>
+        </record>
+
+
+     <record id="snk_site_search" model="ir.ui.view">
+        <field name="name">snk.site.search</field>
+        <field name="model">snk.site</field>
+        <field name="arch" type="xml">
+            <search string="Search Site">
+                <!-- Default search fields -->
+                <field name="snk_name" string="Name" filter_domain="[('snk_name', 'ilike', self)]"/>
+                <field name="snk_code" string="Code" filter_domain="[('snk_code', 'ilike', self)]"/>
+                <field name="customer_id" string="Company"/>
+                <field name="partner_id" string="Address"/>
+                <field name="warehouse_id" string="Warehouse"/>
+                <field name="snk_analytic_id" string="Brand"/>
+                <field name="snk_grade_id" string="Grade"/>
+                <field name="snk_reason_id" string="Reason"/>
+
+                <!-- Default filters -->
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <filter name="pos_active" string="POS Active" domain="[('snk_pos_status', '=', 2)]"/>
+                <filter name="pos_inactive" string="POS Inactive" domain="[('snk_pos_status', '=', 1)]"/>
+                <filter name="pos_gudang" string="Gudang" domain="[('snk_pos_status', '=', 0)]"/>
+                <filter name="state_open" string="Open" domain="[('snk_state', '=', 'open')]"/>
+                <filter name="state_close" string="Close" domain="[('snk_state', '=', 'close')]"/>
+
+                <!-- Default groups -->
+                <group expand="0" string="Group By">
+                    <filter name="group_name" string="Name" domain="[]" context="{'group_by': 'snk_name'}"/>
+                    <filter name="group_company" string="Company" domain="[]" context="{'group_by': 'customer_id'}"/>
+                    <filter name="group_address" string="Address" domain="[]" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_warehouse" string="Warehouse" domain="[]" context="{'group_by': 'warehouse_id'}"/>
+                    <filter name="group_brand" string="Brand" domain="[]" context="{'group_by': 'snk_analytic_id'}"/>
+                    <filter name="group_grade" string="Grade" domain="[]" context="{'group_by': 'snk_grade_id'}"/>
+                    <filter name="group_pos_status" string="POS Status" domain="[]" context="{'group_by': 'snk_pos_status'}"/>
+                    <filter name="group_state" string="Status" domain="[]" context="{'group_by': 'snk_state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+
+
+
+
+
+
+        <!-- Action -->
+        <record id="action_snk_site" model="ir.actions.act_window">
+            <field name="name">Sites</field>
+            <field name="res_model">snk.site</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Click to create a new Site.</p>
+            </field>
+        </record>
+
+        <record id="action_open_sites" model="ir.actions.server">
+            <field name="name">Open</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['snk.site'].browse(records.ids).action_open()
+            </field>
+        </record>
+
+        <record id="action_reopen_sites" model="ir.actions.server">
+            <field name="name">Re-Open</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['snk.site'].browse(records.ids).action_reopen()
+            </field>
+        </record>
+
+        <record id="action_close_sites" model="ir.actions.server">
+            <field name="name">Close</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = env['snk.site'].browse(records.ids).action_close()
+            </field>
+        </record>
+
+        <record id="action_activate_pos_sites" model="ir.actions.server">
+            <field name="name">Activate POS</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_activate_pos()
+            </field>
+        </record>
+
+        <record id="action_deactivate_pos_sites" model="ir.actions.server">
+            <field name="name">Deactivate POS</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_deactivate_pos()
+            </field>
+        </record>
+
+        <record id="action_mark_as_gudang_sites" model="ir.actions.server">
+            <field name="name">Mark as Gudang</field>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_mark_as_gudang()
+            </field>
+        </record>
+
+        <record id="snk_action_xml_site" model="ir.actions.server">
+            <field name="name">Generate XML Site</field>
+            <field name="binding_model_id" ref="model_snk_site"/>
+            <field name="model_id" ref="model_snk_site"/>
+            <field name='groups_id' eval="[(4, ref('base.group_system'))]"/>
+            <field name="binding_type">action</field>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">records.snk_action_xml_site()</field>
+        </record>
+
+
+        <!-- Menu -->                  
+        <menuitem id="menu_snk_site_root" name="Sites" parent="stock.menu_warehouse_config" sequence="99"/>
+        <menuitem id="menu_snk_site" name="Sites" parent="menu_snk_site_root" sequence="100" action="action_snk_site"/>
+    </data>
+</odoo>

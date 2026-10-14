@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_site_site_history_list_view" model="ir.ui.view">
+            <field name="name">snk.site.history.list.view</field>
+            <field name="model">snk.site.history</field>
+            <field name="arch" type="xml">
+                <list string="Site History" editable="bottom">
+                    <field name="name" string="Reason"/>
+                    <field name="site_id"/>
+                    <field name="action"/>
+                    <field name="datetime"/>
+                </list>
+            </field>
+        </record>
+         <!-- Pivot View for snk.site.history -->
+         <record id="snk_site_site_history_pivot_view" model="ir.ui.view">
+            <field name="name">snk.site.history.pivot.view</field>
+            <field name="model">snk.site.history</field>
+            <field name="arch" type="xml">
+                <pivot string="Site History">
+                    <field name="site_id" type="row"/>
+                    <field name="action" type="col"/>
+                    <field name="datetime" type="row"/>
+                    <field name="id" type="measure" string="Count" operator="count"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="snk_site_site_history_list_view_search" model="ir.ui.view">
+            <field name="name">snk.site.history.search</field>
+            <field name="model">snk.site.history</field>
+            <field name="arch" type="xml">
+                <search string="Site History">
+                    <field name="name"/>
+                    <field name="site_id"/>
+                    <filter string="Reason" name="name" context="{'group_by': 'name'}"/>
+                    <filter string="Site" name="site_id" context="{'group_by': 'site_id'}"/>
+                    <filter string="Action" name="action" context="{'group_by': 'action'}"/>
+                </search>
+            </field>
+        </record>
+
+         <record id="snk_site_site_history_list_view_search" model="ir.ui.view">
+            <field name="name">snk.site.history.list.view</field>
+            <field name="model">snk.site.history</field>
+            <field name="arch" type="xml">
+                <search string="Site History">
+                    <!-- <field name="snk_name"/>
+                    <filter string="Name" name="snk_name" context="{'group_by':'snk_name'}"/> -->
+                </search>
+            </field>
+        </record>
+        <record id="action_snk_site_history" model="ir.actions.act_window">
+            <field name="name">Site History</field>
+            <field name="res_model">snk.site.history</field>
+            <field name="view_mode">list,pivot</field>
+            <field name="view_id" ref="snk_site_site_history_list_view"/>
+        </record>
+
+        <menuitem id="menu_snk_site_history" name="Site Histories" parent="menu_snk_site_root" action="action_snk_site_history" sequence="3"/>
+    </data>
+</odoo>

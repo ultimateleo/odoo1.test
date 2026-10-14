@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="snk_ir_cron_form_inherit" model="ir.ui.view">
+            <field name="name">snk.ir.cron.inherit</field>
+            <field name="model">ir.cron</field>
+            <field name="inherit_id" ref="base.ir_cron_view_form"/>
+            <field name="arch" type="xml"/>
+                <!-- <xpath expr="//field[@name='priority']" position="after">
+                    <field name="snk_process_type" invisible="not is_snk_pi_inbound"/>
+                </xpath> -->
+            <!-- </field> -->
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_product_stock_multi_select_wizard" model="ir.actions.act_window">
+            <field name="name">Multi Select</field>
+            <field name="res_model">product.stock.multi.select.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'default_picking_id': active_id}</field>
+        </record>
+
+        <record id="view_picking_form_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <!-- <xpath expr="//field[@name='picking_type_code']" position="after">
+                </xpath> -->
+                <!-- Delivery -->
+                <xpath expr="//div[hasclass('o_td_label')][1]" position="before">
+                    <!-- <div class="delivery_label" invisible="not enable_mutation"> -->
+                        <field name="picking_type_code" readonly="state not in ['draft']"/>
+                    <!-- </div> -->
+                </xpath>
+                <xpath expr="//field[@name='picking_type_id']" position="attributes">
+                    <attribute name="domain">[('site_id','=',snk_site_id)]</attribute>
+                </xpath>
+                <xpath expr="//div[@class='o_td_label'][label[@for='partner_id']]" position="before">
+                    <field name="snk_site_id" domain="[('snk_state', '=', 'open')]"
+                        readonly="state in ['done']"
+                        string="Sender"
+                        invisible="picking_type_code not in ('outgoing','internal')"/>
+                    <field name="snk_source_site_name"  string="Sender Name" invisible="picking_type_code not in ('outgoing','internal')"/>
+                    <field name="snk_source_status"  string="Sender Status" invisible="picking_type_code not in ('outgoing','internal')"/>
+                    <field name="warehouse_address_id"
+                        readonly="state in ['done']"
+                        string="Sender Address"
+                        invisible="picking_type_code not in ('outgoing','internal')"/>
+                    <field name="snk_site_address_id"
+                        readonly="state in ['done']"
+                        string="Receiver"
+                        invisible="not enable_mutation or picking_type_code not in ('outgoing','internal')"/>
+                    <field name="snk_dest_site_name" string="Receiver Name" invisible="not enable_mutation or picking_type_code not in ('outgoing','internal')"/>
+                    <field name="snk_dest_status" string="Receiver Status" invisible="not enable_mutation or picking_type_code not in ('outgoing','internal')"/>
+                    <!-- <label for="snk_site_address_id" string="sender" invisible="picking_type_code != 'outgoing'"/>
+                    <label for="snk_site_address_id" string="sender blabla" invisible="picking_type_code != 'incoming'"/> -->
+                    <field name="snk_site_address_id"
+                        readonly="state in ['done']"
+                        string="Sender"
+                        invisible="picking_type_code != 'incoming'"/>
+                    <field name="snk_dest_site_name" string="Sender Name" invisible="picking_type_code != 'incoming'"/>
+                    <field name="snk_dest_status" string="Sender Name" invisible="picking_type_code != 'incoming'"/>
+                </xpath>
+                <!-- Receipt -->
+                <!-- <xpath expr="//field[@name='partner_id']" position="replace">
+                    <label for="partner_id" string="Receive From"/>
+                    <field name="partner_id" nolabel="1"/>
+                </xpath> -->
+                <xpath expr="//field[@name='partner_id']" position="after">
+                    <field name="snk_site_id" domain="[('snk_state', '=', 'open')]"
+                        readonly="state in ['done']"
+                        string="Receiver"
+                        invisible="picking_type_code != 'incoming'"/>
+                    <field name="snk_source_site_name"  string="Receiver Name" invisible="picking_type_code !='incoming'"/>
+                    <field name="snk_source_status"  string="Receiver Status" invisible="picking_type_code !='incoming'"/>
+                    <field name="warehouse_address_id"
+                        readonly="state in ['done']"
+                        string="Receiver Address"
+                        invisible="picking_type_code != 'incoming'"/>
+
+                    <!-- <div class="receipt_grp" invisible="not enable_mutation"> -->
+                        <!-- <label for="picking_type_code" string="Type" style="font-weight:bold;" invisible="picking_type_code != 'incoming'"/>
+                        <field name="picking_type_code" readonly="state not in ['draft']" nolabel="1" invisible="picking_type_code != 'incoming'"/> -->
+                    <!-- </div> -->
+                </xpath>
+
+                    <!-- <div class="o_td_label" invisible="not enable_mutation"> -->
+                        <!-- <label for="warehouse_address_id" string="Delivery Address" style="font-weight:bold;" invisible="picking_type_code != 'incoming'"/> -->
+                        <!-- <label for="warehouse_address_id" string="Site Name" style="font-weight:bold;" invisible="picking_type_code in ['incoming', 'outgoing']"/> -->
+                    <!-- </div> -->
+
+                    <!-- <div class="o_td_label" invisible="not enable_mutation"> -->
+                        <!-- <label for="snk_site_address_id" string="Sender" style="font-weight:bold;" invisible="picking_type_code != 'incoming'"/> -->
+                        <!-- <label for="snk_site_address_id" string="Site" style="font-weight:bold;" invisible="picking_type_code in ['incoming', 'outgoing']"/> -->
+                    <!-- </div> -->
+                <xpath expr="//field[@name='location_id']" position="before">
+                    <!-- <field name="snk_warehouse_id" invisible="picking_type_code == 'incoming' and not enable_mutation"/> -->
+                </xpath>
+
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="analytic_ids" required="1" readonly="state == 'done'" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" domain="[('snk_brand', '=', True)]"/>
+                    <field name="snk_approve" />
+                    <field name="snk_mutation_id" invisible="picking_type_code != 'outgoing'"/>
+                </xpath>
+
+                <xpath expr="//field[@name='move_type']" position="before">
+                    <field name="event_ids" readonly="state == 'done'" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+
+                <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/list/field[@name='product_uom']" position="after">
+                    <field name="incoming_qty" optional="hide"/>
+                </xpath>
+
+                <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/list/field[@name='lot_ids']" position="after">
+                    <field name="snk_grade_id" readonly="1" optional="hide" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="analytic_id" readonly="1" optional="hide" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" domain="[('id', 'in', parent.analytic_ids)]"/>
+                    <field name="event_ids" readonly="1" optional="hide" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="snk_material_code"/>
+                </xpath>
+
+                <xpath expr="//field[@name='project_id']" position="after">
+                    <field name="snk_pos_ref" groups="mesa.group_snk_pos_integration"/>
+                    <field name="transfer_id" string="TO Document"/>
+                    <field name="transfer_line_ids" widget="many2many_tags" string="STO Document"/>
+                </xpath>
+<!--                <xpath expr="//field[@name='location_id'][2]" position="replace">-->
+<!--                    <field name="location_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations" invisible="picking_type_code == 'incoming'" readonly="state == 'done'" domain="[('usage', '=', 'internal')]"/>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//field[@name='location_dest_id'][2]" position="replace">-->
+<!--                    <field name="location_dest_id" options="{'no_create': True}" groups="stock.group_stock_multi_locations" invisible="picking_type_code in ['outgoing']" readonly="state == 'done'" domain="[('usage', '=', 'internal')]"/>-->
+<!--                </xpath>-->
+<!--                <xpath expr="//sheet/notebook/page[@name='operations']" position="inside">-->
+<!--                    <button name="%(action_product_stock_multi_select_wizard)d" type="action" string="Add Multi Select" class="oe_highlight"/>-->
+<!--                </xpath>-->
+                <xpath expr="//group[@name='other_infos']/field[@name='sale_id']" position="after">
+                    <field name="snk_stock_order_id" readonly="state not in ['draft']" invisible="picking_type_code in ['internal']"/>
+                </xpath>
+                
+
+                <div class="oe_button_box" name="button_box">
+                    <button
+                        name="action_open_shipping_bill"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-truck"
+                        invisible="not snk_bill_id">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Shipping Bill</span>
+                        </div>
+                    </button>
+                    <button
+                            name="action_open_mutation_receipt"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-bars"
+                            invisible="not snk_mutation_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Transit</span>
+                            </div>
+                        </button>
+                </div>
+                <xpath expr="//label[@for='scheduled_date']" position="before">
+                    <!-- picking_type_code != 'outgoing' -->
+                    <field name="snk_is_mutation" invisible="not enable_mutation" readonly="1"/>
+                    <field name="snk_is_mrp" invisible="not enable_mutation" readonly="1"/>
+                    <field name="snk_create_date" readonly="state == 'done'" string="STO Date"/>
+                </xpath>
+                <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/list/field[@name='product_id']" position="attributes">
+                    <attribute name="domain">[('analytic_id', 'in', parent.analytic_ids)]</attribute>
+                </xpath>
+                <xpath expr="//page[@name='operations']/field[@name='move_ids_without_package']/list" position="inside">
+                    <control>
+                        <create name="add_product_control" string="Add a line"/>
+                        <button name="action_add_from_catalog_picking" string="Catalog" type="object" class="px-4 btn-link" context="{'order_id': parent.id}"/>
+                    </control>
+                </xpath>
+
+                <!-- Replace standard scheduled_date with custom snk_schedule_date -->
+               
+            </field>
+        </record>
+
+        <record id="snk_picking_search_inherit" model="ir.ui.view">
+            <field name="name">snk.picking.search.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_internal_search"/>
+            <field name="arch" type="xml">
+                <search>
+                    <filter name="pos_active" string="POS Active" domain="[('snk_site_id.snk_pos_status', '=', 'active')]"/>
+                    <filter name="pos_inactive" string="POS Inactive" domain="[('snk_site_id.snk_pos_status', '=', 'inactive')]"/>
+                    <filter name="pos_gudang" string="Gudang" domain="[('snk_site_id.snk_pos_status', '=', 'gudang')]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_picking_kanban_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.kanban.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.stock_picking_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='picking_properties']" position="before">
+                    <div class="d-flex mb-1">
+                        <field name="carrier_id"/>
+                        <div class="ms-auto">
+                            <field name="shipping_weight" class="oe_inline"/>
+                            <field name="weight_uom_name" nolabel="1" class="oe_inline" style="margin-left:5px"/>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_create_shipping_bills" model="ir.actions.server">
+            <field name="name">Create Shipping Bills</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('purchase.group_purchase_manager')), (4, ref('account.group_account_invoice'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_create_shipping_bills()
+            </field>
+        </record>
+
+        <record id="action_print_daily_sto_excel" model="ir.actions.server">
+            <field name="name">Daily STO (Excel)</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">report</field>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_print_daily_sto_excel()
+            </field>
+        </record>
+
+        <record id="view_picking_type_list_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.type.list.inherit</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_picking_type_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='sequence_id']" position="after">
+                    <field name="barcode"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_picking_type_search_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.type.search.inherit</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_pickingtype_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='warehouse_id']" position="after">
+                    <field name="barcode"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_update_source_document" model="ir.actions.server">
+            <field name="name">Update Source Document</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">action</field>
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_update_source_document()
+            </field>
+        </record>
+        <record id="action_generate_xml" model="ir.actions.server">
+            <field name="name">Generate XML</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">action</field>
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records._validation_pos_status()
+            </field>
+        </record>
+        <record id="action_resequence" model="ir.actions.server">
+            <field name="name">Resequence</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">action</field>
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_resequence()
+            </field>
+        </record>
+        <record id="action_recompute_shipping_price" model="ir.actions.server">
+            <field name="name">Recompute Shipping Price</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_model_id" ref="stock.model_stock_picking"/>
+            <field name="binding_view_types">list,form</field>
+            <field name="binding_type">action</field>
+            <field name="groups_id" eval="[(4, ref('stock.group_stock_manager'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_recompute_shipping_price()
+            </field>
+        </record>
+    </data>
+</odoo>

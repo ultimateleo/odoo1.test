@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_res_config_settings_view_form_inherit_stock" model="ir.ui.view">
+            <field name="name">snk.res.config.settings.view.form.inherit.stock</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//app[@name='stock']" position="inside" >
+                    <block title="POS" name="snk_pos_sale_setting_container">
+                        <!-- <setting title="POS Integration" help="Maintain your POS Integration" id="group_snk_pos_integration"> -->
+                            <group>
+                            <!-- <div class="text-muted"> -->
+                            <!-- </div> -->
+                                <separator string="Integration"/>
+                                <span class="text-muted">Maintain your POS Integration</span>
+                                <field name="snk_pos_integration_enabled" string="Inbound"/>
+                                <field name="snk_active_integration" string="Outbound"/>
+
+                                <separator string="SFTP Credential"/>
+                                <field name="snk_sftp_host"/>
+                                <field name="snk_sftp_username"/>
+                                <field name="snk_sftp_password" password="True"/>
+                                <field name="snk_sftp_port"/>
+                                <button name="action_test_connection_sftp"
+                                        string="Test Connection"
+                                        type="object"
+                                        class="oe_highlight"/>
+
+                                <separator string="Local Path"/>
+                                <field name="snk_sftp_path_local_outbound" string="Outbound"/>
+                                <field name="snk_sftp_path_local_inbound" string="Inbound"/>
+
+                                <separator string="Remote Path"/>
+                                <field name="snk_sftp_path_outbound"/>
+                                <field name="snk_sftp_path_inbound"/>
+                                <field name="snk_sftp_path_inbound_archive"/>
+                            </group>
+                        <!-- </setting> -->
+                    </block>
+                </xpath>
+                <xpath expr="//block[@name='operations_setting_container']" position="inside">
+                    <setting id="snk_is_mutation"
+                             string="Is Mutation"
+                             help="Distribute your goods through transit location.">
+                        <field name="snk_is_mutation"/>
+                    </setting>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_res_config_settings_view_form_inherit_sale" model="ir.ui.view">
+            <field name="name">snk.res.config.settings.view.form.inherit.sale</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//setting[@id='auth_signup_documents']" position="after" >
+                    <setting title="Sales Voucher" help="Maintain your sales voucher product">
+                        <field name="snk_sale_has_voucher"/>
+                        <field name="snk_sale_voucher_product_id" invisible="not snk_sale_has_voucher"/>
+                    </setting>
+                    <setting title="Shipping" help="Maintain your default shipping for Sales">
+                        <field name="snk_default_shipping"/>
+                        <field name="snk_default_shipping_product_id" invisible="not snk_default_shipping"/>
+                    </setting>
+                </xpath>
+                <xpath expr="//setting[@id='proforma_configuration']" position="after" >
+                    <setting help="Used to stage your order from omni channel and other platform.">
+                        <field name="group_snk_order_staging"/>
+                    </setting>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

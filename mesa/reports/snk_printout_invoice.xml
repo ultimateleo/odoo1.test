@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_invoice" model="report.paperformat">
+            <field name="name">paperformat vendor bill</field>
+            <field name="default" eval="False" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+        </record>
+
+        <record id="snk_report_invoice" model="ir.actions.report">
+            <field name="name">pdf print invoice</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.report_invoice</field>
+            <field name="report_file">mesa.report_invoice</field>
+            <field name="print_report_name">'Printout Invoice - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="paperformat_id" ref="paperformat_invoice" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_invoice_custom">
+            <t t-call="web.basic_layout">
+                <div class="page"
+                    style="font-family: Arial, sans-serif; font-size: 12px; padding: 40px;">
+                    <!-- Header -->
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h2 style="font-size: 18px; font-weight: bold; margin: 0;">INVOICE</h2>
+                    </div>
+
+                    <!-- Invoice Info -->
+                    <div style="margin-bottom: 30px;">
+                        <table class="table table-borderless"
+                            style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;">
+                                    <div style="margin-bottom: 8px;">
+                                        <strong>No. Invoice :</strong>
+                                        <t t-esc="o.name" />
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        <strong>Customer :</strong>
+                                        <t t-esc="o.partner_id.name" />
+                                    </div>
+                                    <div>
+                                        <strong>Reference :</strong>
+                                        <t t-esc="o.ref or ''" />
+                                    </div>
+                                </td>
+                                <td style="width: 50%; vertical-align: top; text-align: right;">
+                                    <div style="margin-bottom: 8px;">
+                                        <strong>Invoice Date :</strong>
+                                        <t
+                                            t-esc="o.invoice_date and o.invoice_date.strftime('%d.%m.%Y') or ''" />
+                                    </div>
+                                    <div style="margin-bottom: 8px;">
+                                        <strong>Due Date :</strong>
+                                        <t
+                                            t-esc="o.invoice_date_due and o.invoice_date_due.strftime('%d.%m.%Y') or ''" />
+                                    </div>
+                                    <div>
+                                        <strong>Tax Number :</strong>
+                                        <t t-esc="o.l10n_id_tax_number or ''" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Invoice Items Table -->
+                    <table
+                        style="width: 100%; border-collapse: collapse; margin-bottom: 30px;  border: 1px solid #000;">
+                        <thead>
+                            <tr
+                                style="background-color: #f0f0f0; border: 1px solid #000; ">
+                                <th
+                                    style="padding: 8px; text-align: left; border: 1px solid #000; font-size: 11px;">
+                                    Article</th>
+                                <th
+                                    style="padding: 8px; text-align: left; border: 1px solid #000; font-size: 11px;">
+                                    Description</th>
+                                <th
+                                    style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                    Qty</th>
+                                <th
+                                    style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                    Uom</th>
+                                <th
+                                    style="padding: 8px; text-align: right; border: 1px solid #000; font-size: 11px;">Selling
+                                    Price</th>
+                                <th
+                                    style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">Disc
+                                    %</th>
+                                <th
+                                    style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                    Taxes</th>
+                                <th
+                                    style="padding: 8px; text-align: center;  border: 1px solid #000; font-size: 11px;">Total
+                                    Amount</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Try multiple filtering options -->
+                            <t
+                                t-foreach="o.invoice_line_ids.filtered(lambda line: line.product_id and not line.display_type)"
+                                t-as="line">
+                                <tr style=" border: 1px solid #000;">
+                                    <td
+                                        style="padding: 8px; border: 1px solid #000; font-size: 11px;">
+                                        <t
+                                            t-esc="line.product_id.default_code or line.product_id.name or ''" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; border:1px solid #000; font-size: 11px;">
+                                        <t t-esc="line.name or ''" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; border:1px solid #000; font-size: 11px;">
+                                        <t t-esc="'{:,.0f}'.format(line.quantity or 0)" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; border:1px solid #000; font-size: 11px;">
+                                        <t
+                                            t-esc="line.product_uom_id.name if line.product_uom_id else ''" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: right; border:1px solid #000; font-size: 11px;">
+                                        <t t-esc="line.price_unit or 0"
+                                            t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; border:1px solid #000; font-size: 11px;">
+                                        <t t-if="line.discount">
+                                            <t t-esc="'{:,.0f}'.format(line.discount)" />
+                                        </t>
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; border:1px solid #000; font-size: 11px;">
+                                        <t t-foreach="line.tax_ids" t-as="tax">
+                                            <t t-esc="'{:,.0f}%'.format(tax.amount or 0)" />
+
+                                        </t>
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; border:1px solid #000; font-size: 11px;">
+                                        <t t-if="line.price_subtotal">
+                                            <t t-esc="line.price_subtotal or 0"
+                                                t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True, "phone_icons": True}' />
+                                        </t>
+                                    </td>
+
+
+                                </tr>
+                            </t>
+
+                            <!-- Fallback: If no lines with product_id, show all lines -->
+                            <t
+                                t-if="not o.invoice_line_ids.filtered(lambda line: line.product_id and not line.display_type)">
+                                <t t-foreach="o.invoice_line_ids" t-as="line">
+                                    <t t-if="line.product_id">
+                                        <tr>
+                                            <td
+                                                style="padding: 8px; border : 1px solid #000; font-size: 11px;">
+                                                <t
+                                                    t-esc="line.product_id.default_code or line.product_id.name or 'No Code'" />
+                                            </td>
+                                            <td
+                                                style="padding: 8px; border: 1px solid #000; font-size: 11px;">
+                                                <t t-esc="line.name or line.product_id.name or ''" />
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                                <t t-esc="'{:,.0f}'.format(line.quantity or 0)" />
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                                <t
+                                                    t-esc="line.product_uom_id.name if line.product_uom_id else 'Unit'" />
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: right; border: 1px solid #000; font-size: 11px;">
+                                                <t t-esc="'{:,.3f}'.format(line.price_unit or 0)" />
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                                <t t-if="line.discount">
+                                                    <t t-esc="'{:,.0f}'.format(line.discount)" />
+                                                </t>
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: center; border: 1px solid #000; font-size: 11px;">
+                                                <t t-foreach="line.tax_ids" t-as="tax">
+                                                    <t t-esc="'{:,.0f}%'.format(tax.amount or 0)" />
+                                                    <t t-if="not tax_last">, </t>
+                                                </t>
+                                            </td>
+                                            <td
+                                                style="padding: 8px; text-align: right; font-size: 11px;">
+                                                <t
+                                                    t-esc="'{:,.3f}'.format(line.price_subtotal or 0)" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <tr>
+                                    <td colspan="1"></td>
+
+                                    <td style="width: 70%; text-align: center; font-size: 11px;">
+                                        <strong>Total Qty:</strong>
+
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <strong>
+                                            <t t-set="total_qty" t-value="0" />
+                                            <t t-foreach="o.invoice_line_ids" t-as="line">
+                                                <t t-if="line.product_id">
+                                                    <t t-set="total_qty"
+                                                        t-value="total_qty + (line.quantity or 0)" />
+                                                </t>
+                                            </t>
+                                            <t t-esc="'{:,.0f}'.format(total_qty or 0)" />
+                                        </strong>
+                                    </td>
+                                    <td colspan="5"></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- Totals -->
+                    <!-- Totals -->
+                    <div
+                        style="padding: 10px 0;">
+                        <table class="  "
+                            style="width: 40%; border-collapse: collapse; float:right;">
+                            <tr>
+
+                                <td></td>
+                                <td></td>
+                                <td style="width: 50%;">
+                                    <table style="width: 100%; font-size: 11px;">
+                                        <tr>
+                                            <td style="text-align: left;">
+                                                <strong>Total Amount :</strong>
+                                            </td>
+                                            <td style="text-align: right; padding:5px;">
+                                                <strong>
+                                                    <t t-esc="o.amount_untaxed"
+                                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                        <!-- Hardcoded Tax for now -->
+                                        <!-- Alternatif 2: Gunakan debit atau credit -->
+                                        <t t-set="tax_totals" t-value="o.tax_totals" />
+                                        <t t-if="tax_totals">
+                                            <t
+                                                t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)"
+                                                t-as="tax_line">
+                                                <tr>
+                                                    <td
+                                                        style="text-align:left; font-weight:bold;">
+                                                        <span
+                                                            t-esc="tax_line.tax_line_id.tax_group_id.name" />
+                                                        : </td>
+                                                    <td
+                                                        style="text-align:right; padding:5px;">
+                                                        <t t-if="tax_line.debit > 0">
+                                                            <span t-esc="tax_line.debit"
+                                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                        </t>
+                                                        <t t-else="">
+                                                            <span t-esc="-tax_line.credit"
+                                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                        <t t-else="">
+                                            <!-- Fallback jika tidak ada tax_totals -->
+                                            <t t-if="o.amount_tax">
+                                                <tr>
+                                                    <td colspan="7"
+                                                        style="text-align:right; font-weight:bold; padding:5px; border:none;">
+                                                        Tax
+                                                    </td>
+                                                    <td
+                                                        style="text-align:right; ">
+                                                        <span t-field="o.amount_tax" />
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+
+                                        <tr style="border-top: 1px solid #000;">
+                                            <td style="text-align: left; padding-top: 5px;">
+                                                <strong>Total :</strong>
+                                            </td>
+                                            <td style="text-align: right; padding: 5px;">
+                                                <strong>
+                                                    <t t-esc="o.amount_total"
+                                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                </strong>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_invoice">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="mesa.report_invoice_custom" />
+                </t>
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey;"> Page <span
+                            class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

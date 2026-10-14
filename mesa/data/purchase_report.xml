@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <!-- Override report biar ga muncul di Print dropdown -->
+        <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+            <field name="binding_model_id" eval="False" />
+        </record>
+        <record id="purchase.report_purchase_quotation" model="ir.actions.report">
+            <field name="binding_model_id" eval="False" />
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="paperformat_vendor_bill" model="report.paperformat">
+            <field name="name">paperformat vendor bill</field>
+            <field name="default" eval="False" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">20</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_spacing">5</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Report Action -->
+        <record id="snk_report_vendor_bill" model="ir.actions.report">
+            <field name="name">PDF Vendor Bill</field>
+            <field name="model">account.move</field>
+            <field name="report_type">qweb-html</field>
+            <field name="report_name">mesa.report_vendor_bill</field>
+            <field name="report_file">mesa.report_vendor_bill</field>
+            <field name="print_report_name">'Printout Vendor Bill - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="account.model_account_move" />
+            <field name="paperformat_id" ref="paperformat_vendor_bill" />
+            <field name="binding_type">report</field>
+        </record>
+
+        <!-- Report Template Custom -->
+        <template id="report_vendor_bill_custom">
+            <t t-call="web.basic_layout">
+                <!--
+                    ==========================================
+                    PAGINATION & CHUNKING SETTINGS
+                    ==========================================
+
+                    Template ini mendukung 2 mode:
+                    1. Normal mode: Render semua invoice_line_ids (untuk bill dengan lines sedikit)
+                    2. Chunked mode: Render hanya subset lines yang dikirim via data['line_ids_override']
+                                     (untuk bill dengan ribuan lines, dipanggil dari _print_vendor_bill_in_chunks)
+
+                    lines_per_page: Jumlah lines yang ditampilkan per halaman PDF (50 lines/page)
+                    display_lines: Lines yang akan di-render. Bisa dari override (chunked) atau semua lines (normal)
+                -->
+                <t t-set="lines_per_page" t-value="50"/>
+
+                <!-- Tentukan lines mana yang akan di-render:
+                     - Jika ada data['line_ids_override'], gunakan itu (chunked mode dari Python)
+                     - Jika tidak ada, gunakan semua invoice_line_ids (normal mode)
+                -->
+                <t t-set="display_lines" t-value="env['account.move.line'].browse(data.get('line_ids_override', [])) if data and data.get('line_ids_override') else o.invoice_line_ids"/>
+                <t t-set="total_invoice_lines" t-value="len(display_lines)"/>
+                <t t-set="total_pages" t-value="int((total_invoice_lines + lines_per_page - 1) / lines_per_page) if total_invoice_lines > 0 else 1"/>
+
+                <!-- Loop through pages -->
+                <t t-foreach="range(0 if total_invoice_lines == 0 else total_pages)" t-as="page_num">
+
+                    <!-- Header Section (repeat on each page) -->
+                    <div style="text-align:center; padding:10px 0;">
+                        <!-- Logo -->
+                        <t t-if="env.company.logo">
+                            <img t-att-src="image_data_uri(env.company.logo)"
+                                alt="Company Logo"
+                                style="max-width:120px; max-height:120px; margin-bottom:8px;" />
+                        </t>
+                        <t t-else="">
+                            <img t-att-src="'/web/static/src/img/placeholder.png'"
+                                style="width:120px; height:120px; margin-bottom:8px;" />
+                        </t>
+
+                        <!-- Nama Perusahaan -->
+                        <div
+                            style="font-size:18px; font-weight:bold; text-transform:uppercase; margin-bottom:4px;">
+                            <span t-esc="env.company.name" />
+                        </div>
+
+                        <!-- Alamat Perusahaan -->
+                        <div style="text-align:center;">
+                            <div
+                                style="font-size:15px; font-weight:bold; display:inline-block; max-width:60%; line-height:1.4;">
+                                <span t-esc="env.company.street" />
+                                <t t-if="env.company.street2">, <span t-esc="env.company.street2" /></t>,
+                                <span t-esc="env.company.city" />
+                                <t t-if="env.company.state_id">, <span t-esc="env.company.state_id.name" /></t>
+                                <t t-if="env.company.zip">
+                                    <span t-esc="env.company.zip" />
+                                </t><br />
+                                <t t-if="env.company.country_id">
+                                    <span t-esc="env.company.country_id.name" />
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body Section (repeat on each page) -->
+                    <div style="margin-top:20px; font-size:13px;">
+                        <table class="table table-borderless"
+                            style="width:100%; border-collapse:collapse; ">
+                            <tr>
+                                <td style="width:15%; font-weight:bold;">Vendor</td>
+                                <td style="width:35%;">: <span t-esc="o.partner_id.name" /></td>
+                                <td style="width:15%; font-weight:bold;">No PR</td>
+                                <td style="width:35%;">: <span t-esc="o.snk_pr_id" /></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">Alamat</td>
+                                <td>: <span t-esc="o.partner_id.street" />
+                                <t t-if="o.partner_id.street2">
+                                    , <span t-esc="o.partner_id.street2" /></t>, <span
+                                        t-esc="o.partner_id.city" />
+                                    <t t-if="o.partner_id.state_id">, <span
+                                            t-esc="o.partner_id.state_id.name" /></t>
+                                <t
+                                        t-if="o.partner_id.zip">, <span t-esc="o.partner_id.zip" /></t>
+                                </td>
+                                <td style="font-weight:bold;">No PO</td>
+                                <td>: <span t-esc="o.snk_po_number" /></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">Tanggal</td>
+                                <td>: <span t-field="o.invoice_date" /></td>
+                                <td style="font-weight:bold;">No Bill</td>
+                                <td>: <span t-esc="o.name" /></td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight:bold;">No Rek</td>
+                                <td>: <span t-esc="o.partner_bank_id.acc_number" /></td>
+                                <td style="font-weight:bold;">No Tax</td>
+                                <td>: <span t-esc="o.l10n_id_tax_number" /></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Table Product Detail for this page -->
+                    <div style="margin-top:15px;">
+                        <table class="table table-borderless"
+                            style="width:100%; border-collapse:collapse; font-size:12px;">
+                            <thead>
+                                <tr
+                                    style="background-color:#f2f2f2; text-align:center; font-weight:bold;">
+                                    <th style="border:1px solid black; padding:5px;">Product</th>
+                                    <th style="border:1px solid black; padding:5px;">Description</th>
+                                    <th style="border:1px solid black; padding:5px;">Analytic
+                                        Distribution</th>
+                                    <th style="border:1px solid black; padding:5px;">Qty</th>
+                                    <th style="border:1px solid black; padding:5px;">UoM</th>
+                                    <th style="border:1px solid black; padding:5px;">Unit Price</th>
+                                    <th style="border:1px solid black; padding:5px;">Taxes</th>
+                                    <th style="border:1px solid black; padding:5px;">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!--
+                                    Hitung index slice untuk pagination
+                                    Misal page_num=0, lines_per_page=50: start_idx=0, end_idx=50 (lines 0-49)
+                                    Misal page_num=1, lines_per_page=50: start_idx=50, end_idx=100 (lines 50-99)
+                                -->
+                                <t t-set="start_idx" t-value="page_num * lines_per_page"/>
+                                <t t-set="end_idx" t-value="min(start_idx + lines_per_page, total_invoice_lines)"/>
+
+                                <!-- Loop hanya lines untuk halaman ini (slice dari display_lines) -->
+                                <t
+                                    t-foreach="display_lines[start_idx:end_idx]"
+                                    t-as="line">
+
+                                    <tr>
+                                        <td style="border:1px solid black; padding:5px;">
+                                            <span t-esc="line.product_id.display_name" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px;">
+                                            <span t-esc="line.snk_description" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px;">
+                                            <t t-foreach="line.distribution_analytic_account_ids"
+                                                t-as="analytic">
+                                                <t>
+                                                    <t t-esc="analytic.name" />
+                                                    <t>, </t>
+                                                </t>
+                                            </t>
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:center;">
+                                            <span t-esc="line.quantity" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:center;">
+                                            <span t-esc="line.product_uom_id.name" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-field="line.price_unit" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:center;">
+                                            <span t-esc="', '.join(line.tax_ids.mapped('name'))" />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-field="line.price_subtotal" />
+                                        </td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!--
+                        ==========================================
+                        TOTALS, JOURNAL, SIGNATURE SECTION
+                        ==========================================
+
+                        Section ini HANYA muncul di halaman terakhir (last page).
+                        Kenapa? Karena total, journal entries, dan signature harus di akhir dokumen.
+
+                        Catatan untuk chunked mode:
+                        - Saat menggunakan chunking (3000+ lines), setiap batch akan jadi PDF terpisah
+                        - Setiap PDF batch akan punya signature/total sendiri di halaman terakhirnya
+                        - Ini by design, karena setiap batch di-render independent lalu di-merge
+                    -->
+                    <t t-if="page_num == total_pages - 1">
+                        <!-- Totals Section -->
+                        <div style="margin-top:15px;">
+                            <table class="table table-borderless"
+                                style="width:100%; border-collapse:collapse; font-size:12px;">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="7"
+                                            style="text-align:right; font-weight:bold; padding:5px; border:none;">
+                                            Sub Total
+                                        </td>
+                                        <td
+                                            style="text-align:right; padding:5px; width:120px; border:1px solid black;">
+                                            <span t-field="o.amount_untaxed" />
+                                        </td>
+                                    </tr>
+                                    <!-- Tax Lines by Group -->
+                                    <t t-set="tax_totals" t-value="o.tax_totals" />
+                                    <t t-if="tax_totals">
+                                        <t t-foreach="o.line_ids.filtered(lambda l: l.tax_line_id)"
+                                            t-as="tax_line">
+                                            <tr>
+                                                <td colspan="7"
+                                                    style="text-align:right; font-weight:bold; padding:5px; border:none;">
+                                                    <span t-esc="tax_line.tax_line_id.tax_group_id.name" />: </td>
+                                                <td
+                                                    style="text-align:right; padding:5px; width:120px; border:1px solid black;">
+                                                    <t t-if="tax_line.debit > 0">
+                                                        <span t-esc="tax_line.debit"
+                                                            t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                    </t>
+                                                    <t t-else="">
+                                                        <span t-esc="-tax_line.credit"
+                                                            t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <!-- Fallback jika tidak ada tax_totals -->
+                                        <t t-if="o.amount_tax">
+                                            <tr>
+                                                <td colspan="7"
+                                                    style="text-align:right; font-weight:bold; padding:5px; border:none;">
+                                                    Tax
+                                                </td>
+                                                <td
+                                                    style="text-align:right; padding:5px; width:120px; border:1px solid black;">
+                                                    <span t-field="o.amount_tax" />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+
+                                    <!-- Total -->
+                                    <tr>
+                                        <td colspan="7"
+                                            style="text-align:right; font-weight:bold; padding:5px; border:none;">
+                                            Total
+                                        </td>
+                                        <td
+                                            style="text-align:right; padding:5px; width:120px; border:1px solid black;">
+                                            <span t-field="o.amount_total" />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Journal Section -->
+                        <div style="margin-top:40px;">
+                            <p>
+                                <strong>Journal</strong>
+                            </p>
+                            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                                <thead>
+                                    <tr style="background:#f2f2f2; text-align:center; font-weight:bold;">
+                                        <th style="border:1px solid black; padding:5px;">Chart Of Account</th>
+                                        <th style="border:1px solid black; padding:5px;">Currency</th>
+                                        <th style="border:1px solid black; padding:5px;">Debit</th>
+                                        <th style="border:1px solid black; padding:5px;">Credit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr t-foreach="o.line_ids" t-as="line">
+                                        <!-- Chart of Account -->
+                                        <td style="border:1px solid black; padding:5px;">
+                                            <span t-field="line.account_id" />
+                                        </td>
+                                        <!-- Currency -->
+                                        <td style="border:1px solid black; padding:5px;">
+                                            <span t-field="line.currency_id" />
+                                        </td>
+                                        <!-- Debit -->
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-field="line.debit" />
+                                        </td>
+                                        <!-- Credit -->
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-field="line.credit" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td style="text-align:right; font-weight:bold; padding:5px;">
+                                            Total
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-esc="sum(o.line_ids.mapped('debit'))"
+                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                        </td>
+                                        <td style="border:1px solid black; padding:5px; text-align:right;">
+                                            <span t-esc="sum(o.line_ids.mapped('credit'))"
+                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Signature Section -->
+                        <div>
+                            <table class="table table-borderless"
+                                style="width:100%; margin-top:50px; border: none;">
+                                <tr>
+                                    <td style="width:50%; text-align:center; border: none;">
+                                        <strong>Disiapkan Oleh</strong>
+                                    </td>
+                                    <td style="width:50%; text-align:center; border: none;">
+                                        <strong>Disetujui Oleh</strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="height:80px; border: none;"></td>
+                                    <td style="height:80px; border: none;"></td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align:center; border: none;">
+                                        (...........................)
+                                    </td>
+                                    <td style="text-align:center; border: none;">
+                                        (...........................)
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </t>
+
+                    <!-- Page break if not last page -->
+                    <div t-if="page_num &lt; total_pages - 1" style="page-break-after: always;"/>
+
+                </t>
+
+            </t>
+        </template>
+
+
+        <!-- Report Template Main -->
+        <template id="report_vendor_bill">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="mesa.report_vendor_bill_custom" />
+                </t>
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey;"> Page <span
+                            class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

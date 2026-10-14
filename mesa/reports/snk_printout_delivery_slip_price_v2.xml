@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format khusus V2 (UBAH MARGIN TOP DI SINI) -->
+    <record id="paperformat_delivery_slip_price_v2" model="report.paperformat">
+        <field name="name">Delivery Slip Price v2 Format</field>
+        <field name="default" eval="False" />
+        <field name="format">custom</field>
+        <field name="orientation">Portrait</field>
+        <field name="page_height">355</field>
+        <field name="page_width">216</field>
+        <!-- EDIT DI BAWAH INI UNTUK MARGIN/PADDING KESELURUHAN HALAMAN -->
+        <field name="margin_top">23.5</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">3</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">96</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_slip_price_v2" model="ir.actions.report">
+        <field name="name">Surat Jalan (With Price v2)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_slip_price_v2_template</field>
+        <field name="report_file">mesa.report_delivery_slip_price_v2_template</field>
+        <field name="print_report_name">'Surat Jalan (With Price v2) - %s' % (object.name)</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_slip_price_v2" />
+    </record>
+
+    <template id="report_delivery_slip_price_v2_template" t-name="mesa.report_delivery_slip_price_v2_template">
+        <t t-call="web.basic_layout">
+            <t t-set="processed_pickings" t-value="processed_pickings or []"/>
+
+            <t t-foreach="processed_pickings" t-as="picking_data">
+                <t t-set="picking" t-value="picking_data['picking']"/>
+                <t t-set="moves_with_data" t-value="picking_data['moves_with_data']"/>
+                <t t-set="total_amount" t-value="picking_data.get('total_amount', 0)"/>
+
+                <!-- ========================================================================= -->
+                <!-- PASTIKAN STYLE INI DILUAR LOOP HALAMAN AGAR RAPI!                         -->
+                <!-- ========================================================================= -->
+                <style>
+                        * { 
+                            margin: 0; 
+                            padding: 0; 
+                            box-sizing: border-box; 
+                            font-family: DejaVu Sans, Helvetica, Arial, sans-serif !important;
+                        }
+                        
+                        .title {
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            letter-spacing: 3px;
+                        }
+                        
+                        .header-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            border:none !important;
+                        }
+                        
+                        .header-table td {
+                            vertical-align: top;
+                            /* padding: 2px 0; */
+                        }
+                        
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            table-layout: fixed;
+                        }
+                        
+                        .info-table td {
+                            /* padding: 2px 0; */
+                            vertical-align: top;
+                        }
+                        
+                        .info-label {
+                            width: 125px;
+                            white-space: nowrap;
+                        }
+                        
+                        .info-colon {
+                            width: 10px;
+                        }
+                        .info-value{
+                            word-break: break-word;
+                            white-space: normal;
+                        }
+                        .desc-cell{
+                            white-space: nowrap !important;
+                            overflow: hidden;
+                            text-overflow: clip;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            white-space: nowrap;
+                        }
+
+                        .items-table thead {
+                            page-break-inside: avoid;
+                            page-break-after: avoid;
+                        }
+
+                        .items-table th {
+                            border-bottom: 1px solid #000;
+                            padding: 2px 3px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+
+                        .items-table tbody tr {
+                            page-break-inside: avoid;
+                        }
+                        
+                        .items-table td {
+                            padding: 1px;
+                            vertical-align: top;
+                        }
+                        
+                        .text-right { text-align: right; }
+                        .text-center { text-align: center; }
+                        .text-left { text-align: left; }
+                        
+                        .total-row {
+                            border-top: 1px solid #000;
+                            font-weight: bold;
+                            page-break-inside: avoid;
+                        }
+                        
+                        .signature-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            page-break-inside: avoid;
+                            border:none !important;
+                        }
+                        
+                        .signature-table td {
+                            vertical-align: top;
+                            padding: 0;
+                        }
+                    </style>
+
+                    <!-- ===================================================================== -->
+                    <!-- PAGE PAGINATION SETTINGS & HEIGHTS (USER BISA UBAH INI)               -->
+                    <!-- ===================================================================== -->
+                    
+                    <!-- 1. Batas maksimum baris per halaman -->
+                    <t t-set="limit_no_footer" t-value="33"/>
+                    <t t-set="limit_with_footer" t-value="25"/>
+
+                    <!-- 2. Tinggi Header & Footer -->
+                    <!-- KARENA TEMPLATE KERTAS SAMA, TINGGI HEADER SEMUA HALAMAN DISAMAKAN -->
+                    <t t-set="height_header" t-value="'200px'"/>
+                    <t t-set="height_header_2" t-value="'170px'"/>
+                    <t t-set="height_footer" t-value="'200px'"/>
+
+                    <!-- 3. MAXIMUM BODY HEIGHTS (Tergantung keadaan Footer) -->
+                    <!-- Saat Halaman wajib ada Footer -->
+                    <t t-set="body_h_with_footer" t-value="'1000px'"/>
+                     <!-- Saat Halaman tidak ada Footer (Batas agar tidak spill ke halaman baru) -->
+                     <t t-set="body_h_no_footer" t-value="'1000px'"/>
+
+
+                    <!-- ===================================================================== -->
+                    <!-- CALCULATE PAGES (Matematika Otomatis QWeb)                            -->
+                    <!-- ===================================================================== -->
+                    <t t-set="moves_len" t-value="len(moves_with_data)"/>
+                    <t t-set="total_qty" t-value="sum(m['quantity'] for m in moves_with_data)"/>
+                    
+                    <t t-set="item_pages_count" t-value="moves_len // limit_no_footer + (1 if moves_len % limit_no_footer &gt; 0 else 0)"/>
+                    <t t-if="item_pages_count == 0"><t t-set="item_pages_count" t-value="1"/></t>
+
+                    <t t-set="last_page_items" t-value="moves_len % limit_no_footer"/>
+                    <t t-if="last_page_items == 0 and moves_len &gt; 0">
+                        <t t-set="last_page_items" t-value="limit_no_footer"/>
+                    </t>
+
+                    <t t-set="needs_extra_footer_page" t-value="last_page_items &gt; limit_with_footer"/>
+                    <t t-set="total_physical_pages" t-value="item_pages_count + (1 if needs_extra_footer_page else 0)"/>
+
+                    <!-- ===================================================================== -->
+                    <!-- RENDER HALAMAN                                                        -->
+                    <!-- ===================================================================== -->
+                    <t t-foreach="range(total_physical_pages)" t-as="p_idx">
+                        <t t-set="is_last_page" t-value="p_idx == (total_physical_pages - 1)"/>
+                        <t t-set="current_page" t-value="p_idx + 1"/>
+                        
+                        <!-- Potong items untuk index halaman ini -->
+                        <t t-set="page_moves" t-value="moves_with_data[p_idx * limit_no_footer : (p_idx + 1) * limit_no_footer]"/>
+
+                        <!-- Algoritma Menentukan Tinggi Body yang sedang Aktif -->
+                        <t t-set="active_body_height" t-value="body_h_no_footer"/>
+                        <t t-if="is_last_page">
+                            <t t-set="active_body_height" t-value="body_h_with_footer"/>
+                        </t>
+
+
+                        <div class="page" t-att-style="'page-break-after: always; position: relative; padding: 20px; padding-top: 10px;'">
+
+                            <!-- ===================== HEADER ========================= -->
+                            <t t-if="current_page == 1">
+                                <div class="header-section" t-att-style="'height: ' + height_header + '; overflow: hidden; margin-bottom: 0px;'">
+                                    
+                                    <div style="text-align: right; font-size: 11px; color: black; font-weight: bold;">
+                                        Page 1 of <t t-out="total_physical_pages"/>
+                                    </div>
+                                    <div class="title">SURAT JALAN</div>
+                                    
+                                    <table class="header-table table table-borderless">
+                                        <tr>
+                                            <td style="width: 50%;">
+                                                <t t-set="partner" t-value="(picking.snk_site_address_id and picking.snk_site_address_id.partner_id) or picking.partner_id"/>
+                                                
+                                                <!-- DYNAMIC FONT SCALING UNTUK ALAMAT PANJANG -->
+                                                <t t-set="full_address" t-value="''"/>
+                                                <t t-if="partner">
+                                                   <t t-set="full_address" t-value="', '.join(filter(None, [partner.street, partner.street2, (partner.city_id and partner.city_id.name or ''), (partner.zip or '')]))"/>
+                                                   <!-- <t t-set="full_address" t-value="', '.join(filter(None, [(partner.street or ''), (partner.street2 or ''), (partner.city_id and partner.city_id.name or ''), (partner.state_id and partner.state_id.name or ''), (partner.country_id and partner.country_id.name or ''), (partner.zip or '')]))"/> -->
+                                                </t>
+                                                
+                                                <t t-set="addr_font_size" t-value="'12pt'"/>
+                                                <t t-if="len(full_address) &gt; 100"><t t-set="addr_font_size" t-value="'10pt'"/></t>
+                                                <t t-if="len(full_address) &gt; 120"><t t-set="addr_font_size" t-value="'8.5pt'"/></t>
+
+                                                <table style="width: 100%; border-collapse: collapse;">
+                                                    <tr>
+                                                        <td style="padding: 2px 0; font-size: 12pt;">
+                                                            <strong>To : <t t-out="picking.snk_site_address_id.snk_code"/></strong>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 0px 0; font-size: 12pt; font-weight: bold;">
+                                                            <t t-out="picking.snk_dest_site_name or '-'"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr t-att-style="'font-size: ' + addr_font_size + ';'">
+                                                        <td style="padding: 0px 0;">
+                                                            <t t-out="full_address.upper() or '-'"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td style="width: 50%;">
+                                                <table class="info-table">
+                                                    <tr>
+                                                        <td class="info-label">Delivery No</td>
+                                                        <td class="info-colon">:</td>
+                                                        <td class="info-value">
+                                                            <t t-out="picking.name"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="info-label">Delivery Date</td>
+                                                        <td class="info-colon">:</td>
+                                                        <td class="info-value">
+                                                            <t t-out="picking.scheduled_date and context_timestamp(picking.scheduled_date).strftime('%d.%m.%Y') or ''"/>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="info-label">Actual GI Date</td>
+                                                        <td class="info-colon">:</td>
+                                                        <td class="info-value">
+                                                            <!-- <t t-if="picking.snk_physical_date">
+                                                                <t t-out="picking.snk_physical_date.strftime('%d.%m.%Y')"/>
+                                                            </t> -->
+                                                            <t t-if="picking.date_done">
+                                                                <t t-out="context_timestamp(picking.date_done).strftime('%d.%m.%Y') or ''"/>
+                                                            </t>
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td class="info-label">Note</td>
+                                                        <td class="info-colon">:</td>
+                                                        <td class="info-value">
+                                                            <t t-out="picking.note or ''"/>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </t>
+                             <t t-else="">
+                                <div class="header-section" t-att-style="'height: ' + height_header_2 + '; overflow: hidden; margin-bottom: 0px;'">
+                                    <div style="text-align: right; font-size: 11px; color: black; font-weight: bold;">
+                                        Page <t t-out="current_page"/> of <t t-out="total_physical_pages"/>
+                                    </div>
+                                    <!-- <div class="title" style="margin-bottom: 10px;">SURAT JALAN</div> -->
+                                </div>
+                            </t>
+
+                            <!-- ====================== BODY ========================== -->
+                            <div class="body-section" t-att-style="'height: ' + active_body_height + '; overflow: hidden; margin-bottom: 20px;'">
+                                <t t-if="current_page &gt; 1">
+                                    <div style="text-align:right; font-weight:bold; font-size: 14px; margin-bottom: 5px;">
+                                        Delivery No : <t t-out="picking.name"/>
+                                    </div>
+                                </t>
+                                <!-- Atur margin-top / padding-top di bawah untuk menempatkan header kolom tabel -->
+                                <table class="items-table table table-borderless" style="margin-top: 0px;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 6%;" class="text-center">Grade</th>
+                                            <th style="width: 24%;" class="text-center">Article</th>
+                                            <th style="width: 6%;" class="text-center">Qty</th>
+                                            <th style="width: 6%;" class="text-center">Uom</th>
+                                            <th style="width: 15%; text-align: right; padding-right: 10px;" class="text-center">Price</th>
+                                            <th style="width: 18%; text-align: right; padding-right: 10px;" class="text-center">Total Amount</th>
+                                            <th style="width: 25%; text-align: left" class="text-center">Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody style="font-size: 12pt;">
+                                        <t t-foreach="page_moves" t-as="move_data">
+                                            <tr>
+                                                <td class="text-center">
+                                                    <!-- <t t-out="p_idx * limit_no_footer + move_data_index + 1"/>. -->
+                                                    <t t-out="move_data.get('grade_name', '')"/>
+                                                </td>
+                                                <td class="text-left">
+                                                    <t t-set="product" t-value="move_data['product']"/>
+                                                    <t t-set="article" t-value="product.product_tmpl_id.default_code or ''"/>
+                                                    <t t-set="attr_codes" t-value="' '.join(product.product_template_attribute_value_ids.mapped('name'))"/>
+                                                    <t t-out="article"/> <t t-out="attr_codes"/>
+                                                </td>
+                                                <td class="text-center">
+                                                    <t t-out="'{:,.0f}'.format(move_data['quantity']).replace(',', '.')"/>
+                                                </td>
+                                                <td class="text-center"><t t-out="move_data['uom'].name"/></td>
+                                                <td class="text-right">
+                                                    <t t-out="'{:,.2f}'.format(move_data.get('price', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')"/>
+                                                </td>
+                                                <td class="text-right">
+                                                    <t t-out="'{:,.2f}'.format(move_data.get('subtotal', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')"/>
+                                                </td>
+                                                <td class="text-left desc-cell;" style="white-space:nowrap; padding-left: 10px;"><t t-out="(move_data['product'].name or '')[:20]"/></td>
+                                            </tr>
+                                        </t>
+                                        <!-- BARIS TOTAL MUNCUL DI BAWAH DATA PADA HALAMAN TERAKHIRNYA DATA -->
+                                        <t t-if="p_idx == item_pages_count - 1">
+                                            <tr style="font-weight: bold; font-size: 12pt;">
+                                                <td colspan="2" class="text-right" style="padding-right: 20px;">Total</td>
+                                                <td class="text-center">
+                                                    <span style="border-bottom: 4px double #000; padding: 0 2px;"><t t-out="'%.0f' % total_qty"/></span>
+                                                </td>
+                                                <td colspan="2"/>
+                                                <td class="text-right">
+                                                    <span style="border-bottom: 4px double #000; padding: 0 2px;"><t t-out="'{:,.2f}'.format(total_amount).replace(',', 'X').replace('.', ',').replace('X', '.')"/></span>
+                                                </td>
+                                                <td/>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                    <t t-if="is_last_page">
+                                        <tfoot>
+                                            <tr>
+                                                <td colspan="7" style="border: none !important; padding: 0;">
+                                                    <t t-set="remark_font_size" t-value="'12pt'"/>
+                                                    <t t-if="picking.origin and len(picking.origin) &gt; 90"><t t-set="remark_font_size" t-value="'10pt'"/></t>
+                                                    <t t-if="picking.origin and len(picking.origin) &gt; 180"><t t-set="remark_font_size" t-value="'8.5pt'"/></t>
+                                                    <div t-att-style="'text-align: left; padding-left: 10px; margin-top: 10px; font-size: 12pt; font-family: Arial, sans-serif; line-height: 1.0;'">
+                                                        <strong>Remark: </strong>
+                                                        <span t-att-style="'font-size: ' + remark_font_size + ';'"><t t-out="picking.origin or '-'"/></span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="7" style="border: none !important; padding: 0;">
+                                                    <div class="footer-section" t-att-style="'height: ' + height_footer + '; position: relative; margin-top: 10px;'">
+                                                        <!-- SIGNATURES -->
+                                                        <table class="table table-borderless" style="width: 100%; text-align: center; font-size: 12pt; font-family: Arial, sans-serif; border: none !important;">
+                                                            <tr>
+                                                                <td style="width: 35%; font-weight: bold; font-size: 12pt;">Best Regard,</td>
+                                                                <td style="width: 30%; font-weight: bold; font-size: 12pt;"/>
+                                                                <td style="width: 35%; font-weight: bold; font-size: 12pt;">Approved,</td>
+                                                            </tr>
+                                                            <tr style="height: 70px;">
+                                                                <!-- Space for Signatures -->
+                                                                <td style="vertical-align: bottom;"> </td>
+                                                                <td style="vertical-align: bottom;"> </td>
+                                                            </tr>
+                                                            <tr>
+                                                                 <td>
+                                                                    <div style="width: 80%; margin: 0 auto; padding-top: 3px; border-bottom: 1px solid black; font-weight: bold;">
+                                                                        <t t-if="picking.create_uid"><t t-out="picking.create_uid.name"/></t>
+                                                                        <t t-else=""><br/></t>
+                                                                    </div>
+                                                                    <!-- <div style="font-size: 11px; color: #555; margin-top: 2px;">Date: ........................</div> -->
+                                                                </td>
+                                                                <td/>
+                                                                <td>
+                                                                    <div style="width: 80%; margin: 0 auto; padding-top: 3px; border-bottom: 1px solid black; font-weight: bold;">
+                                                                        <!-- ( _________________ ) -->
+                                                                        <br/>
+                                                                    </div>
+                                                                    <!-- <div style="font-size: 11px; color: #555; margin-top: 2px;">Date: ........................</div> -->
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </t>
+                                </table>
+                                <!-- <t t-if="is_last_page">
+                                    <t t-set="remark_font_size" t-value="'12pt'"/>
+                                    <t t-if="picking.origin and len(picking.origin) &gt; 90"><t t-set="remark_font_size" t-value="'10pt'"/></t>
+                                    <t t-if="picking.origin and len(picking.origin) &gt; 180"><t t-set="remark_font_size" t-value="'8.5pt'"/></t>
+                                    <div t-att-style="'text-align: left; padding-left: 10px; margin-top: 10px; font-size: 12pt; font-family: Arial, sans-serif; line-height: 1.0;'">
+                                        <strong>Remark: </strong>
+                                        <span t-att-style="'font-size: ' + remark_font_size + ';'"><t t-out="picking.origin or '-'"/></span>
+                                    </div>
+                                </t> -->
+                            </div>
+
+                            <!-- ===================== FOOTER ========================= -->
+                            <!-- <t t-if="is_last_page">
+                                <div class="footer-section" t-att-style="'height: ' + height_footer + '; position: relative;'">
+                                    
+                                    SIGNATURES
+                                    <table class="table table-borderless" style="width: 100%; text-align: center; margin-top: 5px; font-size: 12pt; font-family: Arial, sans-serif; border: none !important;">
+                                        <tr>
+                                            <td style="width: 35%; font-weight: bold; font-size: 12pt;">Best Regard,</td>
+                                            <td style="width: 30%; font-weight: bold; font-size: 12pt;"/>
+                                            <td style="width: 35%; font-weight: bold; font-size: 12pt;">Approved,</td>
+                                        </tr>
+                                        <tr style="height: 70px;">
+                                            Space for Signatures
+                                            <td style="vertical-align: bottom;"> </td>
+                                            <td style="vertical-align: bottom;"> </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div style="width: 80%; margin: 0 auto; padding-top: 3px; border-bottom: 1px solid black; font-weight: bold;">
+                                                    <t t-if="picking.snk_approve"><t t-out="picking.snk_approve"/></t>
+                                                    <t t-else=""><br/></t>
+                                                </div>
+                                                <div style="font-size: 11px; color: #555; margin-top: 2px;">Date: ........................</div>
+                                            </td>
+                                            <td/>
+                                            <td>
+                                                <div style="width: 80%; margin: 0 auto; padding-top: 3px; border-bottom: 1px solid black; font-weight: bold;">
+                                                    ( _________________ )
+                                                    <br/>
+                                                </div>
+                                                <div style="font-size: 11px; color: #555; margin-top: 2px;">Date: ........................</div>
+                                            </td>
+                                        </tr>
+                                    </table>
+
+                                </div>
+                            </t> -->
+
+                        </div>
+                    </t>
+
+            </t>
+        </t>
+    </template>
+</odoo>

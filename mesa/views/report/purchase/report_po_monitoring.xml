@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Wizard Action (Moved up to fix loading order) -->
+        <record id="snk_action_open_po_monitoring_wizard" model="ir.actions.act_window">
+            <field name="name">Generate PO Monitoring Report</field>
+            <field name="res_model">snk.report.po.monitoring.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <!-- Wizard Form View -->
+        <record id="view_snk_report_po_monitoring_wizard_form" model="ir.ui.view">
+            <field name="name">snk.report.po.monitoring.wizard.form</field>
+            <field name="model">snk.report.po.monitoring.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate PO Monitoring Report">
+                    <group>
+                        <group>
+                            <field name="from_date"/>
+                            <field name="to_date"/>
+                        </group>
+                        <group>
+                            <field name="snk_site_id" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Generate" name="action_generate_report" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Report List View -->
+        <record id="view_snk_report_po_monitoring_list" model="ir.ui.view">
+            <field name="name">snk.report.po.monitoring.list</field>
+            <field name="model">snk.report.po.monitoring</field>
+            <field name="arch" type="xml">
+                <list string="PO Monitoring" create="false" edit="false">
+                    <header>
+                        <button name="%(snk_action_open_po_monitoring_wizard)d"
+                                string="Generate Report"
+                                type="action"
+                                display="always"
+                                class="btn-primary"
+                        />
+                    </header>
+                    <!-- Visible Columns -->
+                    <field name="date_order"/>
+                    <field name="purchase_id" string="Purchase Order"/>
+                    <field name="snk_po_number" string="PO Number" optional="show"/>
+                    <field name="snk_pr_number" string="PR Number" optional="show"/>
+                    <field name="snk_purchase_type_id" string="Purchase Type" optional="hide"/>
+                    <field name="partner_id" string="Vendor" optional="show"/>
+                    <field name="picking_type_id" optional="hide"/>
+                    <field name="date_planned" optional="hide"/>
+                    <field name="date_approve" optional="hide"/>
+                    <field name="snk_approve" optional="hide"/>
+                    <field name="picking_id" string="Reference" optional="show"/>
+                    <field name="origin" string="Source Document" optional="show"/>
+                    <field name="snk_site_address_id" optional="show"/>
+                    <field name="snk_site_address_name" optional="show"/>
+                    <field name="snk_site_id" optional="show"/>
+                    <field name="snk_site_name" optional="show"/>
+                    <field name="scheduled_date" optional="hide"/>
+                    <field name="date_done" optional="hide"/>
+                    <field name="snk_physical_date" optional="hide"/>
+                    <field name="receipt_status" string="Receipt Status" widget="badge"
+                        decoration-success="receipt_status == 'full'"
+                        decoration-warning="receipt_status == 'partial'"
+                        decoration-danger="receipt_status == 'pending'"
+                        optional="show"
+                        invisible="state not in ('purchase', 'done', 'approved')"/>
+                    <field name="product_id" string="Product" optional="show"/>
+                    <field name="product_qty" string="Qty PO" sum="Total Qty PO" optional="show"/>
+                    <field name="qty_received" string="Received" sum="Total Received" optional="show"/>
+                    <field name="snk_remaining_order" string="Remaining" sum="Total Remaining" optional="hide"/>
+                    <field name="product_uom_id" string="UoM" optional="show"/>
+                    <field name="snk_description" optional="hide"/>
+                    <field name="snk_material_code" optional="hide"/>
+                    <field name="product_template_attribute_value_ids" widget="many2many_tags" optional="hide"/>
+                    <field name="lot_id" optional="hide"/>
+                    <field name="analytic_id" optional="hide"/>
+                    <field name="price_unit" optional="hide"/>
+                    <field name="snk_amount" sum="Total Amount" optional="hide"/>
+                    <field name="currency_id" optional="hide"/>
+                    <field name="note" optional="hide"/>
+                    <field name="state" string="Status" widget="badge"
+                        decoration-info="state in ('draft', 'sent')"
+                        decoration-warning="state == 'to approve'"
+                        decoration-success="state in ('purchase', 'approved', 'done')"
+                        decoration-muted="state == 'cancel'"/>
+
+                    <!-- Optional (Hidden) Columns -->
+                    <field name="create_uid" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Report Pivot View -->
+        <record id="view_snk_report_po_monitoring_pivot" model="ir.ui.view">
+            <field name="name">snk.report.po.monitoring.pivot</field>
+            <field name="model">snk.report.po.monitoring</field>
+            <field name="arch" type="xml">
+                <pivot string="PO Monitoring">
+                    <field name="snk_site_id" type="row"/>
+                    <field name="product_id" type="row"/>
+                    <field name="product_qty" type="measure"/>
+                    <field name="qty_received" type="measure"/>
+                    <field name="snk_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_snk_report_po_monitoring_search" model="ir.ui.view">
+            <field name="name">snk.report.po.monitoring.search</field>
+            <field name="model">snk.report.po.monitoring</field>
+            <field name="arch" type="xml">
+                <search string="PO Monitoring Search">
+                    <field name="snk_po_number"/>
+                    <field name="snk_pr_number"/>
+                    <field name="purchase_id"/>
+                    <field name="partner_id"/>
+                    <field name="product_id"/>
+                    <field name="picking_id"/>
+                    <separator/>
+                    <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                    <filter string="Purchase Order" name="purchase" domain="[('state', '=', 'purchase')]"/>
+                    <filter string="To Approve" name="to_approve" domain="[('state', '=', 'to approve')]"/>
+                    <group expand="1" string="Group By">
+                        <filter string="Sender" name="group_by_site" context="{'group_by': 'snk_site_address_id'}"/>
+                        <filter string="Receiver" name="group_by_dest_site" context="{'group_by': 'snk_site_name'}"/>
+                        <filter string="Vendor" name="group_by_vendor" context="{'group_by': 'partner_id'}"/>
+                        <filter string="Source Document" name="group_by_origin" context="{'group_by': 'origin'}"/>
+                        <filter string="Status" name="group_by_status" context="{'group_by': 'state'}"/>
+                        <filter string="Product" name="group_by_product" context="{'group_by': 'product_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <!-- Action untuk List Report -->
+        <record id="action_snk_report_po_monitoring" model="ir.actions.act_window">
+            <field name="name">PO Monitoring</field>
+            <field name="res_model">snk.report.po.monitoring</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <field name="groups_id" eval="[(4, ref('mesa.group_report_po_monitoring'))]"/>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="context">{}</field>
+        </record>
+    </data>
+</odoo>

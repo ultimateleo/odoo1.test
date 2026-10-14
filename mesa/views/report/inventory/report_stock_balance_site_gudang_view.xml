@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_report_stock_balance_site_gudang_list" model="ir.ui.view">
+        <field name="name">report.stock.balance.site.gudang.list</field>
+        <field name="model">report_stock_balance_site_gudang</field>
+        <field name="arch" type="xml">
+            <list string="Stock Balance Site vs Gudang" create="0" edit="0" delete="0">
+                <header>
+                    <button name="%(action_report_stock_balance_site_gudang_wizard)d" 
+                            type="action" 
+                            string="Generate Stock Balance" 
+                            class="btn-primary" 
+                            display="always"/>
+                </header>
+                <field name="site_id"/>
+                <field name="site_name" optional="show"/>
+                <field name="location_id" optional="show"/>
+                <field name="product_id" optional="show"/>
+                <field name="product_tmpl_id" optional="hide"/>
+                <field name="tmpl_internal_ref" optional="hide"/>
+                <field name="categ_id" optional="show"/>
+                <field name="lot_name" optional="show"/>
+                <field name="internal_ref" optional="show"/>
+                <field name="snk_grade_id" optional="show"/>
+                <field name="analytic_id" optional="show"/>
+                <field name="snk_material_code" optional="show"/>
+                <field name="price_unit" optional="show"/>
+                <field name="qty_available" sum="Total Site Available"/>
+                <field name="stock_gudang" sum="Total Gudang Available"/>
+                <field name="incoming_qty" sum="Total Incoming"/>
+                <field name="outgoing_qty" sum="Total Outgoing"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_report_stock_balance_site_gudang_pivot" model="ir.ui.view">
+        <field name="name">report.stock.balance.site.gudang.pivot</field>
+        <field name="model">report_stock_balance_site_gudang</field>
+        <field name="arch" type="xml">
+            <pivot string="Stock Balance Pivot" disable_linking="True">
+                <field name="site_id" type="row"/>
+                <field name="product_tmpl_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="lot_name" type="row"/>
+                <field name="qty_available" type="measure"/>
+                <field name="price_unit" type="measure"/>
+                <field name="categ_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+    
+    <!-- Search View for Filtering -->
+    <record id="view_report_stock_balance_site_gudang_search" model="ir.ui.view">
+        <field name="name">report.stock.balance.site.gudang.search</field>
+        <field name="model">report_stock_balance_site_gudang</field>
+        <field name="arch" type="xml">
+            <search string="Search Stock Balance">
+                <field name="product_id"/>
+                <field name="product_tmpl_id"/>
+                <field name="tmpl_internal_ref"/>
+                <field name="lot_name"/>
+                <field name="site_id"/>
+                <field name="location_id"/>
+                <field name="internal_ref"/>
+                <field name="snk_grade_id"/>
+                <field name="analytic_id"/>
+                <field name="snk_material_code"/>
+                <field name="categ_id"/>
+                
+                <group expand="0" string="Group By">
+                    <filter name="group_site" string="Site" context="{'group_by':'site_id'}"/>
+                    <filter name="group_location" string="Location" context="{'group_by':'location_id'}"/>
+                    <filter name="group_tmpl" string="Product Template" context="{'group_by':'product_tmpl_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by':'product_id'}"/>
+                    <filter name="group_grade" string="Grade" context="{'group_by':'snk_grade_id'}"/>
+                    <filter string="Brand" name="group_brand" context="{'group_by':'analytic_id'}"/>
+                    <filter string="Category" name="group_category" context="{'group_by':'categ_id'}"/>
+                    <filter name="group_lot" string="Lot/Serial Number" context="{'group_by':'lot_name'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_report_stock_balance_site_gudang_window" model="ir.actions.act_window">
+        <field name="name">Stock Balance</field>
+        <field name="res_model">report_stock_balance_site_gudang</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="view_report_stock_balance_site_gudang_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_balance'))]"/>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data Stock Balance Site vs Gudang.
+            </p>
+            <p>
+                Klik tombol <b>Generate Stock Balance</b> di samping tulisan New untuk menarik data Mutasi.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="snk_view_stock_warehouse_inherit" model="ir.ui.view">
+            <field name="name">snk.stock.warehouse.inherit</field>
+            <field name="model">stock.warehouse</field>
+            <field name="inherit_id" ref="stock.view_warehouse"/>
+            <field name="arch" type="xml">
+                <field name="partner_id" position="after">
+                    <field name="snk_status" groups="mesa.group_snk_pos_integration"/>
+                </field>
+                <field name="xdock_type_id" position="after">
+                    <field name="snk_pos_in_id" readonly="1" groups="mesa.group_snk_pos_integration"/>
+                    <field name="snk_pos_out_id" readonly="1" groups="mesa.group_snk_pos_integration"/>
+                </field>
+                <field name="delivery_steps" position="after">
+                    <field name="minimum_picking"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

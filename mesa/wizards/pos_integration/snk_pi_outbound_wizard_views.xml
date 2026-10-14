@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_snk_pi_outbound_confirm_wizard_form" model="ir.ui.view">
+        <field name="name">snk.pi.outbound.confirm.wizard.form</field>
+        <field name="model">snk.pi.outbound.confirm.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirmation: Duplicates Found">
+                <field name="outbound_ids" invisible="1"/>
+                <div class="alert alert-warning" role="alert">
+                    <p><strong>Warning!</strong> Some of the selected records have origins that have already been integrated successfully.</p>
+                </div>
+                <group>
+                    <field name="duplicate_info" nolabel="1" widget="text"/>
+                </group>
+                <footer>
+                    <button name="action_confirm_process" string="Process Anyway" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_snk_pi_outbound_resend_wizard_form" model="ir.ui.view">
+        <field name="name">snk.pi.outbound.resend.wizard.form</field>
+        <field name="model">snk.pi.outbound.resend.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Confirm Resend to SFTP">
+                <field name="outbound_ids" invisible="1"/>
+                <div class="alert alert-danger" role="alert">
+                    <p>
+                        <strong>Warning!</strong>
+                        These outbound files were uploaded successfully before.
+                        Resending can create duplicate POS transactions if the files
+                        were already processed.
+                    </p>
+                </div>
+                <group>
+                    <field name="reason"
+                           placeholder="Example: File was missing from SFTP before POS processing."/>
+                </group>
+                <footer>
+                    <button name="action_confirm_resend"
+                            string="Resend Anyway"
+                            type="object"
+                            class="btn-danger"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

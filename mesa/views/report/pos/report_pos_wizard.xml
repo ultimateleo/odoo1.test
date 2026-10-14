@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Wizard Form View -->
+        <record id="view_snk_pos_report_wizard_form" model="ir.ui.view">
+            <field name="name">snk.report.pos.wizard.form</field>
+            <field name="model">snk.report.pos.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Generate POS Report">
+                    <group>
+                        <group>
+                            <field name="date_start" required="1"/>
+                            <field name="site_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="date_end" required="1"/>
+                            <field name="analytic_ids" widget="many2many_tags"/>
+                            <field name="categ_ids" widget="many2many_tags"/>
+                            <field name="product_tmpl_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Generate" name="action_generate_report" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Wizard Action -->
+        <record id="snk_action_open_pos_report_wizard" model="ir.actions.act_window">
+            <field name="name">Generate POS Report</field>
+            <field name="res_model">snk.report.pos.wizard</field>
+            <field name="view_id" ref="view_snk_pos_report_wizard_form"/>
+            <field name="view_mode">form</field>
+            <field name="groups_id" eval="[(4, ref('mesa.group_report_pos'))]"/>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

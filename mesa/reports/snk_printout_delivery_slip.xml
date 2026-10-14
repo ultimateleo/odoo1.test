@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format -->
+    <record id="paperformat_delivery_slip" model="report.paperformat">
+        <field name="name">Delivery Slip Price Format</field>
+        <field name="default" eval="False" />
+        <field name="format">custom</field>
+        <field name="page_height">355</field>
+        <field name="page_width">216</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">5</field>
+         <field name="dpi">90</field>
+        <field name="header_spacing">5</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_slip" model="ir.actions.report">
+        <field name="name">Surat Jalan</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_slip_template</field>
+        <field name="report_file">mesa.report_delivery_slip_template</field>
+
+        <field name="binding_model_id" eval="False"/>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_slip" />
+    </record>
+
+    <template id="report_delivery_slip_template" t-name="mesa.report_delivery_slip_template">
+        <t t-call="web.html_container">
+            <t t-set="processed_pickings" t-value="processed_pickings or []" />
+
+            <t t-foreach="processed_pickings" t-as="picking_data">
+                <t t-set="picking" t-value="picking_data['picking']" />
+                <t t-set="moves_with_data" t-value="picking_data['moves_with_data']" />
+                <t t-set="total_amount" t-value="picking_data.get('total_amount', 0)" />
+
+                <div class="page">
+                    <style>
+                        * { margin: 0; padding: 0; box-sizing: border-box; }
+                        
+                        .page {
+                            font-family: Arial, sans-serif;
+                            font-size: 11px;
+                            padding: 20px;
+                            color: #000;
+                        }
+                        
+                        .title {
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            letter-spacing: 3px;
+                        }
+                        
+                        .header-section {
+                            display: table;
+                            width: 100%;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .header-left {
+                            display: table-cell;
+                            width: 55%;
+                            vertical-align: top;
+                            font-size: 14px;
+                        }
+                        
+                        .header-right {
+                            display: table-cell;
+                            width: 45%;
+                            vertical-align: top;
+                            font-size: 14px;
+                        }
+                        
+                        .header-row {
+                            margin-bottom: 3px;
+                        }
+                        
+                        .header-label {
+                            display: inline-block;
+                            width: 120px;
+                        }
+                        
+                        .header-value {
+                            display: inline-block;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            margin-bottom: 20px;
+                        }
+                        
+                        .items-table th {
+                            border-bottom: 1px solid #000;
+                            padding: 5px 3px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+                        
+                        .items-table td {
+                            padding: 3px;
+                            vertical-align: top;
+                        }
+                        
+                        .items-table .text-right {
+                            text-align: right;
+                        }
+                        
+                        .items-table .text-center {
+                            text-align: center;
+                        }
+                        
+                        .total-row {
+                            border-top: 1px solid #000;
+                            font-weight: bold;
+                        }
+                        
+                        .signature-section {
+                            display: table;
+                            width: 100%;
+                            margin-top: 40px;
+                            border-top: 1px solid #000;
+                            padding-top: 20px;
+                            font-size: 13px;
+                        }
+                        
+                        .signature-left {
+                            display: table-cell;
+                            width: 50%;
+                            text-align: center;
+                        }
+                        
+                        .signature-right {
+                            display: table-cell;
+                            width: 50%;
+                            text-align: center;
+                        }
+                        
+                        .signature-box {
+                            margin-top: 60px;
+                        }
+                        
+                        .signature-line {
+                            border-top: 1px solid #000;
+                            width: 150px;
+                            margin: 0 auto;
+                        }
+                        
+                        .signature-note {
+                            font-size: 11px;
+                            margin-top: 5px;
+                        }
+                    </style>
+
+                    <!-- TITLE -->
+                    <div class="title">SURAT JALAN</div>
+
+                    <!-- HEADER SECTION -->
+                    <div class="header-section">
+                        <div class="header-left">
+                            <div class="header-row">
+                                <span class="header-label">To :</span>
+                                <span class="header-value">
+                                    <!-- Lookup: site_address_id -> partner_id -->
+                                    <t t-if="picking.snk_site_address_id and picking.snk_site_address_id.partner_id">
+                                        <t t-set="site_partner" t-value="picking.snk_site_address_id.partner_id" />
+                                        <t t-esc="site_partner.name" />
+                                        <t t-if="site_partner.street">
+                                            <t t-esc="site_partner.street" /><br/>
+                                        </t>
+                                        <t t-if="site_partner.street2">
+                                            <t t-esc="site_partner.street2" /><br/>
+                                        </t>
+                                        <t t-if="site_partner.city">
+                                            <t t-if="site_partner.street2">, </t>
+                                            <t t-esc="site_partner.city" />
+                                        </t>
+                                    </t>
+                                    <!-- Fallback to partner_id if no site -->
+                                    <t t-elif="picking.partner_id">
+                                        <t t-esc="picking.partner_id.name" /><br/>
+                                        <t t-if="picking.partner_id.street">
+                                            <t t-esc="picking.partner_id.street" /><br/>
+                                        </t>
+                                        <t t-if="picking.partner_id.street2">
+                                            <t t-esc="picking.partner_id.street2" />
+                                        </t>
+                                        <t t-if="picking.partner_id.city">
+                                            <t t-if="picking.partner_id.street2">, </t>
+                                            <t t-esc="picking.partner_id.city" />
+                                        </t>
+                                    </t>
+                                </span>
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">Remark :</span>
+                                <span t-esc="picking.note or '-'" />
+                            </div>
+                        </div>
+                        <div class="header-right">
+                            <div class="header-row">
+                                <span class="header-label">Delivery No</span>
+                                <span class="header-value">: <t t-esc="picking.name" /></span>
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">Delivery Date</span>
+                                <span class="header-value">: 
+                                    <t t-if="picking.scheduled_date">
+                                        <t t-esc="picking.scheduled_date.strftime('%d.%m.%Y')" />
+                                    </t>
+                                </span>
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">Actual GI Date</span>
+                                <span class="header-value">: 
+                                    <!-- Try snk_physical_date first, fallback to date_done -->
+                                    <t t-if="picking.snk_physical_date">
+                                        <t t-esc="picking.snk_physical_date.strftime('%d.%m.%Y')" />
+                                    </t>
+                                    <t t-elif="picking.date_done">
+                                        <t t-esc="picking.date_done.strftime('%d.%m.%Y')" />
+                                    </t>
+                                </span>
+                            </div>
+                            <div class="header-row">
+                                <span class="header-label">PO.No.</span>
+                                <span class="header-value">: 
+                                    <!-- Try purchase_id first, fallback to origin -->
+                                    <t t-if="picking.purchase_id">
+                                        <t t-esc="picking.purchase_id.name" />
+                                    </t>
+                                    <t t-else="">
+                                        <t t-esc="picking.origin or '-'" />
+                                    </t>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ITEMS TABLE -->
+                    <table class="items-table" style="padding-top: 100px;">
+                        <thead>
+                            <tr>
+                                <th style="width: 5%;">No.</th>
+                                <th style="width: 15%;">Article</th>
+                                <th style="width: 10%;">Attribute</th>
+                                <th style="width: 52%;">Description</th>
+                                <th style="width: 10%;" class="text-right">Qty</th>
+                                <th style="width: 8%;">Uom</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="counter" t-value="0" />
+                            <t t-set="total_qty" t-value="0" />
+                            <t t-foreach="moves_with_data" t-as="move_data">
+                                <t t-set="counter" t-value="counter + 1" />
+                                <t t-set="total_qty" t-value="total_qty + move_data['quantity']" />
+                                <tr>
+                                    <td class="text-center"><t t-esc="counter" /></td>
+                                    <td><t t-esc="move_data['product'].product_tmpl_id.default_code or ''" /></td>
+                                    <td>
+                                        <t t-if="move_data['product'].product_template_attribute_value_ids">
+                                            <t t-esc="' '.join(attr.name for attr in move_data['product'].product_template_attribute_value_ids)" />
+                                        </t>
+                                    </td>
+                                    <td><t t-esc="move_data['product'].product_tmpl_id.name" /></td>
+                                    <td class="text-right"><t t-esc="'%.2f' % move_data['quantity']" /></td>
+                                    <td><t t-esc="move_data['uom'].name" /></td>
+                                </tr>
+                            </t>
+                            <!-- Total Row -->
+                            <tr class="total-row">
+                                <td colspan="4" class="text-right"><strong>Total</strong></td>
+                                <td class="text-right"><t t-esc="'%.2f' % total_qty" /></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- SIGNATURE SECTION -->
+                    <div class="signature-section">
+                        <div class="signature-left">
+                            <strong>Dipersiapkan oleh,</strong>
+                            <div class="signature-box">
+                                <div>(________________________)</div>
+                            </div>
+                        </div>
+                        <div class="signature-right">
+                            <strong>Diterima oleh,</strong>
+                            <div class="signature-box">
+                                <div>(________________________)</div>
+                                <div class="signature-note">Diisi nama, paraf &amp; tgl terima barang</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+</odoo>

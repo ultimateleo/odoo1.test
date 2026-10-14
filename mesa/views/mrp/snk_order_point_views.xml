@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="snk_order_point_view_list" model="ir.ui.view">
+        <field name="name">snk.order.point.view.list</field>
+        <field name="model">snk.order.point</field>
+        <field name="arch" type="xml">
+            <list string="Order Point">
+                <header>
+                    <button string="Generate" name="action_generate_and_update_rules" display="always" type="object" class="oe_highlight"/>
+                </header>
+                <field name="period_char" column_invisible="1" />
+                <!-- <field name="date_from" invisible="true" /> -->
+                <!-- <field name="date_to" invisible="true" /> -->
+                <field name = "date"/>
+                <field name="period" />
+                <!-- <field name="warehouse_ids" widget="many2many_tags" invisible="true"/> -->
+                <field name="warehouse_id" />
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+
+    <record id="snk_order_point_view_form" model="ir.ui.view">
+        <field name="name">snk.order.point.view.form</field>
+        <field name="model">snk.order.point</field>
+        <field name="arch" type="xml">
+            <form string="Order Point">
+                <header>
+                    <button string="Generate Rules" name="action_generate" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button string="Update Rules" name="action_update" type="object" class="oe_highlight" invisible="state != 'pending'"/>
+                    <button string="Cancel" name="action_cancel" type="object" class="btn-secondary" invisible="state not in ['pending', 'done']"/>
+                    <button string="Reset To Draft " name="action_reset_to_draft" type="object" class="btn-secondary" invisible="state != 'cancel'"/>
+
+                    <field name="state" widget="statusbar" statusbar_visible="draft,pending,done"/>
+                </header>
+                <sheet>
+                    <field name="period_char" invisible="1" />
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <!-- <field name="date_from" widget="daterange" options="{'end_date_field': 'date_to'}" />
+                            <field name="date_to" invisible="1"/> -->
+                            <field name = "date"/>
+                            <field name="period" />
+                            <field name="site_id" />
+                            <field name="schedule_id" />
+                            <field name="warehouse_id" readonly="1"/>
+                            <!-- <field name="warehouse_ids" widget="many2many_tags" readonly="1"/> -->
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="order_point_line" string="Order Points">
+                            <field name="order_point_line_ids" mode="list">
+                                <list editable="bottom">
+                                    <!-- <field name="date_from"/>
+                                    <field name="date_to"/> -->
+                                    <field name="date"/>
+                                    <field name="site_id" readonly="1"/>
+                                    <field name="warehouse_id" readonly="1"/>
+                                    <field name="product_id"/>
+                                    <field name="brand_id"/>
+                                    <field name="snk_grade_id"/>
+                                    <field name="snk_normal_price"/>
+                                    <field name="lst_price"/>
+                                    <field name="qty_sold"/>
+                                    <field name="min_stock"/>
+                                    <field name="max_stock"/>
+                                    <field name="new_min_stock"/>
+                                    <field name="new_max_stock"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="snk_order_point_view_search" model="ir.ui.view">
+        <field name="name">snk.order.point.view.search</field>
+        <field name="model">snk.order.point</field>
+        <field name="arch" type="xml">
+            <search string="Order Point">
+                <field name="name" string="Period" filter_domain="['|', ('name', 'ilike', self), ('period_char', 'ilike', self)]"/>
+                <field name="site_id" string="Site" filter_domain="['|', ('site_id.snk_code', 'ilike', self), ('site_id.snk_name', 'ilike', self)]"/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]" context="{}" />
+                <filter name="pending" string="Pending" domain="[('state', '=', 'pending')]" context="{}" />
+                <filter name="done" string="Done" domain="[('state', '=', 'done')]" context="{}" />
+                <filter name="cancel" string="Cancel" domain="[('state', '=', 'cancel')]" context="{}" />
+                <group expand="0" string="Group By">
+                    <filter name="date_from" string="From" domain="[]" context="{'group_by': 'date_from'}" />
+                    <filter name="date_to" string="To" domain="[]" context="{'group_by': 'date_to'}" />
+                    <filter name="site_id" string="Site" domain="[]" context="{'group_by': 'site_id'}" />
+                    <filter name="state" string="Status" domain="[]" context="{'group_by': 'state'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="snk_order_point_action" model="ir.actions.act_window">
+        <field name="name">Order Point</field>
+        <field name="res_model">snk.order.point</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="snk_order_point_view_search"/>
+        <field name="domain">[]</field>
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smilling_face">
+                There is no order point, please create a new one !
+            </p>
+        </field>
+    </record>
+
+
+    <menuitem
+        id="snk_mrp_order_point_menu"
+        name="Order Points"
+        action="snk_order_point_action"
+        parent="mesa.snk_mrp_stock_transfer_order_view_main"
+        sequence="2"/>
+
+</odoo>

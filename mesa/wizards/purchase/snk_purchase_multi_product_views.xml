@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_purchase_multi_product_wizard_form" model="ir.ui.view">
+            <field name="name">snk.purchase.multi.product.wizard.form</field>
+            <field name="model">snk.purchase.multi.product.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Select multiple product">
+                    <group>
+                        <field name="product_ids" options="{'no_create_edit': True}" nolabel='1'/>
+                    </group>
+                    <footer>
+                        <button string="Confirm" type="object" name="action_confirm" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_product_template_form_inherit" model="ir.ui.view">
+            <field name="name">snk.product.template.form.view.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_only_form_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                <xpath expr="//label[@for='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                <xpath expr="//div[@name='standard_price_uom']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                
+                <!-- Tambahkan kembali snk_normal_price karena ini field custom -->
+                <xpath expr="//div[@name='list_price_uom']" position="after">
+                    <field name="snk_normal_price" string="Normal Price" widget='monetary'
+                        options="{'currency_field': 'currency_id'}" optional="show" />
+                </xpath>
+                <xpath expr="//group[@name='group_standard_price']" position="inside">
+                    <separator string="Structure" />
+                    <field name="analytic_id" required="1"
+                        options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                    <field name="snk_grade_id"
+                        options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                    <field name="snk_material_code" />
+                </xpath>
+                <xpath expr="//field[@name='default_code']" position="attributes">
+                    <attribute name="invisible">0</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_product_template_tree_inherit" model="ir.ui.view">
+            <field name="name">snk.product.template.tree.view.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_tree_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='name']" position="before">
+                    <field name="id"></field>
+
+
+                </xpath>
+                <xpath expr="//field[@name='uom_id']" position="after">
+                    <field name="analytic_id" optional="hide" />
+                    <field name="snk_grade_id" optional="hide" />
+                    <field name="snk_material_code" optional="hide" />
+                </xpath>
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_product_template_search_inherit" model="ir.ui.view">
+            <field name="name">snk.product.template.search.view.inherit</field>
+            <field name="model">product.template</field>
+            <field name="inherit_id" ref="product.product_template_search_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='categ_id']" position="after">
+                    <field name="analytic_id" />
+                    <field name="snk_grade_id" />
+                    <field name="snk_material_code" />
+                </xpath>
+                <xpath expr="//group" position="inside">
+                    <separator string="Structure" />
+                    <filter string="Brand" name="analytic_id" context="{'group_by':'analytic_id'}" />
+                    <filter string="Grade" name="snk_grade_id" context="{'group_by':'snk_grade_id'}" />
+                    <filter string="Material Code" name="snk_material_code"
+                        context="{'group_by':'snk_material_code'}" />
+                </xpath>
+                <xpath expr="//field[@name='name']" position="attributes">
+                    <attribute name="filter_domain">['|', '|', '|', '|',
+                        ('default_code', 'ilike', self), 
+                        ('product_variant_ids.default_code', 'ilike', self),
+                        ('name', 'ilike', self), 
+                        ('barcode', 'ilike', self),
+                        ('id', 'ilike', self)]</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

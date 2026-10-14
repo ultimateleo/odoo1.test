@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format -->
+    <record id="paperformat_delivery_sto" model="report.paperformat">
+        <field name="name">Delivery STO Format</field>
+        <field name="default" eval="False" />
+        <field name="format">custom</field>
+        <field name="orientation">Portrait</field>
+        <field name="page_height">355</field>
+        <field name="page_width">216</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">3</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_sto" model="ir.actions.report">
+        <field name="name">Stock Transfer Order (Printout)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_sto_template</field>
+        <field name="report_file">mesa.report_delivery_sto_template</field>
+        <field name="print_report_name">'Stock Transfer Order - %s' % (object.name)</field>
+
+        <field name="binding_model_id" eval="False"/>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_sto" />
+    </record>
+
+    <template id="report_delivery_sto_template" t-name="mesa.report_delivery_sto_template">
+        <t t-call="web.basic_layout">
+            <t t-set="processed_pickings" t-value="processed_pickings or []" />
+
+            <t t-foreach="processed_pickings" t-as="picking_data">
+                <t t-set="picking" t-value="picking_data['picking']" />
+                <t t-set="moves_with_data" t-value="picking_data['moves_with_data']" />
+                <t t-set="total_amount" t-value="picking_data.get('total_amount', 0)" />
+
+                <div class="page" style="page-break-after: always;">
+                    <style>
+                        * { 
+                            margin: 0; 
+                            padding: 0; 
+                            box-sizing: border-box; 
+                            font-family: DejaVu Sans, Helvetica, Arial, sans-serif !important;
+                        }
+                        
+                        .page {
+                            font-family: Arial, sans-serif;
+                            font-size: 12pt;
+                            padding: 20px;
+                            color: #000;
+                        }
+                        
+                        .title {
+                            text-align: center;
+                            font-size: 18px;
+                            font-weight: bold;
+                            margin-bottom: 20px;
+                            letter-spacing: 3px;
+                        }
+                        
+                        .header-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 20px;
+                            border:none !important;
+                        }
+                        
+                        .header-table td {
+                            vertical-align: top;
+                            padding: 2px 0;
+                        }
+                        
+                        .info-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            table-layout: fixed;
+                        }
+                        
+                        .info-table td {
+                            padding: 2px 0;
+                            vertical-align: top;
+                        }
+                        
+                        .info-label {
+                            width: 125px;
+                            white-space: nowrap;
+                        }
+                        
+                        .info-colon {
+                            width: 10px;
+                        }
+                        .info-value{
+                            word-break: break-word;
+                            white-space: normal;
+                        }
+                        .desc-cell{
+                            white-space: nowrap !important;
+                            overflow: hidden;
+                            text-overflow: clip;
+                        }
+                        
+                        .items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 20px;
+                            margin-bottom: 20px;
+                        }
+
+                        .items-table thead {
+                            page-break-inside: avoid;
+                            page-break-after: avoid;
+                        }
+
+                        .items-table th {
+                            border-bottom: 1px solid #000;
+                            padding: 5px 3px;
+                            text-align: left;
+                            font-weight: bold;
+                        }
+
+                        .items-table tbody tr {
+                            page-break-inside: avoid;
+                        }
+                        
+                        .items-table td {
+                            padding: 3px;
+                            vertical-align: top;
+                            white-space: nowrap;
+                        }
+                        
+                        .text-right { text-align: right; }
+                        .text-center { text-align: center; }
+                        .text-left { text-align: left; }
+                        
+                        .total-row {
+                            border-top: 1px solid #000;
+                            font-weight: bold;
+                            page-break-inside: avoid;
+                        }
+                        
+                        .signature-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 40px;
+                            page-break-inside: avoid;
+                            border:none !important;
+                        }
+                        
+                        .signature-table td {
+                            vertical-align: top;
+                            padding: 0;
+                        }
+                    </style>
+
+                    <!-- Page -->
+                    <div class="header">
+                        <div style="text-align: right; font-size: 11px; color: black; text-transform: bold;">
+                            Page <span class="page" /> of <span class="topage" />
+                        </div>
+                    </div>
+
+                    <!-- TITLE -->
+                    <div class="title">STOCK TRANSFER ORDER</div>
+
+                    <!-- HEADER SECTION -->
+                    <table class="header-table table table-borderless">
+                        <tr>
+                            <td style="width: 53%;">
+                                <t t-set="partner"
+                                t-value="(picking.snk_site_address_id and picking.snk_site_address_id.partner_id) or picking.partner_id"/>
+
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 2px 0;">
+                                            <strong>To : <t t-esc="picking.snk_site_address_id.snk_code"/></strong>
+                                        </td>
+                                    </tr>
+                                    <t t-if="partner">
+                                        <tr>
+                                            <td style="padding: 2px 0;">
+                                                <t t-esc="picking.snk_dest_site_name or '-'"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 2px 0; word-wrap: break-word; word-break: break-word; white-space: normal;">
+                                                <t t-esc="(' '.join(filter(None, [partner.street, partner.street2]))).upper()"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding: 2px 0; word-wrap: break-word; word-break: break-word; white-space: normal;">
+                                                <t t-esc="(' '.join(filter(None, [partner.city_id and partner.city_id.name, partner.zip]))).upper()"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td style="padding: 2px 0;">
+                                            <table class="header-table table-borderless" style="margin-top:5px;">
+                                                <tr>
+                                                    <td style="width:60px; font-weight:bold; vertical-align:top;">Remark</td>
+                                                    <td style="width:10px; vertical-align:top;">:</td>
+                                                    <td style="vertical-align:top;">
+                                                        <t t-esc="picking.origin or ''"/>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+
+                            <td style="width: 47%;">
+                                <table class="info-table">
+                                    <tr>
+                                        <td class="info-label">Delivery No</td>
+                                        <td class="info-colon">:</td>
+                                        <td class="info-value">
+                                            <t t-esc="picking.name"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">STO Date</td>
+                                        <td class="info-colon">:</td>
+                                        <td class="info-value">
+                                            <t t-esc="context_timestamp(picking.snk_create_date).strftime('%d.%m.%Y')"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="info-label">Delivery Date</td>
+                                        <td class="info-colon">:</td>
+                                        <td class="info-value">
+                                            <t t-esc="context_timestamp(picking.scheduled_date).strftime('%d.%m.%Y') or ''"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- ITEMS TABLE -->
+                    <t t-set="page_limit" t-value="35"/>
+                    <t t-set="total_lines" t-value="len(moves_with_data)"/>
+                    <t t-set="first_limit" t-value="page_limit"/>
+                    <t t-set="remaining_moves" t-value="moves_with_data[first_limit:]"/>
+                    <t t-set="next_limit" t-value="30"/>
+                    <t t-set="total_qty" t-value="sum(m['quantity'] for m in moves_with_data)" />
+
+                    <!-- PAGE 1 TABLE -->
+                    <table class="items-table table table-borderless">
+                        <thead>
+                            <tr>
+                                <th style="width: 6%;" class="text-center">Grade</th>
+                                <th style="width: 24%;" class="text-center">Article</th>
+                                <th style="width: 6%;" class="text-center">Qty</th>
+                                <th style="width: 6%;" class="text-center">Uom</th>
+                                <th style="width: 15%; text-align: right; padding-right: 10px;" class="text-right">Price</th>
+                                <th style="width: 18%; text-align: right; padding-right: 10px;" class="text-right">Total Amount</th>
+                                <th style="width: 25%; text-align: left" class="text-center">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody style="font-size: 12pt;">
+                            <!-- <t t-set="total_qty" t-value="0" /> -->
+                            <t t-foreach="moves_with_data[:first_limit]" t-as="move_data">
+                                <!-- <t t-set="total_qty" t-value="total_qty + move_data['quantity']" /> -->
+                                <tr>
+                                    <td class="text-center"><t t-esc="move_data.get('grade_name', '')"/></td>
+                                    <td class="text-left">
+                                        <t t-set="code" t-value="move_data['product'].default_code or ''"/>
+                                        <t t-set="size" t-value="code[-3:]"/>
+                                        <t t-set="color" t-value="code[-6:-3]"/>
+                                        <t t-set="article" t-value="code[:-6]"/>
+                                        <t t-esc="article"/> <t t-esc="color"/> <t t-esc="size"/>
+                                    </td>
+                                    <td class="text-center"><t t-esc="'{:,.0f}'.format(move_data['quantity']).replace(',', '.')" /></td>
+                                    <td class="text-center"><t t-esc="move_data['uom'].name" /></td>
+                                    <td class="text-right">
+                                        <t t-esc="'{:,.2f}'.format(move_data.get('price', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                    </td>
+                                    <td class="text-right">
+                                        <t t-esc="'{:,.2f}'.format(move_data.get('subtotal', 0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                    </td>
+                                    <td class="text-right desc-cell;" style="white-space:nowrap;"><t t-esc="(move_data['product'].name or '')[:20]"/></td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+
+                    <!-- PAGE 2+ TABLE -->
+                    <t t-if="remaining_moves">
+
+                    <t t-foreach="range(0, len(remaining_moves), next_limit)" t-as="i">
+
+                        <div style="page-break-before: always; padding-top: 140px;"></div>
+
+                        <table class="items-table table table-borderless">
+                            <thead>
+                            <tr>		
+                                <th colspan="7" style="text-align:right;font-weight:bold;border:none;">		
+                                    Delivery No : <t t-esc="picking.name"/>		
+                                </th>		
+                            </tr>
+                                <tr>
+                                    <th style="width: 6%;" class="text-center">Grade</th>
+                                    <th style="width: 24%;" class="text-center">Article</th>
+                                    <th style="width: 6%;" class="text-center">Qty</th>
+                                    <th style="width: 6%;" class="text-center">Uom</th>
+                                    <th style="width: 15%; text-align: right; padding-right: 10px;" class="text-right">Price</th>
+                                    <th style="width: 20%; text-align: right; padding-right: 10px;" class="text-right">Total Amount</th>
+                                    <th style="width: 23%;" class="text-center">Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+
+                                <t t-foreach="remaining_moves[i:i+next_limit]" t-as="move_data">
+
+                                    <tr>
+                                        <td class="text-center">
+                                            <t t-esc="move_data.get('grade_name','')"/>
+                                        </td>
+
+                                        <td class="text-left">
+                                            <t t-set="code" t-value="move_data['product'].default_code or ''"/>
+                                            <t t-set="size" t-value="code[-3:]"/>
+                                            <t t-set="color" t-value="code[-6:-3]"/>
+                                            <t t-set="article" t-value="code[:-6]"/>
+                                            <t t-esc="article"/> <t t-esc="color"/> <t t-esc="size"/>
+                                        </td>
+
+
+                                        <td class="text-center">
+                                            <t t-esc="'%.0f' % move_data['quantity']"/>
+                                        </td>
+
+                                        <td class="text-center">
+                                            <t t-esc="move_data['uom'].name"/>
+                                        </td>
+
+                                        <td class="text-right">
+                                            <t t-esc="'{:,.2f}'.format(move_data.get('price',0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                        </td>
+                                        <td class="text-right">
+                                            <t t-esc="'{:,.2f}'.format(move_data.get('subtotal',0)).replace(',', 'X').replace('.', ',').replace('X', '.')" />
+                                        </td>
+
+                                        <td class="text-right desc-cell;" style="white-space:nowrap;">
+                                            <t t-esc="(move_data['product'].name or '')[:20]"/>
+                                        </td>
+
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </t>
+                </t>
+
+                    <!-- TOTALS -->
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px; border:none !important;" class="table table-borderless">
+                        <tr>
+                            <td style="width:30%; text-align:right; font-size:14px; padding-right: 10px; font-weight: bold;">
+                                Total
+                            </td>
+                            <td style="width:30%; text-align:left; font-size:14px; font-weight: bold; text-decoration: underline;">
+                                <t t-esc="'%.0f' % total_qty"/>
+                            </td>
+                            <td style="width:18%;text-align:right; font-size:14px; font-weight: bold; text-decoration: underline;"><t t-esc="'{:,.2f}'.format(total_amount).replace(',', 'X').replace('.', ',').replace('X', '.')" /></td>
+                            <td style="width:22%;">
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- SIGNATURES -->
+                    <table class="signature-table table table-borderless">
+                        <tr>
+                            <td style="width: 50%; padding: 2px 0; vertical-align: top;">
+                                Best Regard,
+                            </td>
+                            <td style="width: 50%; padding: 2px 50px 2px 0; vertical-align: top; text-align: right;">
+                                Approved,
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%; padding: 60px 0 2px 0; vertical-align: bottom;">
+                                <t t-if="picking.user_id">
+                                    <t t-esc="picking.user_id.name"/>
+                                </t>
+                                <t t-else="">SITI</t>
+                            </td>
+                            <td style="width: 50%; padding: 60px 50px 2px 0; vertical-align: bottom; text-align: right;">
+                                &#160;
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+            <!-- <div class="footer">
+                <div style="text-align: right; font-size: 10px; color: grey;">
+                    Page <span class="page" /> of <span class="topage" />
+                </div>
+            </div> -->
+        </t>
+    </template>
+</odoo>

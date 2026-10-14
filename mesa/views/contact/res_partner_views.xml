@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        
+
+        <record id="snk_res_partner_view_form_inherit" model="ir.ui.view">
+            <field name="name">snk.res.partner.form.view.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+              
+                    <!-- <xpath expr="//sheet" position="before">
+                        <header>
+                            <button name="snk_action_xml" string="Generate XML" type="object"
+                                invisible="(id == False)"/>
+                        </header>
+                    </xpath> -->
+
+                    <xpath expr="//field[@name='street2']" position="after">
+                        <field name="city_id" class="o_address_city" options="{'no_open': True, 'no_quick_create': True}"/>
+                    </xpath>
+                    <xpath expr="//field[@name='country_id']" position="after">
+                        <field name="snk_district_id" class="o_address_country" placeholder="District"/>
+                    </xpath>
+                    <xpath expr="//field[@name='city']" position="attributes">
+                        <attribute name="invisible">1</attribute>
+                    </xpath>
+
+                    <xpath expr="//field[@name='company_id']" position="attributes">
+                        <attribute name="invisible">0</attribute>
+                    </xpath>
+
+                    <xpath expr="//form/sheet/group/group/field[@name='website']" position="before">
+                        <field name="snk_fax" widget="phone"/>
+                    </xpath>
+                    <xpath expr="//field[@name='industry_id']" position="after">
+                        <field name="snk_status"/>
+                    </xpath>
+                    <xpath expr="//group/group" position="inside">
+                        <field name="snk_is_not_efaktur"/>
+                    </xpath>
+            
+            </field>
+        </record>
+
+        <record id="snk_res_partner_view_tree_inherit" model="ir.ui.view">
+            <field name="name">snk.res.partner.tree.view.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='complete_name']" position="after">
+                    <field name="ref" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='email']" position="after">
+                    <field name="industry_id" optional="hide"/>
+                </xpath>
+                <xpath expr="//field[@name='category_id']" position="after">
+                    <field name="city_id" optional="hide"/>
+                    <field name="snk_status" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_res_partner_view_search_inherit" model="ir.ui.view">
+            <field name="name">snk.res.partner.search.view.inherit</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_res_partner_filter"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="company_id"/>
+                    <field name="ref"/>
+                    <field name="industry_id"/>
+                    <field name="snk_status"/>
+                    <separator/>
+                    <filter name="snk_status" string="POS Actice" domain="[('snk_status', '=', '1')]"/>
+                    <filter name="snk_status" string="POS Inactive" domain="[('snk_status', '=', '0')]"/>
+                    <filter name="snk_status" string="Gudang" domain="[('snk_status', '=', '2')]"/>
+                    <filter name="ref" string="Reference" context="{'group_by': 'ref'}"/>
+                    <filter name="industry_id" string="Industry" context="{'group_by': 'industry_id'}"/>
+                    <filter name="snk_status" string="POS Status" context="{'group_by': 'snk_status'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record model="ir.actions.server" id="action_change_snk_status_active_pos">
+           <field name="name">Activate POS</field>
+           <field name="model_id" ref="base.model_res_partner"/>
+           <field name="binding_model_id" ref="base.model_res_partner"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_change_snk_status('1')
+           </field>
+       </record>
+
+        <record model="ir.actions.server" id="action_change_snk_status_inactive_pos">
+           <field name="name">Deactivate POS</field>
+           <field name="model_id" ref="base.model_res_partner"/>
+           <field name="binding_model_id" ref="base.model_res_partner"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_change_snk_status('0')
+           </field>
+       </record>
+
+        <record model="ir.actions.server" id="action_change_snk_status_gudang_pos">
+           <field name="name">Mark as Gudang</field>
+           <field name="model_id" ref="base.model_res_partner"/>
+           <field name="binding_model_id" ref="base.model_res_partner"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_change_snk_status('2')
+           </field>
+       </record>
+
+
+    </data>
+</odoo>

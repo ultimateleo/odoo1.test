@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_purchase_order_factory_mesa" model="report.paperformat">
+            <field name="name">Purchase Order Mesa Format</field>
+            <field name="default" eval="False" />
+            <field name="format">custom</field> <!-- wajib custom -->
+            <field name="page_height">330</field> <!-- tinggi (mm) -->
+            <field name="page_width">210</field>  <!-- lebar (mm) -->
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">19</field>
+            <field name="margin_bottom">15</field>
+            <field name="margin_left">0</field>
+            <field name="margin_right">0</field>
+        </record>
+
+
+        <record id="action_report_purchase_order_factory_mesa" model="ir.actions.report">
+            <field name="name">Purchase Order Factory</field>
+            <field name="model">purchase.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.report_purchase_order_factory</field>
+            <field name="report_file">mesa.report_purchase_order_factory</field>
+            <field name="print_report_name">'Purchase Order factory - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_purchase_order" />
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_purchase_order_factory_mesa" />
+        </record>
+
+        <template id="report_purchase_order_factory_template" name="template_factory">
+            <t t-call="web.basic_layout">
+                <div class="page">
+                    <!-- header -->
+                    <div>
+                        <table class="table table-borderless"
+                            style="width: 100%;  margin-bottom: 10px;">
+                            <tr>
+                                <td style="vertical-align: bottom; width: 100%; padding-left:60px;">
+                                    <table class="table table-borderless"
+                                        style="width:80%; vertical-align: bottom; padding-left: 15px;">
+
+                                        <tr>
+                                            <td style="padding-right: 50px; padding-bottom:30px;">
+                                                <div
+                                                    style="font-size: 15px; font-weight: bold; color: #6c757d;">
+                                                    <span t-field="o.partner_id.name"
+                                                        style="padding-botoom:20px;" />
+                                                    <br />
+                                                    <span
+                                                        t-field="o.partner_id.contact_address_complete"
+                                                        style="font-size: 15px; font-weight: bold;" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="text-align: center;">
+                                    <table class="table table-borderless"
+                                        style="width: auto; padding: 10px; display: inline-block;">
+                                        <tr>
+                                            <td
+                                                style="font-weight: bold; color: #6c757d; text-align: left; padding-bottom: 25px;">
+                                                <span t-field="o.snk_po_number"
+                                                    style="margin-left:70px;" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                style="font-weight: bold; color: #6c757d; text-align: left; padding-bottom: 15px;">
+                                                <span t-field="o.requisition_id.snk_pr_number"
+                                                    style="margin-left:70px;" />
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td
+                                                style="font-weight: bold; color: #6c757d; text-align: left; padding-bottom: 16px;">
+                                                <span t-field="o.date_planned"
+                                                    t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}"
+                                                    style="margin-left:70px;" />
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!-- end header -->
+                    <!-- content -->
+                    <div class="body" style="min-height: 740px;">
+                        <table class="table table-borderless"
+                            style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style="  padding: 8px; text-align: center; font-weight: bold; width: 8%;">
+                                    </th>
+                                    <th
+                                        style="  padding: 8px; text-align: center; font-weight: bold; width: 52%;">
+                                    </th>
+                                    <th
+                                        style="  padding: 8px; text-align: center; font-weight: bold; width: 15%;">
+                                    </th>
+                                    <th
+                                        style="  padding: 8px; text-align: center; font-weight: bold; width: 10%;">
+                                    </th>
+                                    <th
+                                        style=" padding: 8px; text-align: center; font-weight: bold; width: 15%;">
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="line_num" t-value="0" />
+                                <tr t-foreach="o.order_line" t-as="line"
+                                >
+                                    <t t-set="line_num" t-value="line_num + 1" />
+                                    <td
+                                        style="padding-right: 8px; text-align: center; vertical-align: top;">
+                                        <span t-esc="line_num" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; vertical-align: top;">
+                                        <!-- Product Name with Attributes separated left and right -->
+                                        <div style="overflow: hidden;">
+                                            <span t-field="line.product_id.name"
+                                                style="font-weight: bold; float: left; padding-right:5px;" />
+                                            <t t-if="line.product_id.snk_material_code"> - <span
+                                                    t-field="line.product_id.snk_material_code" />
+                                            </t>
+
+                                            <span
+                                                style="font-weight: bold; float: right; padding-right:5px;">
+                                                <t
+                                                    t-if="line.product_id.product_template_attribute_value_ids"
+                                                    t-esc="'  '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                                <t t-else="">-</t>
+                                            </span>
+                                        </div>
+                                        <!-- Delivery Date on new line -->
+                                        <div
+                                            style="font-size: 11px; color: #6c757d; margin-top: 5px; padding-right: 10px;">
+                                            Delivery Date : <span t-field="line.date_planned"
+                                                t-options="{'widget': 'date', 'format':'dd MMM yyyy'}" />
+                                            <span
+                                                style="color: #6c757d; float: right; font-size: 11px;">
+                                                <t
+                                                    t-if="line.product_id.product_template_attribute_value_ids"
+                                                    t-esc="'  '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                                <t t-else="">-</t>
+                                            </span>
+                                            <span
+                                                style="color: #6c757d; float: right; font-size: 11px;"
+                                            >
+                                                <t>
+                                                    <t t-if="line.snk_description">
+                                                        <span
+                                                            t-field="line.snk_description" />
+                                                    </t>
+                                                    <t t-else=""></t>
+                                                </t>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; vertical-align: top; text-align: right;">
+                                        <span t-field="line.product_qty" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: center; vertical-align: top;">
+                                        <span t-field="line.product_uom" />
+                                    </td>
+                                    <td
+                                        style="padding: 8px; text-align: right; vertical-align: top;">
+                                        <span t-field="line.price_unit"
+                                            t-options="{'widget': 'monetary', 'display_currency': o.currency_id}" />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                </div>
+                <!-- Footer Content - using page-break approach -->
+                <div
+                    style="page-break-inside: avoid; margin-top: 3px; padding-top: 3px;">
+                    <!-- Remarks Section -->
+                    <div style="margin-bottom: 10px;">
+                        <strong style="color:white;">remaks:</strong>
+                        <span style="margin-left: 20px;">
+                            <t t-if="o.origin">
+                                <span t-field="o.origin" />
+                            </t>
+                            <t t-else="">-</t>
+                        </span>
+                    </div>
+
+                    <div style="margin-top: 103px;">
+                        <table class="table table-borderless"
+                            style="width: 100%; border-collapse: collapse; padding-top: 20px;">
+                            <tr>
+                                <td
+                                    style="text-align: center; width: 250px; float: right;">
+                                    <span t-field="o.snk_approve" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </t>
+        </template>
+        <template id="report_purchase_order_factory">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="mesa.report_purchase_order_factory_template" />
+                </t>
+                <!-- Page Number Footer -->
+
+            </t>
+        </template>
+
+    </data>
+
+</odoo>

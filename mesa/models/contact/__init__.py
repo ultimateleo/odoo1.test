@@ -1,0 +1,1 @@
+from . import res_country_city, res_partner, snk_district

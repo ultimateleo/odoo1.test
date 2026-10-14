@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ========================================== -->
+        <!-- POS Report Record Rules -->
+        <!-- ========================================== -->
+
+        <!-- Record Rule: User can only see their own POS report data -->
+        <record id="snk_report_pos_order_pevots_user_rule" model="ir.rule">
+            <field name="name">POS Report: User can only see own data</field>
+            <field name="model_id" ref="model_snk_report_pos_order_pevots"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Record Rule: Admin can see all POS report data -->
+        <record id="snk_report_pos_order_pevots_admin_rule" model="ir.rule">
+            <field name="name">POS Report: Admin can see all data</field>
+            <field name="model_id" ref="model_snk_report_pos_order_pevots"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- ========================================== -->
+        <!-- Sales Analysis Report Record Rules -->
+        <!-- ========================================== -->
+
+        <!-- Record Rule: User can only see their own Sales Analysis data -->
+        <record id="snk_report_sales_analysis_user_rule" model="ir.rule">
+            <field name="name">Sales Analysis: User can only see own data</field>
+            <field name="model_id" ref="model_snk_report_sales_analysis"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Record Rule: Admin can see all Sales Analysis data -->
+        <record id="snk_report_sales_analysis_admin_rule" model="ir.rule">
+            <field name="name">Sales Analysis: Admin can see all data</field>
+            <field name="model_id" ref="model_snk_report_sales_analysis"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+    </data>
+</odoo>

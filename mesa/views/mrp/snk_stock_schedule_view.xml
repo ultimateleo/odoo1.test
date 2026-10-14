@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_snk_stock_schedule_tree" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.tree</field>
+            <field name="model">snk.stock.schedule</field>
+            <field name="arch" type="xml">
+                <list string="Stock Schedule" editable="bottom">
+                    <field name="site_id" string="Site" />
+                    <field name="site_name" string="Site Name" />
+                    <field name="warehouse_id" string="Warehouse" />
+                    <field name="day" string="Schedule Day" />
+                    <field name="week" string="Schedule Week" />
+                    <field name="sto_day" string="To Do STO" />
+                    <field name="last_schedule" string="Last Schedule" optional="hide" />
+                    <field name="next_schedule" string="Next Schedule" optional="hide" />
+                    <field name="processing_status" string="Status" optional="hide" />
+                    <field name="last_processed_date" string="Last Processed" optional="hide" />
+                    <field name="active" string="Active" optional="hide" widget="boolean_toggle" />
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_snk_stock_schedule_form" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.form</field>
+            <field name="model">snk.stock.schedule</field>
+            <field name="arch" type="xml">
+                <form string="Stock Schedule">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger"
+                            invisible="active" />
+                        <group>
+                            <group>
+                                <field name="site_id" />
+                                <field name="site_name" />
+                                <field name="warehouse_id" />
+                                <field name="active" invisible="1" />
+                            </group>
+                            <group>
+                                <field name="day" />
+                                <field name="week" />
+                                <field name="sto_day" />
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="last_schedule" />
+                            </group>
+                            <group>
+                                <field name="next_schedule" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Execution Log" name="execution_log">
+                                <field name="log_ids" readonly="1">
+                                    <list string="Execution Log" create="false" delete="false">
+                                        <field name="effective_date" />
+                                        <field name="run_date" />
+                                        <field name="state" />
+                                        <field name="duration" />
+                                        <field name="order_point_id" />
+                                        <field name="error" optional="hide" />
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Processing" name="processing">
+                                <group>
+                                    <group>
+                                        <field name="processing_status" />
+                                        <field name="processing_priority" />
+                                        <field name="processing_attempt" />
+                                    </group>
+                                    <group>
+                                        <field name="last_processed_date" />
+                                        <field name="processing_last_run" />
+                                        <field name="processing_duration" />
+                                    </group>
+                                </group>
+                                <field name="processing_error" readonly="1" />
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_snk_stock_schedule_search" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.search</field>
+            <field name="model">snk.stock.schedule</field>
+            <field name="arch" type="xml">
+                <search string="Search Stock Schedule">
+                    <field name="site_id" />
+                    <field name="site_name" />
+                    <field name="warehouse_id" />
+                    <field name="day" />
+                    <field name="week" />
+                    <separator />
+                    <!-- Nilai Selection day adalah '0'..'6' (0=Minggu), bukan 'mon'/'tue'.
+                         Domain lama tidak pernah cocok sehingga semua filter ini kosong. -->
+                    <filter name="filter_monday" string="Monday" domain="[('day', '=', '1')]" />
+                    <filter name="filter_tuesday" string="Tuesday" domain="[('day', '=', '2')]" />
+                    <filter name="filter_wednesday" string="Wednesday"
+                        domain="[('day', '=', '3')]" />
+                    <filter name="filter_thursday" string="Thursday" domain="[('day', '=', '4')]" />
+                    <filter name="filter_friday" string="Friday" domain="[('day', '=', '5')]" />
+                    <filter name="filter_saturday" string="Saturday" domain="[('day', '=', '6')]" />
+                    <filter name="filter_sunday" string="Sunday" domain="[('day', '=', '0')]" />
+                    <separator />
+                    <filter name="filter_inactive" string="Archived" domain="[('active', '=', False)]" />
+                    <separator />
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_site" string="Site" context="{'group_by': 'site_id'}" />
+                        <filter name="group_by_warehouse" string="Warehouse"
+                            context="{'group_by': 'warehouse_id'}" />
+                        <filter name="group_by_day" string="Schedule Day"
+                            context="{'group_by': 'day'}" />
+                        <filter name="group_by_week" string="Schedule Week"
+                            context="{'group_by': 'week'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <record id="snk_stock_schedule_action" model="ir.actions.act_window">
+            <field name="name">Stock Schedule</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.stock.schedule</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="snk_stock_schedule_menu"
+            name="Distribution Schedule"
+            parent="snk_mrp_stock_transfer_order_configuration_view_main"
+            action="snk_stock_schedule_action"
+            sequence="2" />
+
+    </data>
+</odoo>

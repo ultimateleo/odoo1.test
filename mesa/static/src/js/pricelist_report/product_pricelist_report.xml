@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="product_pricelist_report_inherit"
+        t-name="product.ProductPricelistReport"
+        t-inherit="product.ProductPricelistReport" t-inherit-mode="extension">
+        <xpath
+            expr="//select[@id='formats']" position="inside">
+            <option value="pdf_mesa">pdf mesa</option>
+
+        </xpath>
+    </template>
+</odoo>

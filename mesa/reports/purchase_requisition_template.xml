@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template PDF QWeb -->
+    <template id="snk_purchase_requisition_template">
+        <t t-call="web.basic_layout">
+            <t t-set="header" t-value="0" />
+            <t t-set="report_header" t-value="0" />
+            <t t-set="doc" t-value="docs[0]" />
+            <style>
+                /* Style table borderless */
+                /* border-collapse: collapse; */
+                .table-borderless {
+                width: 100%;
+                border: 1px !important;
+                font-size: 12px;
+                margin-bottom: 0px;
+                margin-top: 0px !important;
+                }
+                .table-borderless td,
+                .table-borderless th {
+                border: none !important;
+                padding: 5px;
+                vertical-align: top;
+                }
+                /* Lebar kolom khusus */
+                .table-borderless .col-label {
+                width: 15%;
+                }
+                .table-borderless .col-value {
+                width: 35%;
+                }
+                /* Line Table Style Terpisah */
+                .line-table-thick {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+                margin-top: 20px;
+                }
+                .line-table-thick th,
+                .line-table-thick td {
+                border: 1.5px solid black; /* border tebal */
+                padding: 5px;
+                text-align: left;
+                }
+                .line-table-thick th {
+                background-color: #cfe2ff;
+                }
+                .line-table-thick td.text-left {
+                text-align: left;
+                }
+                .line-table-thick tr {
+                page-break-inside: avoid;
+                }
+
+                /* Make thead repeat on every page */
+                .line-table-thick thead {
+                display: table-header-group;
+                }
+
+                /* Footer tanda tangan: border hanya di luar */
+                .line-table-thick tfoot td.requester {
+                border-top: 1.5px solid black;
+                border-bottom: 1.5px solid black;
+                border-left: 1.5px solid black;
+                border-right: 0;
+                text-align: center;
+                vertical-align: bottom;
+                }
+
+                .line-table-thick tfoot td.approver {
+                border-top: 1.5px solid black;
+                border-bottom: 1.5px solid black;
+                border-left: 0;
+                border-right: 1.5px solid black;
+                text-align: center;
+                vertical-align: bottom;
+                }
+
+            </style>
+            <div class="body">
+                <div class="page">
+                    <!-- Tabel data dengan border. Header di-flatten langsung ke thead untuk menghindari bug wkhtmltopdf di halaman ke-2 -->
+                    <table class="line-table-thick" style="border-collapse: collapse; ">
+                        <thead>
+                            <!-- Baris 1: Company Name & Judul -->
+                            <tr style="border: none; background-color: transparent !important;">
+                                <th colspan="7" style="border: none !important; background-color: transparent !important; text-align: center; padding: 15px 0;">
+                                    <h2 style="font-size: 18px; margin: 0; padding: 0; font-weight: bold;" t-field="doc.company_id.name" />
+                                    <h1 style="font-size: 22px; margin: 8px 0 0 0; font-weight: bold;">PERMINTAAN PEMBELIAN (PP)</h1>
+                                </th>
+                            </tr>
+                            <!-- Baris 2: Number & Vendor -->
+                            <tr style="border: none; background-color: transparent !important;">
+                                <th colspan="2" style="border: none !important; background-color: transparent !important; padding: 5px; text-align: left; vertical-align: top; font-weight: normal;">
+                                    <div style="display: table; width: 100%; table-layout: fixed;">
+                                        <div style="display: table-row;">
+                                            <div style="display: table-cell; width: 110px; vertical-align: top;"><strong>Number</strong></div>
+                                            <div style="display: table-cell; width: 15px; vertical-align: top;">:</div>
+                                            <div style="display: table-cell; vertical-align: top; word-wrap: break-word; word-break: break-all;"><span t-field="doc.snk_pr_number" /></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th colspan="5" style="border: none !important; background-color: transparent !important; padding: 5px; text-align: left; vertical-align: top; font-weight: normal;">
+                                    <div style="display: table; width: 100%; table-layout: fixed;">
+                                        <div style="display: table-row;">
+                                            <div style="display: table-cell; width: 110px; vertical-align: top;"><strong>Vendor</strong></div>
+                                            <div style="display: table-cell; width: 15px; vertical-align: top;">:</div>
+                                            <div style="display: table-cell; vertical-align: top; word-wrap: break-word; word-break: break-all;"><span t-field="doc.vendor_id.name" /></div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            <!-- Baris 3: Request Date & Deliver To -->
+                            <tr style="border: none; background-color: transparent !important;">
+                                <th colspan="2" style="border: none !important; background-color: transparent !important; padding: 5px; text-align: left; vertical-align: top; font-weight: normal;">
+                                    <div style="display: table; width: 100%; table-layout: fixed;">
+                                        <div style="display: table-row;">
+                                            <div style="display: table-cell; width: 110px; vertical-align: top;"><strong>Request Date</strong></div>
+                                            <div style="display: table-cell; width: 15px; vertical-align: top;">:</div>
+                                            <div style="display: table-cell; vertical-align: top; word-wrap: break-word; word-break: break-all;"><span t-field="doc.create_date" t-options="{'widget':'date', 'format':'dd MMM yyyy'}" /></div>
+                                        </div>
+                                    </div>
+                                </th>
+                                <th colspan="5" style="border: none !important; background-color: transparent !important; padding: 5px; text-align: left; vertical-align: top; font-weight: normal;">
+                                    <div style="display: table; width: 100%; table-layout: fixed;">
+                                        <div style="display: table-row;">
+                                            <div style="display: table-cell; width: 110px; vertical-align: top;"><strong>Deliver to</strong></div>
+                                            <div style="display: table-cell; width: 15px; vertical-align: top;">:</div>
+                                            <div style="display: table-cell; vertical-align: top; word-wrap: break-word; word-break: break-all;"><span t-field="doc.picking_type_id.warehouse_id.name" /></div>
+                                        </div>
+                                    </div>
+                                </th>
+                            </tr>
+                            <!-- Baris 4: Remarks -->
+                            <tr style="border: none; background-color: transparent !important;">
+                                <th colspan="2" style="border: none !important; background-color: transparent !important; padding: 5px; text-align: left; vertical-align: top; font-weight: normal;">
+                                    <div style="display: table; width: 100%; table-layout: fixed;">
+                                        <div style="display: table-row;">
+                                            <div style="display: table-cell; width: 110px; vertical-align: top;"><strong>Remarks</strong></div>
+                                            <div style="display: table-cell; width: 15px; vertical-align: top;">:</div>
+                                            <div style="display: table-cell; vertical-align: top; word-wrap: break-word; word-break: break-all;"><span t-field="doc.reference" /></div>
+                                        </div>
+                                    </div>
+                                    <div style="height: 10px;"></div>
+                                </th>
+                                <th colspan="5" style="border: none !important; background-color: transparent !important;"></th>
+                            </tr>
+                            <!-- Baris 5: Kolom Tabel Asli -->
+                            <tr>
+                                <th>Description</th>
+                                <th>Attributes</th>
+                                <th>Qty</th>
+                                <th>Unit</th>
+                                <th>Remaining</th>
+                                <th>Spesifikasi/Keterangan</th>
+                                <th>Delivery Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="doc.line_ids" t-as="line">
+                                <tr>
+                                    <td>
+                                        <span
+                                            t-esc="line.template_code or line.product_id.default_code" />
+                                        - <span t-field="line.product_id.name" />
+                                        <span
+                                            t-field="line.product_id.snk_material_code" />
+                                    </td>
+                                    <td>
+                                        <t t-esc="' | '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_qty" />
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_uom_id" />
+                                    </td>
+                                    <td>
+                                        <span t-field="line.snk_remaining_order" />
+                                    </td>
+                                    <td>
+                                        <span t-field="line.product_description_variants" />
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.date_planned"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                            </t>
+                            <tr style="height:120px;">
+                                <td colspan="1" class="requester">
+                                    <div style="margin-bottom:60px;">
+                                        <strong>Requester</strong>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <span t-field="doc.user_id" />
+                                    </div>
+                                </td>
+                                <td colspan="3" class="requester">
+                                    <div style="margin-bottom:60px;">
+                                        <strong>Mengetahui</strong>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <span></span>
+                                    </div>
+                                </td>
+                                <td colspan="3" class="approver">
+                                    <div style="margin-bottom:60px;">
+                                        <strong>Approver</strong>
+                                    </div>
+                                    <div style="text-align: center;">
+                                        <span t-field="doc.snk_approve" />
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- Footer Page Number -->
+            <div class="footer">
+                <div style="text-align: right; font-size: 10px; color: grey;"> Page <span
+                        class="page" /> of <span class="topage" />
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

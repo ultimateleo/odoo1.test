@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+    <record id="paperformat_purchase_requisiton_template" model="report.paperformat">
+        <field name="name">snk_purchase_requisition_template</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">15</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">0</field>      <!-- biar gak ada gap -->
+    </record>       
+
+        <record id="snk_report_purchase_requisition" model="ir.actions.report">
+            <field name="name">Purchase Requisition</field>
+            <field name="model">purchase.requisition</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.snk_purchase_requisition_template</field>
+            <field name="report_file">mesa.snk_purchase_requisition_template</field>
+            <field name="print_report_name">'Permintaan Pembelian - ' + object.name</field>
+            <field name="paperformat_id" ref="paperformat_purchase_requisiton_template" />
+            <field name="binding_model_id" ref="model_purchase_requisition"/>
+            <field name="binding_type">report</field>
+
+        </record>
+
+        <!-- <record id="paperformat_purchase_agrement" model="report.paperformat">
+            <field name="name">Purchase Order Mesa Format</field>
+            <field name="default" eval="False" />
+            <field name="format">A4</field>
+            <field name="page_height">0</field>
+            <field name="page_width">0</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">10</field>
+            <field name="margin_bottom">10</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+        </record> -->
+
+        <!-- <record id="action_print_purchase_requisition" model="ir.actions.server">
+            <field name="name">Print Requisition</field>
+            <field name="model_id" ref="purchase.model_purchase_requisition"/>
+            <field name="binding_model_id" ref="purchase.model_purchase_requisition"/>
+            <field name="binding_type">action</field>
+            <field name="state">code</field>
+            <field name="code">action =
+        env.ref('mesa.snk_report_purchase_requisition').report_action(records)</field>
+        </record> -->
+
+
+    </data>
+</odoo>

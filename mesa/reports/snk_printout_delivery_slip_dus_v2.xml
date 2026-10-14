@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="paperformat_delivery_slip_dus_v2" model="report.paperformat">
+        <field name="name">Delivery Slip Dus Format</field>
+        <field name="default" eval="False" />
+        <field name="format">custom</field>
+        <field name="orientation">Portrait</field>
+        <field name="page_height">355</field>
+        <field name="page_width">216</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">3</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">96</field>
+    </record>
+    <!-- Report Action -->
+    <record id="action_report_delivery_slip_dus_v2" model="ir.actions.report">
+        <field name="name">Surat Jalan Summary (Dus v2)</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_slip_dus_v2_template</field>
+        <field name="report_file">mesa.report_delivery_slip_dus_v2_template</field>
+        <field name="print_report_name">'Delivery Slip Dus v2'</field>
+        <field name="binding_model_id" eval="False"/>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_slip_dus_v2" />
+    </record>
+
+    <template id="report_delivery_slip_dus_v2_template">
+        <t t-call="web.html_container">
+            <!-- Page Number Header (handled manually inside page-container) -->
+
+            <!-- Loop Groups (grouped by destination address) -->
+            <t t-foreach="grouped_pages" t-as="group">
+                <t t-set="global_counter" t-value="0"/>
+                <t t-set="is_first_page" t-value="True"/>
+                <t t-set="konter_codes" t-value="group['konter_codes']"/>
+
+                <t t-set="current_page" t-value="0"/>
+                <!-- Loop Pages -->
+                <t t-foreach="group['pages']" t-as="page_docs">
+                    <t t-set="current_page" t-value="current_page + 1"/>
+                    <t t-set="first_doc" t-value="page_docs[0]"/>
+                    <div class="page-container" style="page-break-before: always;">
+                        <div style="text-align: right; font-size: 11px; font-weight: bold; margin-bottom: 5px;">
+                            Page <t t-out="current_page"/> of <t t-out="len(group['pages'])"/>
+                        </div>
+                        <style>
+                            * {
+                                margin: 0;
+                                padding: 0;
+                                box-sizing: border-box;
+                                font-family: Arial, Helvetica, sans-serif !important;
+                            }
+                            .page-container {
+                                font-family: Arial, sans-serif;
+                                font-size: 11px;
+                                padding: 20px;
+                                width: 100%;
+                                color: #000;
+                                background-color: #fff;
+                                box-sizing: border-box;
+                                position: relative;
+                            }
+                            .title {
+                                text-align: center;
+                                font-size: 16pt;
+                                font-weight: bold;
+                                margin-top: 5px;
+                                margin-bottom: 15px;
+                                text-transform: uppercase;
+                            }
+                            table.header-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-bottom: 5px;
+                            }
+                            table.header-table td {
+                                vertical-align: top;
+                                padding: 2px;
+                            }
+                            table.items-table {
+                                width: 100%;
+                                /* border: 1px solid #000; */
+                                border-collapse: collapse;
+                                margin-top: 20px;
+                                margin-bottom: 10px;
+                            }
+                            table.items-table th {
+                                border: 1px solid #000;
+                                /* padding: 5px; */
+                                padding-top: 5px;
+                                text-align: center;
+                                font-weight: bold;
+                                font-size: 12pt;
+                                background-color: #fff;
+                                vertical-align: bottom;
+                                height: 20px;
+                            }
+                            table.items-table td {
+                                padding-top: 10px;
+                                padding-bottom: 5px;
+                                font-size: 12pt;
+                                vertical-align: bottom;
+                                height: 20px;
+                            }
+                            table.items-table tbody tr:last-child td {
+                                margin-top: 50px;
+                            }
+                            table.items-table tfoot td {
+                                border: none;
+                                padding-top: 5px;
+                            }
+                            table.footer-table {
+                                width: 100%;
+                                border-collapse: collapse;
+                                margin-top: 20px;
+                            }
+                            table.footer-table td {
+                                width: 50%;
+                                text-align: center;
+                                vertical-align: top;
+                                padding: 5px;
+                            }
+                            .signature-box {
+                                height: 80px;
+                                width: 50%;
+                                margin: 0 auto;
+                                border-bottom: 1px solid black;
+                                font-weight: bold;
+                            }
+                            .table.bottom-copyright {
+                                width: 100%;
+                                text-align: center;
+                                font-size: 11px;
+                                border-top: 1px solid #ccc;
+                                padding-top: 8px;
+                                margin-top: 20px;
+                            }
+                        </style>
+
+                        <!-- Title -->
+                        <div class="title">SURAT JALAN</div>
+
+                        <!-- Header Section -->
+                        <table class="header-table">
+                            <!-- Baris 1: TO & Delivery Date -->
+                            <tr>
+                                <td style="width: 50%; vertical-align: top;" colspan="2">
+                                    <div style="font-weight: bold;">To:</div>
+                                </td>
+                                <td style="width: 25%; text-align: right; vertical-align: top;">
+                                    <div style="font-weight: bold;">Delivery Date:</div>
+                                </td>
+                                <td style="width: 25%; text-align: right; vertical-align: top;">
+                                    <div>
+                                        <!-- <span style="font-weight: bold;">Delivery Date: </span> -->
+                                        <t t-if="first_doc">
+                                            <t t-out="first_doc.scheduled_date and context_timestamp(first_doc.scheduled_date).strftime('%d.%m.%Y') or ''"/>
+                                        </t>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Baris 2: Detailed Address & Kode Konter -->
+                            <tr style="height: 82px;">
+                                <t t-set="partner" t-value="(first_doc.snk_site_address_id and first_doc.snk_site_address_id.partner_id) or first_doc.partner_id"/>
+                                <!-- DYNAMIC FONT SCALING UNTUK ALAMAT PANJANG -->
+                                <t t-set="full_address" t-value="''"/>
+                                <t t-if="partner">
+                                    <t t-set="full_address" t-value="', '.join(filter(None, [(partner.street or ''), (partner.street2 or ''), (partner.city_id and partner.city_id.name or ''), (partner.zip or '')]))"/>
+                                    <!-- <t t-set="full_address" t-value="', '.join(filter(None, [(partner.street or ''), (partner.street2 or ''), (partner.city_id and partner.city_id.name or ''), (partner.state_id and partner.state_id.name or ''), (partner.country_id and partner.country_id.name or ''), (partner.zip or '')]))"/> -->
+                                </t>
+                                
+                                <t t-set="addr_font_size" t-value="'12pt'"/>
+                                <t t-if="len(full_address) &gt; 100"><t t-set="addr_font_size" t-value="'10pt'"/></t>
+                                <t t-if="len(full_address) &gt; 120"><t t-set="addr_font_size" t-value="'8.5pt'"/></t>
+                                <td style="width: 50%; vertical-align: top; padding-right: 10px;" colspan="2">
+                                    <!-- Alamat -->
+                                    <div t-att-style="'margin-bottom: 2px; font-size: ' + addr_font_size + '; text-transform: uppercase;'">
+                                        <t t-if="first_doc and first_doc.snk_site_address_id and first_doc.snk_site_address_id.partner_id">
+                                            <t t-out="first_doc.snk_site_address_id.partner_id.name"/>
+                                        </t>
+                                        <t t-elif="first_doc and first_doc.partner_id">
+                                            <t t-out="first_doc.partner_id.name"/>
+                                        </t>
+                                        <br/>
+                                        <t t-if="partner">
+                                            <t t-out="full_address or ''"/>
+                                        </t>
+                                    </div>
+                                </td>
+                                <td style="width: 25%; text-align: right; vertical-align: top;">
+                                    <!-- <div style="font-style: italic; margin-bottom: 5px;">Kode Konter :</div> -->
+                                    <div style="font-weight: bold;">Kode Konter:</div>
+                                </td>
+                                <td style="width: 25%; text-align: right; vertical-align: top;">
+                                    <div style="word-wrap: break-word;">
+                                        <!-- <span style="font-weight: bold;">Kode Konter: </span> -->
+                                        <t t-foreach="konter_codes" t-as="code">
+                                            <span t-out="code"/><t t-if="not code_last">, </t>
+                                        </t>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Items Table -->
+                        <table class="items-table table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th style="width: 4%;">NO</th>
+                                    <th style="width: 20%;">STO</th>
+                                    <th style="width: 16%;">BRAND</th>
+                                    <th style="width: 11%;">NO. DUS</th>
+                                    <th style="width: 6%;">COLLY</th>
+                                    <th style="width: 6%;">KG</th>
+                                    <th style="width: 6%;">QTY</th>
+                                    <th style="width: 6%;">DUS</th>
+                                    <th style="width: 6%;">KRG</th>
+                                    <th style="width: 6%;">KTG</th>
+                                    <th style="width: 10%;">KET.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="range(20)" t-as="row_idx">
+                                    <t t-set="global_counter" t-value="global_counter + 1"/>
+                                    <t t-set="picking" t-value="page_docs[row_idx] if len(page_docs) &gt; row_idx else False"/>
+                                    <tr>
+                                        <td style="text-align: center;"><t t-out="global_counter"/></td>
+
+                                        <!-- STO -->
+                                        <td style="text-align: left;">
+                                            <t t-if="picking" t-out="picking.name"/>
+                                        </td>
+
+                                        <!-- BRAND -->
+                                        <td style="text-align: center;">
+                                            <t t-if="picking and picking.analytic_ids">
+                                                <t t-foreach="picking.analytic_ids" t-as="ana">
+                                                    <span t-out="ana.name"/>
+                                                </t>
+                                            </t>
+                                        </td>
+
+                                        <!-- NO. DUS -->
+                                        <td style="text-align: center;">
+                                            <t t-if="picking and picking.state == 'done'" t-out="get_no_dus(picking)"/>
+                                            <t t-else=""></t>
+                                        </td>
+
+                                        <!-- COLLY (Packages) -->
+                                        <td style="text-align: center;">
+                                            <t t-if="picking">
+                                                <t t-set="packages" t-value="picking.move_line_ids.mapped('result_package_id')"/>
+                                                <t t-if="packages">
+                                                    <t t-out="len(packages)"/>
+                                                </t>
+                                            </t>
+                                        </td>
+
+                                        <!-- KG (Weight) -->
+                                        <td style="text-align: center;">
+                                            <t t-if="picking">
+                                                <t t-if="picking.shipping_weight">
+                                                    <t t-out="picking.shipping_weight"/>
+                                                </t>
+                                                <t t-elif="picking.weight">
+                                                    <t t-out="picking.weight"/>
+                                                </t>
+                                            </t>
+                                        </td>
+
+                                        <!-- QTY -->
+                                        <td style="text-align: center;"/>
+
+                                        <!-- DUS -->
+                                        <td style="text-align: center;"/>
+
+                                        <!-- KRG -->
+                                        <td style="text-align: center;"/>
+
+                                        <!-- KTG -->
+                                        <td style="text-align: center;"/>
+
+                                        <!-- KET -->
+                                        <td style="text-align: center;"/>
+                                    </tr>
+                                </t>
+                            </tbody>
+
+                            <!-- Total Row — hanya di halaman terakhir tiap group -->
+                            <t t-if="page_docs_last">
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="4" style="text-align: right; font-weight: bold; padding-top: 5px;">
+                                            TOTAL
+                                        </td>
+                                        <td colspan="7" style="text-align: center; font-weight: bold; padding-top: 5px;"/>
+                                    </tr>
+                                </tfoot>
+                            </t>
+                        </table>
+
+                        <!-- Footer Signatures — hanya di halaman terakhir tiap group -->
+                        <t t-if="page_docs_last">
+                            <table class="footer-table">
+                                <tr>
+                                    <td>
+                                        <div>Diterima, tanggal : ........................</div>
+                                        <div style="margin-top: 5px;">Penerima,</div>
+                                        <div class="signature-box">
+                                            <!-- ( <span style="display:inline-block; width: 150px; text-align: center;">Nama Jelas</span> ) -->
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>Jakarta, tanggal : ........................</div>
+                                        <div style="margin-top: 5px;">Pengirim,</div>
+                                        <div class="signature-box">
+                                            <!-- ( <span style="display:inline-block; width: 150px; text-align: center;">Nama Jelas</span> ) -->
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </t>
+
+                        <!-- Bottom Footer -->
+                        <table class="table bottom-copyright">
+                            <tr>
+                                <td>
+                                    PT. Megariamas Sentosa. Jalan Raya Kali Perancis Pergudangan Mutiara Kosambi 1 Blok B3 No. 5 Phone (021) 5561390 /5661391 15211 Tangerang - Indonesia
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Reset is_first_page setelah halaman pertama selesai dirender -->
+                    <t t-set="is_first_page" t-value="False"/>
+
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

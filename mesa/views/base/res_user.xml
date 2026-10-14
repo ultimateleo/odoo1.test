@@ -1,0 +1,22 @@
+<odoo>
+    <data>
+        <record id="snk_res_users_view_form_inherit" model="ir.ui.view">
+            <field name="name">snk.res.users.view.form.inherit</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page name="access_additional" string="Additional Access Control" groups="base.group_system">
+                        <group name="access_control" string="Access Control" col="2" >
+                            <field name="allowed_industry_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="allowed_analytic_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+
+        
+
+    </data>
+</odoo>

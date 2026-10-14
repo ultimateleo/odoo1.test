@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="sequence_snk_mrp_transfer_order" model="ir.sequence">
+            <field name="name">Snk Transfer Order</field>
+            <field name="code">snk.transfer.order</field>
+            <field name="prefix">TO/</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+
+        <record id="sequence_snk_mrp_order_point" model="ir.sequence">
+            <field name="name">Snk Order Point</field>
+            <field name="code">snk.order.point</field>
+            <field name="prefix">PO/</field>
+            <field name="padding">8</field> <!-- Ini membuat 8 digit -->
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id" eval="False"/> <!-- Global (tanpa company) -->
+        </record>
+
+        <record id="sequence_snk_mrp_stock_transfer_order" model="ir.sequence">
+            <field name="name">Snk Stock Transfer Order</field>
+            <field name="code">snk.stock.transfer.order</field>
+            <field name="prefix">STO/</field>
+            <field name="padding">5</field>
+            <field name="number_next">1</field>
+            <field name="number_increment">1</field>
+            <field name="company_id"></field>
+        </record>
+    </data>
+</odoo>

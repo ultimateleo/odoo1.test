@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_view_delivery_price_rule_form" model="ir.ui.view">
+            <field name="name">delivery.price.rule.form</field>
+            <field name="model">delivery.price.rule</field>
+            <field name="arch" type="xml">
+                <form string="Price Rules">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="carrier_id"/>
+                            <h1>
+                                <field name="carrier_id" placeholder="e.g. J &amp; T" required="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <label for="variable" string="Condition"/>
+                                <div class="o_row">
+                                    <field name="variable"/>
+                                    <field name="operator" invisible="variable == 'city'"/>
+                                    <field name="operator_city" invisible="variable != 'city'" required="variable == 'city'"/>
+                                    <field name="max_value" invisible="variable == 'city'"/>
+                                </div>
+                                <field name="city_id" invisible="variable != 'city'"/>
+                                <field name="currency_id" invisible="1"/>
+                                <label for="list_base_price" string="Delivery Cost"/>
+                                <div>
+                                    <field name="list_base_price" widget="monetary" class="oe_inline"/>
+                                    +
+                                    <field name="list_price" widget="monetary" class="oe_inline"/>
+                                    *
+                                    <field name="variable_factor" class="oe_inline"/>
+                                </div>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="snk_view_delivery_price_rule_tree" model="ir.ui.view">
+            <field name="name">delivery.price.rule.list</field>
+            <field name="model">delivery.price.rule</field>
+            <field name="arch" type="xml">
+                <list string="Price Rules">
+                    <field name="sequence" widget="handle" />
+                    <field name="carrier_id"/>
+                    <field name="name"/>
+                    <field name="city_id" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="snk_view_delivery_price_rule_search" model="ir.ui.view">
+            <field name="name">delivery.price.rule.list</field>
+            <field name="model">delivery.price.rule</field>
+            <field name="arch" type="xml">
+                <search string="Price Rules">
+                    <field name="carrier_id"/>
+                    <filter string="Carrier" name="carrier_id" context="{'group_by':'carrier_id'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="snk_delivery_price_rule_action" model="ir.actions.act_window">
+            <field name="name">Delivery Price Rule</field>
+            <field name="res_model">delivery.price.rule</field>
+            <field name="view_mode">list,form</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('snk_view_delivery_price_rule_tree')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('snk_view_delivery_price_rule_form')}),
+            ]"/>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a delivery price rule
+              </p><p>
+                Odoo helps you track all activities related to your delivery.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_delivery_price_rule" action="snk_delivery_price_rule_action"
+                  parent="stock.menu_delivery" sequence="3"/>
+    </data>
+</odoo>

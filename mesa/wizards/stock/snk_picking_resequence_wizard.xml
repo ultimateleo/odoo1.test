@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Wizard Confirm V2 Form View -->
+        <record id="snk_picking_resequence_v2_wizard_form" model="ir.ui.view">
+            <field name="name">snk.picking.resequence.v2.wizard.form</field>
+            <field name="model">snk.picking.resequence.v2.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Konfirmasi Resequence">
+                    <p>Apakah Anda yakin ingin melakukan resequence pada record ini? Aksi ini tidak dapat dibatalkan.</p>
+                    <footer>
+                        <button name="action_confirm" string="Konfirmasi" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string="Batal" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

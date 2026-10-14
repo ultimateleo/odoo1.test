@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_delivery_carrier_view_form_inherit" model="ir.ui.view">
+            <field name="name">delivery.carrier.form.view.inherit</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='state_ids']" position="after">
+                    <field name="city_ids" widget="many2many_tags"/>
+                </xpath>
+                <xpath expr="//page[@name='pricing']/group/field[@name='price_rule_ids']" position="replace">
+                    <field name="price_rule_ids" nolabel="1">
+                        <form>
+                            <sheet>
+                                <div class="oe_title">
+                                    <label for="carrier_id"/>
+                                    <h1>
+                                        <field name="carrier_id" placeholder="e.g. J &amp; T" required="1"/>
+                                    </h1>
+                                </div>
+                                <group>
+                                    <group>
+                                        <label for="variable" string="Condition"/>
+                                        <div class="o_row">
+                                            <field name="variable"/>
+                                            <field name="operator" invisible="variable == 'city'"/>
+                                            <field name="operator_city" invisible="variable != 'city'" required="variable == 'city'"/>
+                                            <field name="max_value" invisible="variable == 'city'"/>
+                                        </div>
+                                        <field name="city_id" invisible="variable != 'city'"/>
+                                        <field name="currency_id" invisible="1"/>
+                                        <label for="list_base_price" string="Delivery Cost"/>
+                                        <div>
+                                            <field name="list_base_price" widget="monetary" class="oe_inline"/>
+                                            +
+                                            <field name="list_price" widget="monetary" class="oe_inline"/>
+                                            *
+                                            <field name="variable_factor" class="oe_inline"/>
+                                        </div>
+                                    </group>
+                                </group>
+                            </sheet>
+                        </form>
+                    </field>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_delivery_carrier_view_tree_inherit" model="ir.ui.view">
+            <field name="name">delivery.carrier.tree.view.inherit</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='excluded_tag_ids']" position="after">
+                    <field name="city_ids" optional="hide"/>
+                    <field name="zip_prefix_ids" optional="hide"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_delivery_carrier_view_search_inherit" model="ir.ui.view">
+            <field name="name">delivery.carrier.search.view.inherit</field>
+            <field name="model">delivery.carrier</field>
+            <field name="inherit_id" ref="delivery.view_delivery_carrier_search"/>
+            <field name="arch" type="xml">
+                <xpath expr="//filter[@name='provider']" position="after">
+                    <filter name="city_ids" context="{'group_by':'city_ids'}"/>
+                    <filter name="zip_prefix_ids" context="{'group_by':'zip_prefix_ids'}"/>
+                </xpath>
+                <xpath expr="//field[@name='delivery_type']" position="after">
+                    <field name="city_ids"/>
+                    <field name="zip_prefix_ids"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

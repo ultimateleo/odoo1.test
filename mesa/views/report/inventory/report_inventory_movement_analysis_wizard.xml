@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form view untuk Wizard -->
+    <record id="snk_report_inventory_movement_analysis_wizard_view_form" model="ir.ui.view">
+        <field name="name">snk.report.inventory.movement.analysis.wizard.form</field>
+        <field name="model">snk.report.inventory.movement.analysis.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Movement Analysis Wizard">
+                <group>
+                    <group>
+                        <field name="from_date"/>
+                        <field name="to_date"/>
+                    </group>
+                    <group>
+                        <field name="snk_site_id" widget="many2many_tags"/>
+                        <field name="product_id"/>
+                        <field name="location_id"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action window untuk memanggil Wizard -->
+    <record id="snk_report_inventory_movement_analysis_wizard_action" model="ir.actions.act_window">
+        <field name="name">Inventory Movement Analysis</field>
+        <field name="res_model">snk.report.inventory.movement.analysis.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

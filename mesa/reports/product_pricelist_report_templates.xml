@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="paperformat_pricelist_mesa" model="report.paperformat">
+        <field name="name">Pricelist Mesa Format</field>
+        <field name="default" eval="False" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+    </record>
+    <!-- Report Action -->
+    <record id="action_report_pricelist" model="ir.actions.report">
+        <field name="name">Pricelist</field>
+        <field name="model">product.pricelist</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_pricelist_mesa</field>
+        <field name="report_file">mesa.report_pricelist_mesa</field>
+        <field name="paperformat_id" ref="mesa.paperformat_pricelist_mesa" />
+    </record>
+
+    <!-- QWeb Template -->
+    <!-- QWeb Template -->
+    <template id="report_pricelist_mesa" t-name="mesa.report_pricelist_mesa">
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="doc">
+                <div class="page">
+                    <h2 style="text-align:center; margin-bottom:10px;">Pricelist</h2>
+                    <table class="table table-sm o_main_table"
+                        style="width:100%; border:1px solid #000; border-collapse:collapse; font-size:12px;">
+                        <thead style="background:#f2f2f2;">
+                            <tr>
+                                <th style="border:1px solid #000; padding:5px;">Generic</th>
+                                <th style="border:1px solid #000; padding:5px;">Variant</th>
+                                <th style="border:1px solid #000; padding:5px;">Name</th>
+                                <th style="border:1px solid #000; padding:5px;">Grade</th>
+                                <th style="border:1px solid #000; padding:5px;">Barcode</th>
+                                <th style="border:1px solid #000; padding:5px; text-align:right;">Original
+                                    Price</th>
+                                <th style="border:1px solid #000; padding:5px; text-align:right;">Normal
+                                    Price</th>
+                                <th style="border:1px solid #000; padding:5px;">UoM</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Gunakan products_with_price dari context -->
+                            <t t-foreach="products_with_price" t-as="item">
+                                <tr>
+                                    <!-- Generic = product_tmpl_id.default_code -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t
+                                            t-esc="item['product'].product_tmpl_id.default_code or ''" />
+                                    </td>
+
+                                    <!-- Variant = product.default_code -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t t-esc="item['product'].default_code or ''" />
+                                    </td>
+
+                                    <!-- Name = product.name -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t t-esc="item['product'].name or ''" />
+                                    </td>
+
+                                    <!-- Grade = product.snk_grade_id.snk_name -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t t-esc="item['product'].snk_grade_id.snk_name or ''" />
+                                    </td>
+
+                                    <!-- Barcode = product.barcode -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t t-esc="item['product'].barcode or ''" />
+                                    </td>
+
+                                    <td
+                                        style="border:1px solid #000; padding:5px; text-align:right;">
+                                        <t t-esc="item['price'] or 0.0"
+                                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                    </td>
+
+                                    <td
+                                        style="border:1px solid #000; padding:5px; text-align:right;">
+                                        <t
+                                            t-esc="item['product'].product_tmpl_id.snk_normal_price or 0.0"
+                                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                    </td>
+
+
+                                    <!-- UOM = product.uom_id.name -->
+                                    <td style="border:1px solid #000; padding:5px;">
+                                        <t t-esc="item['product'].uom_id.name or ''" />
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="view_snk_sales_report_wizard_form" model="ir.ui.view">
+            <field name="name">snk.report.sales.wizard.form</field>
+            <field name="model">snk.report.sales.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Filter Report">
+                    <group>
+                        <group>
+                            <field name="date_start" required="1"/>
+                            <field name="site_ids" widget="many2many_tags"/>
+                        </group>
+                        <group>
+                            <field name="date_end" required="1"/>
+                            <field name="categ_ids" widget="many2many_tags"/>
+                            <field name="product_tmpl_ids" widget="many2many_tags"/>
+                            <field name="analytic_ids" widget="many2many_tags"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_generate_report" string="Generate Report" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>
+
+<!-- <act_window 
+    id="action_snk_sales_report_wizard"
+    name="Generate Sales Report"
+    res_model="snk.sales.report.wizard"
+    view_mode="form"
+    target="new"/> -->

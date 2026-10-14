@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="snk_pos_menu_root"
+            name="POS"
+            web_icon="mesa,static/description/icon_pos.png"
+            groups="mesa.group_snk_pos_integration"
+            sequence="600"/>
+
+        <menuitem
+            id="snk_pos_order_menu"
+            parent="snk_pos_menu_root"
+            name="Orders"
+            sequence="1"/>
+
+    </data>
+</odoo>

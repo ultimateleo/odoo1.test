@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="snk_stock_picking_type_form_inherit_view" model="ir.ui.view">
+        <field name="name">snk.stock.picking.type.form.inherit.view</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_picking_type_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='warehouse_id']" position="before">
+                    <field name="site_id"/>
+            </xpath>
+            <xpath expr="//group[@name='second']" position="before">
+                <group name="mutation" string="Mutation" invisible="not enable_mutation">
+                    <field name="snk_is_mutation"/>
+                    <field name="snk_is_mrp"/>
+                    <field name="snk_is_integration"/>
+                    <field name="snk_mutation_code"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="snk_stock_picking_type_search_inherit_view" model="ir.ui.view">
+        <field name="name">snk.stock.picking.type.search.inherit.view</field>
+        <field name="model">stock.picking.type</field>
+        <field name="inherit_id" ref="stock.view_pickingtype_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="site_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

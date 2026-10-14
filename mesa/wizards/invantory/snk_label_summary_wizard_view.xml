@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_snk_label_summary_wizard_form" model="ir.ui.view">
+            <field name="name">snk.label.summary.wizard.form</field>
+            <field name="model">snk.label.summary.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Summary Label">
+                    <sheet>
+                        <group>
+                            <field name="picking_id" readonly="1" options="{'no_open': True}"/>
+                        </group>
+
+                        <field name="line_ids" readonly="1">
+                            <list string="Label Summary" create="0" delete="0">
+                                <field name="currency_id" invisible="1" column_invisible="1"/>
+                                <field name="price_unit" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}"/>
+                                <field name="qty" string="Qty (Labels)"/>
+                                <field name="total_price" widget="monetary"
+                                       options="{'currency_field': 'currency_id'}" column_invisible="1"/>
+<!--                                <field name="is_filler" string="Filler?" optional="hide"/>-->
+                            </list>
+                        </field>
+
+                        <group class="oe_subtotal_footer">
+                            <field name="total_labels" string="Total Labels"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="total_price" string="Grand Total"
+                                   widget="monetary"
+                                   options="{'currency_field': 'currency_id'}" invisible="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_print_labels"
+                                type="object"
+                                string="Print Labels"
+                                class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_snk_label_summary_wizard" model="ir.actions.act_window">
+            <field name="name">Summary Label</field>
+            <field name="res_model">snk.label.summary.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="view_id" ref="view_snk_label_summary_wizard_form"/>
+            <field name="target">new</field>
+        </record>
+
+        <record id="view_picking_form_label_summary_inherit" model="ir.ui.view">
+            <field name="name">stock.picking.form.label.summary.inherit</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.view_picking_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button
+                        name="action_label_summary"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-tags"
+                        string="Summary Label"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

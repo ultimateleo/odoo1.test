@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <data noupdate="0">
+        <!--    =================== POS INTEGRATION GROUPS ===========================-->
+
+        <record model="ir.module.category" id="module_category_pos_integration">
+            <field name="name">POS Integration</field>
+            <field name="description">POS Integration</field>
+            <field name="sequence">110</field>
+            <field name="parent_id" eval="False"/>
+        </record>
+
+        <record id="group_snk_pos_integration" model="res.groups">
+            <field name="name">User</field>
+            <field name="comment">Allows access to POS Integration module</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="mesa.module_category_pos_integration"/>
+        </record>
+
+        <record id="group_snk_pos_integration_admin" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="comment">Admin access to POS Integration module</field>
+            <field name="category_id" ref="mesa.module_category_pos_integration"/>
+            <field name="implied_ids" eval="[(4, ref('group_snk_pos_integration'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+        <record id="group_snk_order_staging" model="res.groups">
+            <field name="name">Order Staging</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <record id="group_snk_is_mutation" model="res.groups">
+            <field name="name">Is Mutation</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
+        <!--    =================== MRP GROUPS ===========================-->
+
+        <record model="ir.module.category" id="module_category_mrp">
+            <field name="name">MRP</field>
+            <field name="description">MRP</field>
+            <field name="sequence">100</field>
+            <field name="parent_id" eval="False"/>
+        </record>
+
+        <record model="ir.module.category" id="module_category_mrp_configuration">
+            <field name="name">Configuration</field>
+            <field name="description">Configuration</field>
+            <field name="parent_id" ref="module_category_mrp"/>
+            <field name="sequence">1</field>
+        </record>
+
+        <record id="group_snk_configuration_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="comment">User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="mesa.module_category_mrp_configuration"/>
+        </record>
+
+        <record id="group_snk_configuration_admin" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="comment">Admin</field>
+            <field name="category_id" ref="mesa.module_category_mrp_configuration"/>
+            <field name="implied_ids" eval="[(4, ref('group_snk_configuration_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <record model="ir.module.category" id="module_category_mrp_mrp">
+            <field name="name">MRP</field>
+            <field name="description">MRP</field>
+            <field name="parent_id" ref="module_category_mrp"/>
+            <field name="sequence">2</field>
+        </record>
+
+        <record id="group_snk_mrp_user" model="res.groups">
+            <field name="name">User</field>
+            <field name="comment">User</field>
+            <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+            <field name="category_id" ref="mesa.module_category_mrp_mrp"/>
+        </record>
+
+        <record id="group_snk_mrp_admin" model="res.groups">
+            <field name="name">Admin</field>
+            <field name="comment">Admin</field>
+            <field name="category_id" ref="mesa.module_category_mrp_mrp"/>
+            <field name="implied_ids" eval="[(4, ref('group_snk_mrp_user'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+        <!-- Reports Menu -->
+        <record id="module_category_reports_mesa" model="ir.module.category">
+            <field name="name">Mesa Reports</field>
+            <field name="sequence">50</field>
+        </record>
+
+        <!-- Sales -->
+        <record id="group_report_sales_analysis" model="res.groups">
+            <field name="name">Sales Analysis</field>
+            <field name="comment">Check this if the user is allowed to access report regarding Sales</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <!-- POS -->
+        <record id="group_report_pos" model="res.groups">
+            <field name="name">POS</field>
+            <field name="comment">Check this if the user is allowed to access report regarding POS</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <!-- Purchase -->
+        <record id="group_report_po_monitoring" model="res.groups">
+            <field name="name">PO Monitoring</field>
+            <field name="comment">Check this if the user is allowed to access report regarding Purchase</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <!-- Inventory -->
+        <record id="group_report_reserved" model="res.groups">
+            <field name="name">Reserved</field>
+            <field name="comment">Check this if the user is allowed to access report regarding inventory pending</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <!-- <record id="group_admin_gudang_view_history" model="res.groups">
+            <field name="name">Warehouse Admin View History</field>
+            <field name="comment">Group dedicated to warehouse admins for viewing history reports without product creation permissions.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+            <field name="implied_ids" eval="[(4, ref('base.group_user')), (4, ref('stock.group_stock_user'))]"/>
+        </record> -->
+
+        <record id="group_report_transfer" model="res.groups">
+            <field name="name">Transfer</field>
+            <field name="comment">Check this if the user is allowed to access report regarding inventory movement</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+        <record id="group_report_monitoring_sto" model="res.groups">
+            <field name="name">Monitoring STO</field>
+            <field name="comment">Check this if the user is allowed to access report regarding inventory STO</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+        <record id="group_report_sto_summary" model="res.groups">
+            <field name="name">STO Summary</field>
+            <field name="comment">Check this if the user is allowed to access STO Summary report</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+        <record id="group_report_stock_balance" model="res.groups">
+            <field name="name">Stock Balance</field>
+            <field name="comment">Check this if the user is allowed to access report regarding stock balance</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <record id="group_report_stock_card" model="res.groups">
+            <field name="name">Stock Card</field>
+            <field name="comment">Check this if the user is allowed to access report regarding stock movement</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <record id="group_report_stock_summary" model="res.groups">
+            <field name="name">Stock Summary</field>
+            <field name="comment">Check this if the user is allowed to access report regarding stock summary</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <record id="group_report_sites" model="res.groups">
+            <field name="name">Sites</field>
+            <field name="comment">Check this if the user is allowed to access report regarding Sites</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <record id="group_report_sites_history" model="res.groups">
+            <field name="name">Sites History</field>
+            <field name="comment">Check this if the user is allowed to access report regarding sites history. This should be followed by Sites access.</field>
+            <field name="category_id" ref="mesa.module_category_reports_mesa"/>
+        </record>
+
+        <!-- Cost & Price Visibility -->
+        <record id="group_snk_view_cost_price" model="res.groups">
+            <field name="name">View Cost &amp; Price</field>
+            <field name="comment">Check this if the user is allowed to see cost and price fields on products and pricelist items.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
+    </data>
+</odoo>

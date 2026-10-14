@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="snk_report_inventory_transfer_view_list" model="ir.ui.view">
+        <field name="name">snk.report.inventory.transfer.list</field>
+        <field name="model">snk.report.inventory.transfer</field>
+        <field name="arch" type="xml">
+            <list string="Inventory transferd" create="false" edit="false">
+                <header>
+                    <button name="%(snk_report_inventory_transfer_wizard_action)d"
+                            string="Generate Report"
+                            type="action"
+                            display="always"
+                            class="btn-primary"
+                    />
+                </header>
+                <field name="date" optional="hide"/>
+                <!-- <field name="move_line_id" optional="hide"/> -->
+                <field name="scheduled_date" optional="show"/>
+                <field name="picking_id"/>
+                <field name="picking_type_code" optional="hide"/>
+                <field name="picking_type_id" optional="hide"/>
+                <field name="origin" optional="show"/>
+                <field name="purchase_id" optional="hide"/>
+                <field name="snk_create_date" optional="hide"/>
+                <field name="date_done" optional="hide"/>
+                <field name="snk_physical_date" optional="hide"/>
+                <field name="snk_site_id"/>
+                <field name="location_id" optional="hide"/>
+                <field name="snk_source_site_name"/>
+                <field name="snk_site_addres_id" optional="hide"/>
+                <field name="snk_dest_site_name" optional="hide"/>
+                <field name="location_dest_id" optional="hide"/>
+                <field name="product_id"/>
+                <field name="default_code_template" optional="hide"/>
+                <field name="default_code_variant" optional="hide"/>
+                <field name="product_template_attribute_value_ids" widget="many2many_tags" optional="hide"/>
+                <field name="categ_id" optional="hide"/>
+                <field name="analytic_ids" optional="hide"/>
+                <field name="snk_grade_id" optional="hide"/>
+                <field name="snk_material_code" optional="hide"/>
+                <field name="lot_id" optional="show"/>
+                <field name="product_uom_qty" sum="Total Initial" optional="show"/>
+                <field name="quantity" sum="Total Quantity" optional="hide"/>
+                <field name="actual_quantity" sum="Total Actual Quantity" optional="show"/>
+                <field name="product_uom_id" optional="hide"/>
+                <field name="currency_id" optional="hide"/>
+                <field name="unit_price" sum="Total Unit Price" optional="hide"/>
+                <field name="total_amount" sum="Total Amount" optional="hide"/>
+
+                <field name="note" optional="hide"/>
+                <field name="state" widget="badge" 
+                       decoration-info="state in ('draft', 'waiting', 'confirmed')"
+                       decoration-warning="state == 'partially_available'"
+                       decoration-success="state in ('assigned', 'done')"
+                       decoration-danger="state == 'cancel'"/>
+                <field name="create_uid" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="snk_report_inventory_transfer_view_pivot" model="ir.ui.view">
+        <field name="name">snk.report.inventory.transfer.pivot</field>
+        <field name="model">snk.report.inventory.transfer</field>
+        <field name="arch" type="xml">
+            <pivot string="Inventory Transferd">
+                <field name="snk_site_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="quantity" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="snk_report_inventory_transfer_view_search" model="ir.ui.view">
+        <field name="name">snk.report.inventory.transfer.search</field>
+        <field name="model">snk.report.inventory.transfer</field>
+        <field name="arch" type="xml">
+            <search string="Search Inventory transferd">
+                <field name="product_id"/>
+                <field name="snk_site_id"/>
+                <field name="picking_id"/>
+                <field name="purchase_id"/>
+                <separator/>
+                <filter string="Receipt" name="receipt" domain="[('picking_type_code', '=', 'incoming')]"/>
+                <filter string="Delivery" name="delivery" domain="[('picking_type_code', '=', 'outgoing')]"/>
+                <filter string="Internal" name="internal" domain="[('picking_type_code', '=', 'internal')]"/>
+                <group expand="1" string="Group By">
+                    <filter string="Source Site" name="group_by_site" context="{'group_by':'snk_site_id'}"/>
+                    <filter string="Destination Site" name="group_by_dest_site" context="{'group_by':'snk_site_addres_id'}"/>
+                    <filter string="Product" name="group_by_product" context="{'group_by':'product_id'}"/>
+                    <filter string="Reference" name="group_by_picking" context="{'group_by':'picking_id'}"/>
+                    <filter string="Type of Operation" name="group_by_picking_type_code" context="{'group_by':'picking_type_code'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="snk_report_inventory_transfer_action" model="ir.actions.act_window">
+        <field name="name">Inventory Transfer</field>
+        <field name="res_model">snk.report.inventory.transfer</field>
+        <field name="view_mode">list,pivot,graph</field>
+        <field name="search_view_id" ref="snk_report_inventory_transfer_view_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_transfer'))]"/>
+        <field name="domain">[('create_uid', '=', uid)]</field>
+        <field name="context">{'default_create_uid': uid}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No data found. Please run the wizard to generate the report.
+            </p>
+        </field>
+    </record>
+</odoo>

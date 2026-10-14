@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_product_product_form_inherit" model="ir.ui.view">
+            <field name="name">snk.product.product.form.view.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_normal_form_view" />
+            <field name="arch" type="xml">
+
+                <xpath expr="//button[@name='action_open_label_layout']" position="after">
+                    <button name="snk_action_xml_product" string="Generate XML Product"
+                        type="object"
+                        invisible="(id == False) or (default_code == False)" />
+                    <button name="snk_action_xml_barcode" string="Generate XML Barcode"
+                        type="object"
+                        invisible="(id == False) or (default_code == False) or (barcode == False)" />
+                </xpath>
+                 <xpath expr="//div[@name='standard_price_uom']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                <xpath expr="//label[@for='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                <xpath expr="//group[@name='group_standard_price']" position="inside">
+                    <separator string="Structure" />
+                    <field name="analytic_id"
+                        options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                    <field name="snk_grade_id"
+                        options="{'no_create': True, 'no_create_edit': True, 'no_open': True}" />
+                    <field name="snk_material_code" />
+                </xpath>
+                <xpath expr="//field[@name='default_code']" position="before">
+                    <field name="snk_normal_price" string="Normal Price" widget='monetary'
+                        options="{'currency_field': 'currency_id'}" optional="show" />
+                </xpath>
+                <xpath expr="//field[@name='analytic_id']" position="attributes">
+                    <attribute name="required">1</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_product_product_tree_inherit" model="ir.ui.view">
+            <field name="name">snk.product.product.tree.view.inherit</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_product_tree_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='standard_price']" position="attributes">
+                    <attribute name="groups">mesa.group_snk_view_cost_price</attribute>
+                </xpath>
+                <xpath expr="//field[@name='uom_id']" position="after">
+                    <field name="analytic_id" optional="hide" />
+                    <field name="snk_grade_id" optional="hide" />
+                    <field name="snk_material_code" optional="hide" />
+                    <!-- <field name="avg_cost" optional="hide" groups="mesa.group_snk_view_cost_price" /> -->
+                    <!-- <field name="total_value" optional="hide" groups="mesa.group_snk_view_cost_price" /> -->
+                </xpath>
+                
+                <xpath expr="//field[@name='default_code']" position="before">
+                    <field name="id"></field>
+                    <field name="product_tmpl_id" />
+                </xpath>
+                <xpath expr="//field[@name='product_template_variant_value_ids']" position="replace">
+
+                    <field name="product_template_attribute_value_ids" widget="many2many_tags" />
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="snk_product_search_include_id" model="ir.ui.view">
+            <field name="name">snk.product.search.include.id</field>
+            <field name="model">product.product</field>
+            <field name="inherit_id" ref="product.product_search_form_view" />
+            <field name="arch" type="xml">
+                <!-- Modifikasi field name untuk include ID di filter_domain -->
+                <field name="name" position="replace">
+                    <field name="name" string="Product"
+                        filter_domain="['|', '|', '|', 
+                                         ('default_code', 'ilike', self), 
+                                         ('name', 'ilike', self), 
+                                         ('barcode', 'ilike', self),
+                                         ('id','ilike', self)]" />
+                </field>
+
+                <!-- Tambahkan field individual untuk advanced search -->
+                <xpath expr="//search" position="inside">
+                    <!-- Field ID untuk pencarian spesifik -->
+                    <field name="name" position="after">
+                        <field name="id" string="ID" />
+                    </field>
+
+                    <!-- Field material code jika ada -->
+                    <field name="snk_material_code" string="Material Code"
+                        filter_domain="[('snk_material_code', 'ilike', self)]" />
+                </xpath>
+            </field>
+        </record>
+
+        <!--action
+        servers-->
+        <record model="ir.actions.server" id="action_snk_generate_reference">
+            <field name="name">Generate Reference</field>
+            <field name="model_id" ref="product.model_product_product" />
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="state">code</field>
+            <field name="code">
+                action = records.action_generate_reference()
+            </field>
+        </record>
+
+        <record id="snk_action_xml_product" model="ir.actions.server">
+            <field name="name">Generate XML Product</field>
+            <field name="model_id" ref="product.model_product_product" />
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">records.snk_action_xml_product()</field>
+        </record>
+
+        <record id="snk_action_xml_barcode" model="ir.actions.server">
+            <field name="name">Generate XML Barcode</field>
+            <field name="model_id" ref="product.model_product_product" />
+            <field name="binding_model_id" ref="product.model_product_product" />
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">records.snk_action_xml_barcode()</field>
+        </record>
+    </data>
+</odoo>

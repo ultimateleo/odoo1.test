@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Form View -->
+    <record id="view_report_monitoring_sto_wizard_form" model="ir.ui.view">
+        <field name="name">report.monitoring.sto.wizard.form</field>
+        <field name="model">report.monitoring.sto.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Report Monitoring STO">
+                <div class="alert alert-info" role="alert" style="margin-bottom: 20px;">
+                    <strong>Petunjuk:</strong><br/>
+                    Pilih Periode, Source Site, dan Destination Site untuk menarik report Monitoring STO.<br/>
+                    Sistem akan memuat data otomatis dari PR (Transfer Order) -> Delivery -> Receipt.<br/>
+                    Sistem otomatis akan mengecualikan transaksi Adjustment / Koreksi stok murni yang bukan transit logistik.
+                </div>
+                <group>
+                    <group string="Parameters">
+                        <label for="date_start" string="Period"/>
+                        <div class="o_row">
+                            <field name="date_start" widget="date"/>
+                            <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                            <field name="date_end" widget="date"/>
+                        </div>
+                        <field name="source_site_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="destination_site_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group string="Filters (Optional)">
+                        <field name="analytic_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="category_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="grade_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="product_tmpl_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="product_ids" widget="many2many_tags" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_generate" string="Generate Report" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <!-- Action -->
+    <record id="action_report_monitoring_sto_wizard" model="ir.actions.act_window">
+        <field name="name">Monitoring STO</field>
+        <field name="res_model">report.monitoring.sto.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_stock_site_action" model="ir.actions.act_window">
+            <field name="name">Site</field>
+            <field name="res_model">res.partner</field>
+            <field name="path">snk-stock-site</field>
+            <field name="view_mode">kanban,list,form,activity</field>
+            <field name="search_view_id" ref="base.view_res_partner_filter"/>
+            <field name="context">{'default_is_company': True}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                Create a Site in your address book
+              </p><p>
+                Odoo helps you track all activities related to your sites.
+              </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_snk_stock_site" action="snk_stock_site_action"
+                  parent="stock.menu_warehouse_config" sequence="3"/>
+    </data>
+</odoo>

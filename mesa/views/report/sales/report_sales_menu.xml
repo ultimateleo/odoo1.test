@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="snk_action_open_sales_analysis_wizard" model="ir.actions.act_window">
+            <field name="name">Generate Sales Analysis</field>
+            <field name="res_model">snk.report.sales.wizard</field>
+            <field name="view_id" ref="view_snk_sales_report_wizard_form"/>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <record id="snk_view_report_sales_analysis_list" model="ir.ui.view">
+            <field name="name">snk.report.sales.analysis.list</field>
+            <field name="model">snk.report.sales.analysis</field>
+            <field name="arch" type="xml">
+                <list string="Sales Analysis">
+                    <header>
+                        <button name="%(snk_action_open_sales_analysis_wizard)d"
+                            string="Generate Report"
+                            type="action"
+                            display="always"
+                            class="btn-primary"
+                        />
+                    </header>
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="date_order"/>
+                    <field name="company_id" optional="hide"/>
+                    <field name="currency_id" optional="hide"/>
+                    <field name="site_id" optional="hide"/>
+                    <field name="site_name" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="industry_id" optional="hide"/>
+                    <field name="customer_id" optional="hide"/>
+                    <field name="site_tag_ids" optional="hide"/>
+                    <field name="site_grade_id" optional="hide"/>
+                    <field name="partner_id" optional="hide"/>
+                    <field name="city_id" optional="hide"/>
+                    <field name="district_id" optional="hide"/>
+                    <field name="pic_id" optional="hide"/>
+                    <field name="manager_id" optional="hide"/>
+                    <field name="product_id" optional="hide"/>
+                    <field name="product_template_id" optional="hide"/>
+                    <field name="variant_reference" optional="hide"/>
+                    <field name="template_reference" optional="hide"/>
+                    <field name="categ_id" optional="hide"/>
+                    <field name="grade_id" optional="hide"/>
+                    <field name="analytic_id" optional="hide"/>
+                    <field name="project_ids" optional="hide"/>
+                    <field name="product_tag_ids" optional="hide"/>
+                    <field name="product_uom_qty" optional="hide"/>
+                    <field name="cost_avg" optional="hide"/>
+                    <field name="normal_price" optional="hide"/>
+                    <field name="list_price" optional="hide"/>
+                    <field name="price_unit" optional="hide"/>
+                    <field name="gross_sales" widget="monetary"
+                        options="{'currency_field': 'currency_id'}"
+                        sum="Gross Sales" optional="show"/>
+                    <field name="discount_amount" optional="hide"/>
+                    <field name="discount" optional="hide"/>
+                    <field name="tax_id" optional="hide"/>
+                    <field name="tax_amount" optional="hide"/>
+                    <field name="price_total" optional="hide"/>
+                    <field name="price_subtotal" optional="hide"/>
+                    <field name="price_avg" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_sales_analysis_pivot" model="ir.ui.view">
+            <field name="name">snk.report.sales.analysis.pivot</field>
+            <field name="model">snk.report.sales.analysis</field>
+            <field name="arch" type="xml">
+                <pivot string="Sales Analysis">
+                    <!-- Dimensions -->
+                    <field name="categ_id" type="row"/>
+                    <field name="product_id" type="row"/>
+                    <field name="type" type="col"/>
+
+                    <!-- Measures -->
+                    <!-- <field name="product_uom_qty" type="measure"/> -->
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                    <field name="gross_sales" type="measure"/>
+                    <!-- <field name="discount_amount" type="measure"/> -->
+                    <!-- <field name="price_unit" type="measure"/> -->
+                    <!-- <field name="cost_avg" type="measure"/> -->
+                    <!-- <field name="lst_price" type="measure"/> -->
+                </pivot>
+            </field>
+        </record>
+
+        <record id="view_sales_analysis_graph" model="ir.ui.view">
+            <field name="name">snk.report.sales.analysis.graph</field>
+            <field name="model">snk.report.sales.analysis</field>
+            <field name="arch" type="xml">
+                <graph string="Sales Analysis" type="bar">
+                    <field name="type" type="row"/>
+                    <field name="site_name" type="row"/>
+                    <field name="product_id" type="col"/>
+                    <field name="price_total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- POS List View with Generate Report Button -->
+        <record id="view_pos_order_list_report" model="ir.ui.view">
+            <field name="name">snk.report.pos.order_pevots.list</field>
+            <field name="model">snk.report.pos.order_pevots</field>
+            <field name="arch" type="xml">
+                <list string="POS" create="0" edit="0" delete="0" duplicate="0">
+                    <header>
+                        <button name="%(snk_action_open_pos_report_wizard)d"
+                            string="Generate Report"
+                            type="action"
+                            display="always"
+                            class="btn-primary"
+                        />
+                    </header>
+                    <field name="name"/>
+                    <field name="date_order"/>
+                    <field name="site_id"/>
+                    <field name="site_name"/>
+                    <field name="industry" optional="hide"/>
+                    <field name="warehouse_id" optional="hide"/>
+                    <field name="customer_id" optional="hide"/>
+                    <field name="partner_name" optional="hide"/>
+                    <field name="product_id" optional="hide"/>
+                    <field name="template_reference" optional="hide"/>
+                    <field name="variant_reference" optional="hide"/>
+                    <field name="categ_id" optional="hide"/>
+                    <field name="analytic_id" optional="hide"/>
+                    <field name="grade" optional="hide"/>
+                    <field name="product_uom_qty" sum="Qty"/>
+                    <field name="product_uom" optional="show"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="currency" optional="hide"/>
+                    <field name="price_unit" avg="Price" optional="show"/>
+                    <field name="discount_amount" sum="Discount" optional="show"/>
+                    <field name="price_tax" sum="Tax" optional="show"/>
+                    <field name="price_total" sum="Total" optional="show"/>
+                    <field name="price_subtotal" sum="Subtotal" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- POS Pivot View -->
+        <record id="view_pos_order_pivot" model="ir.ui.view">
+            <field name="name">snk.report.pos.order_pevots.pivot</field>
+            <field name="model">snk.report.pos.order_pevots</field>
+            <field name="arch" type="xml">
+                <pivot string="POS">
+                    <!-- Dimensions -->
+                    <field name="product_id" type="row"/>
+                    <field name="site_id" type="col"/>
+
+                    <!-- Measures -->
+                    <field name="product_uom_qty" type="measure"/>
+                    <field name="price_subtotal" type="measure"/>
+                    <field name="price_total" type="measure"/>
+                    <field name="discount_amount" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- POS Graph View -->
+        <record id="view_pos_order_graph" model="ir.ui.view">
+            <field name="name">snk.report.pos.order_pevots.graph</field>
+            <field name="model">snk.report.pos.order_pevots</field>
+            <field name="arch" type="xml">
+                <graph string="POS" type="bar">
+                    <field name="site_id" type="row"/>
+                    <field name="product_id" type="col"/>
+                    <field name="price_total" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Search View POS -->
+        <record id="snk_pos_order_pevots_view_search" model="ir.ui.view">
+            <field name="name">snk.report.pos.order_pevots.view_search</field>
+            <field name="model">snk.report.pos.order_pevots</field>
+            <field name="arch" type="xml">
+                <search string="POS">
+                    <!-- Existing filters -->
+                    <!-- <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/> -->
+                    <!-- <separator/>
+                    <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                    <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                    <separator/> -->
+
+                    <!-- New search fields -->
+                    <field name="name" string="Reference"/>
+                    <field name="site_id" string="Site"/>
+                    <field name="product_id" string="Product"/>
+                    <field name="categ_id" string="Category"/>
+                    <!-- <field name="industry_id" string="Industry"/> -->
+                    <!-- <field name="grade_id" string="Grade"/> -->
+                    <field name="analytic_id" string="Brand"/>
+                    <!-- <filter string="Pos Order" name="ref_order" domain="[('ref_data', '=', 'ORDER')]"/>
+                    <filter string="Pos Sales" name="ref_sales" domain="[('ref_data', '=', 'SALES')]"/>
+                    <filter string="Transfer In" name="ref_ti" domain="[('ref_data', '=', 'TI')]"/>
+                    <filter string="Transfer Out" name="ref_to" domain="[('ref_data', '=', 'TO')]"/> -->
+                    <!-- <separator/> -->
+
+                    <!-- Group By -->
+                    <group expand="0" string="Group By">
+                        <filter string="Site" name="site_id" domain="[]" context="{'group_by': 'site_id'}"/>
+                        <filter string="Order Date" name="date_order" domain="[]" context="{'group_by': 'date_order'}"/>
+                        <filter string="Product" name="product_id" domain="[]" context="{'group_by': 'product_id'}"/>
+                        <!-- <filter string="Industry" name="industry_id" domain="[]" context="{'group_by': 'industry_id'}"/> -->
+                        <filter string="Category" name="categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
+                        <!-- <filter string="Grade" name="grade_id" domain="[]" context="{'group_by': 'grade_id'}"/> -->
+                        <filter string="Brand" name="analytic_id" domain="[]" context="{'group_by': 'analytic_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_sales_analysis_mesa" model="ir.actions.act_window">
+            <field name="name">Sales Analysis</field>
+            <field name="res_model">snk.report.sales.analysis</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <field name="target">current</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="context">{'default_create_uid': uid}</field>
+        </record>
+
+        <!-- Search View Sales Analysis -->
+        <record id="snk_sales_analysis_view_search" model="ir.ui.view">
+            <field name="name">snk.report.sales.analysis.view_search</field>
+            <field name="model">snk.report.sales.analysis</field>
+            <field name="arch" type="xml">
+                <search string="Sales Analysis">
+                    <filter string="Sale Order" name="sales" domain="[('type', '=', 'sale')]"/>
+                    <filter string="POS Order" name="pos" domain="[('type', '=', 'pos')]"/>
+                    <separator/>
+                    <!-- Existing filters -->
+                    <!-- <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/> -->
+                    <!-- <separator/>
+                    <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                    <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                    <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                    <separator/> -->
+
+                    <!-- New search fields -->
+                    <field name="name" string="Reference"/>
+                    <field name="site_id" string="Site"/>
+                    <field name="template_reference" string="Template Reference"/>
+                    <field name="variant_reference" string="Variant Reference"/>
+                    <field name="industry_id" string="Industry"/>
+                    <field name="categ_id" string="Category"/>
+                    <field name="grade_id" string="Grade"/>
+                    <field name="analytic_id" string="Brand"/>
+                    <!-- <filter string="Pos Order" name="ref_order" domain="[('ref_data', '=', 'ORDER')]"/>
+                    <filter string="Pos Sales" name="ref_sales" domain="[('ref_data', '=', 'SALES')]"/>
+                    <filter string="Transfer In" name="ref_ti" domain="[('ref_data', '=', 'TI')]"/>
+                    <filter string="Transfer Out" name="ref_to" domain="[('ref_data', '=', 'TO')]"/> -->
+                    <!-- <separator/> -->
+
+                    <!-- Group By -->
+                    <group expand="0" string="Group By">
+                        <filter string="Type" name="type" domain="[]" context="{'group_by': 'type'}"/>
+                        <filter string="Site" name="site_id" domain="[]" context="{'group_by': 'site_id'}"/>
+                        <filter string="Order Date" name="date_order" domain="[]" context="{'group_by': 'date_order'}"/>
+                        <filter string="Template Reference" name="template_reference" domain="[]" context="{'group_by': 'template_reference'}"/>
+                        <filter string="Industry" name="industry_id" domain="[]" context="{'group_by': 'industry_id'}"/>
+                        <filter string="Category" name="categ_id" domain="[]" context="{'group_by': 'categ_id'}"/>
+                        <filter string="Grade" name="grade_id" domain="[]" context="{'group_by': 'grade_id'}"/>
+                        <filter string="Brand" name="analytic_id" domain="[]" context="{'group_by': 'analytic_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Action untuk POS dengan nama berbeda -->
+        <record id="action_pos_sales_mesa" model="ir.actions.act_window">
+            <field name="name">POS</field>
+            <field name="res_model">snk.report.pos.order_pevots</field>
+            <field name="view_mode">list,pivot,graph</field>
+            <field name="view_id" ref="view_pos_order_list_report"/>
+            <field name="groups_id" eval="[(4, ref('mesa.group_report_pos'))]"/>
+            <field name="target">current</field>
+            <field name="domain">[('create_uid', '=', uid)]</field>
+            <field name="context">{'default_create_uid': uid}</field>
+        </record>
+
+        
+
+        <!-- <record id="menu_sales_analysis_mesa" model="ir.ui.menu">
+            <field name="action" ref="action_sales_analysis_mesa"/>
+        </record> -->
+    </data>
+</odoo>

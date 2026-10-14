@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="snk_pos_order_sequence" model="ir.sequence">
+            <field name="name">SNK pos Order Sequence</field>
+            <field name="code">snk.pos.order</field>
+            <field name="prefix">ORDER/</field>
+            <field eval="1" name="number_next" />
+            <field eval="1" name="number_increment" />
+            <field name="padding">5</field>
+        </record>
+    
+    <record id="snk_pos_order_view_list" model="ir.ui.view">
+        <field name="name">snk.pos.order.view.list</field>
+        <field name="model">snk.pos.order</field>
+        <field name="arch" type="xml">
+            <list string="Orders" sample="1" decoration-info="state == 'draft'"
+                decoration-muted="state == 'cancel'" duplicate="0">
+                <field name="name"/>
+                <field name="date_order" optional="show"/>
+                <field name="create_date" optional="hide"/>
+                <field name="reference" optional="hide"/>
+                <field name="snk_site_id" widget="many2one" />
+                <field name="snk_site_name" optional="show" />
+                <field name="customer_id" widget="many2one" optional="hide" />
+                <field name="partner_id" widget="many2one" optional="hide" />
+                <field name="warehouse_id" widget="many2one" optional="hide" />
+                <field name="company_registry" optional="hide" />
+                <field name="company_id" widget="many2one" optional="hide" />
+                <field name="product_template_id" widget="many2one" optional="hide" />
+                <field name="product_template_ref" optional="hide" />
+                <field name="product_id" widget="many2one" optional="hide" />
+                <field name="product_variant_ref" optional="hide" />
+                <field name="description" optional="hide" />
+                <field name="grade_id" widget="many2one" optional="hide" />
+                <field name="analytic_account_id" widget="many2one" optional="hide"/>
+                <field name="product_uom_qty" optional="hide" sum="Qty"/>
+                <field name="currency_id" widget="many2one" optional="hide"/>
+                <field name="price_unit" widget="monetary" optional="hide" avg="Price"/>
+                <field name="discount_amount" widget="monetary" optional="hide" sum="Discount"/>
+                <field name="discount" optional="hide" />
+                <field name="tax_id" widget="many2many_tags" optional="hide" />
+                <field name="price_tax" widget="monetary" optional="hide"/>
+                <field name="project_ids" widget="many2many_tags" optional="hide" />
+                <field name="price_total" widget="monetary" optional="hide" sum="Total"/>
+                <field name="price_subtotal" widget="monetary" optional="show" sum="Subotal"/>
+                <field name="state"
+                    decoration-success="state == 'confirmed'"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'close'"
+                    decoration-muted="state == 'cancel'"
+                    widget="badge" />
+                <field name="invoice_status" optional="hide" />
+                <field name="delivery_status" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="snk_pos_order_view_list_wizard" model="ir.ui.view">
+        <field name="name">snk.pos.order.view.list.wizard</field>
+        <field name="model">snk.pos.order</field>
+        <field name="arch" type="xml">
+            <list string="Orders" create="0" sample="1" decoration-info="state == 'draft'"
+                decoration-muted="state == 'cancel'" duplicate="0">
+                <header>
+                    <button string="Confirm"
+                        name="action_select_orders"
+                        type="object"
+                        class="btn btn-secondary"
+                        display="always"
+                        />
+                </header>
+                <field name="name"/>
+                <field name="date_order" optional="show"/>
+                <field name="create_date" optional="hide"/>
+                <field name="reference" optional="hide"/>
+                <field name="snk_site_id" widget="many2one" />
+                <field name="snk_site_name" optional="show" />
+                <field name="customer_id" widget="many2one" optional="hide" />
+                <field name="partner_id" widget="many2one" optional="hide" />
+                <field name="warehouse_id" widget="many2one" optional="hide" />
+                <field name="company_registry" optional="hide" />
+                <field name="company_id" widget="many2one" optional="hide" />
+                <field name="product_template_id" widget="many2one" optional="hide" />
+                <field name="product_template_ref" optional="hide" />
+                <field name="product_id" widget="many2one" optional="hide" />
+                <field name="product_variant_ref" optional="hide" />
+                <field name="description" optional="hide" />
+                <field name="grade_id" widget="many2one" optional="hide" />
+                <field name="analytic_account_id" widget="many2one" optional="hide"/>
+                <field name="product_uom_qty" optional="hide" sum="Qty"/>
+                <field name="currency_id" widget="many2one" optional="hide"/>
+                <field name="price_unit" widget="monetary" optional="hide" avg="Price"/>
+                <field name="discount_amount" widget="monetary" optional="hide" sum="Discount"/>
+                <field name="discount" optional="hide" />
+                <field name="tax_id" widget="many2many_tags" optional="hide" />
+                <field name="price_tax" widget="monetary" optional="hide"/>
+                <field name="project_ids" widget="many2many_tags" optional="hide" />
+                <field name="price_total" widget="monetary" optional="hide" sum="Total"/>
+                <field name="price_subtotal" widget="monetary" optional="show" sum="Subotal"/>
+                <field name="state"
+                    decoration-success="state == 'confirmed'"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'close'"
+                    decoration-muted="state == 'cancel'"
+                    widget="badge" />
+                <field name="invoice_status" optional="hide" />
+                <field name="delivery_status" optional="hide" />
+            </list>
+        </field>
+    </record>
+    
+    <record id="snk_pos_order_view_list_remove_wizard" model="ir.ui.view">
+        <field name="name">snk.pos.order.view.list.remove.wizard</field>
+        <field name="model">snk.pos.order</field>
+        <field name="arch" type="xml">
+            <list string="Orders" create="0" sample="1" decoration-info="state == 'draft'"
+                decoration-muted="state == 'cancel'" duplicate="0">
+                <header>
+                    <button string="Confirm"
+                        name="action_remove_orders"
+                        type="object"
+                        class="btn btn-secondary"
+                        display="always"
+                        />
+                </header>
+                <field name="name"/>
+                <field name="date_order" optional="show"/>
+                <field name="create_date" optional="hide"/>
+                <field name="reference" optional="hide"/>
+                <field name="snk_site_id" widget="many2one" />
+                <field name="snk_site_name" optional="show" />
+                <field name="customer_id" widget="many2one" optional="hide" />
+                <field name="partner_id" widget="many2one" optional="hide" />
+                <field name="warehouse_id" widget="many2one" optional="hide" />
+                <field name="company_registry" optional="hide" />
+                <field name="company_id" widget="many2one" optional="hide" />
+                <field name="product_template_id" widget="many2one" optional="hide" />
+                <field name="product_template_ref" optional="hide" />
+                <field name="product_id" widget="many2one" optional="hide" />
+                <field name="product_variant_ref" optional="hide" />
+                <field name="description" optional="hide" />
+                <field name="grade_id" widget="many2one" optional="hide" />
+                <field name="analytic_account_id" widget="many2one" optional="hide"/>
+                <field name="product_uom_qty" optional="hide" sum="Qty"/>
+                <field name="currency_id" widget="many2one" optional="hide"/>
+                <field name="price_unit" widget="monetary" optional="hide" avg="Price"/>
+                <field name="discount_amount" widget="monetary" optional="hide" sum="Discount"/>
+                <field name="discount" optional="hide" />
+                <field name="tax_id" widget="many2many_tags" optional="hide" />
+                <field name="price_tax" widget="monetary" optional="hide"/>
+                <field name="project_ids" widget="many2many_tags" optional="hide" />
+                <field name="price_total" widget="monetary" optional="hide" sum="Total"/>
+                <field name="price_subtotal" widget="monetary" optional="show" sum="Subotal"/>
+                <field name="state"
+                    decoration-success="state == 'confirmed'"
+                    decoration-info="state == 'draft'"
+                    decoration-primary="state == 'close'"
+                    decoration-muted="state == 'cancel'"
+                    widget="badge" />
+                <field name="invoice_status" optional="hide" />
+                <field name="delivery_status" optional="hide" />
+            </list>
+        </field>
+    </record>
+
+    <record id="snk_pos_order_view_search" model="ir.ui.view">
+        <field name="name">snk.pos.order.view.search</field>
+        <field name="model">snk.pos.order</field>
+        <field name="arch" type="xml">
+            <search string="Orders">
+                <field name="name" />
+                <field name="snk_site_id"/>
+                <field name="snk_site_name"/>
+                <field name="partner_id"/>
+                <field name="product_template_ref"/>
+                <field name="product_variant_ref"/>
+                <field name="product_id"/>
+                <field name="reference"/>
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]" />
+                <separator />
+                <filter string="Closed" name="closed" domain="[('state', '=', 'close')]" />
+                <filter string="Confirmed" name="confirmed" domain="[('state', '=', 'confirmed')]" />
+                <filter string="Cancelled" name="cancelled" domain="[('state', '=', 'cancel')]" />
+                <separator />
+                <filter string="Order Date" name="order_date" date="date_order" />
+                <group expand="0" string="Group By">
+                    <filter string="Site" name="site" domain="[]"
+                        context="{'group_by': 'snk_site_id'}" />
+                    <filter string="Customer" name="ref" domain="[]"
+                        context="{'group_by': 'customer_id'}" />
+                    <filter string="Order Date" name="order_month" domain="[]"
+                        context="{'group_by': 'date_order'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="snk_pos_order_view_form" model="ir.ui.view">
+        <field name="name">snk.pos.order.view.form</field>
+        <field name="model">snk.pos.order</field>
+        <field name="arch" type="xml">
+            <form string="Orders">
+                <header>
+                    <button name="action_confirm" string="Confirm" type="object"
+                        invisible="(state != 'draft')" class="oe_highlight" />
+                    <button name="action_cancel" string="Cancel" type="object"
+                        invisible="state != 'confirmed'" />
+                    <button name="action_reset" string="Reset To Draft" type="object"
+                        invisible="(state != 'cancel')" />
+                    <button name="action_return" string="Return Product" type="object"
+                        invisible="(state != 'confirmed') or (return_id)" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed,close" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_picking"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-bars"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Pickings</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_sale"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-list-alt"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Sales</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_return"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-bars"
+                            invisible="(return_id == False)"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Return</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_return_of"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-bars"
+                            invisible="(return_of_id == False)"
+                        >
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Return of</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="name" string="Order" />
+                        <h1>
+                            <div class="d-flex">
+                                <field class="text-break" name="name" readonly="1" placeholder="" />
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="sequence" invisible="1" />
+                            <field name="date_order" />
+                            <field name="reference" />
+                            <field name="snk_site_id" widget="many2one" />
+                            <field name="snk_site_name" />
+                            <field name="customer_id" widget="many2one" />
+                            <field name="partner_id" widget="many2one" />
+                            <field name="warehouse_id" widget="many2one" />  
+                            <field name="picking_type_id" widget="many2one" />
+                            <field name="company_id" widget="many2one" />
+                            <field name="currency_id" widget="many2one" />
+                            <field name="invoice_status" readonly="1"/>
+                            <field name="fiscal_position_id" widget="many2one" />
+                        </group>
+                        <group>
+                            <!-- We do not display the type because we don't want the user to be
+                            bothered with that information if he has no section or note. -->
+                            <field name="product_uom_category_id" invisible="True" />
+                            <field name="product_template_id" string="Product" invisible="True"
+                                context="{
+                                    'partner_id': partner_id,
+                                    'quantity': product_uom_qty,
+                                    'pricelist': pricelist_id,
+                                    'uom':product_uom,
+                                    'company_id': company_id,
+                                    'default_list_price': price_unit,
+                                    'default_description_sale': name
+                                }"
+                                options="{
+                                    'no_open': True,
+                                }"
+                                domain="[('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"
+                                widget="sol_product_many2one"
+                                placeholder="Type to find a product..." />
+                            <field name="product_template_ref" readonly="1"/>
+                            <field name="product_id" force_save="1"
+                                context="{
+                                'partner_id': partner_id,
+                                'quantity': product_uom_qty,
+                                'pricelist': pricelist_id,
+                                'uom':product_uom,
+                                'company_id': company_id,
+                                'default_lst_price': price_unit,
+                                'default_description_sale': name
+                            }"
+                                options="{
+                                'no_open': True,
+                            }"
+                                domain="[('sale_ok', '=', True), '|', ('company_id', '=', False), ('company_id', '=', company_id)]"
+                                widget="sol_product_many2one" />
+                            <field name="product_variant_ref" readonly="1"/>
+                            <field name="description" widget="section_and_note_text" />
+                            <field name="grade_id" widget="many2one" readonly="1"/>
+                            <field name="analytic_account_id" widget="many2one" readonly="1"/>
+                            <field name="project_ids" widget="many2many_tags" />
+                            <field name="analytic_distribution" widget="analytic_distribution"
+                                groups="analytic.group_analytic_accounting"
+                                options="{'product_field': 'product_id', 'business_domain': 'snk_pos_order'}" />
+                            <field name="product_uom_qty"
+                                context="{
+                                    'partner_id': partner_id,
+                                    'quantity': product_uom_qty,
+                                    'pricelist': pricelist_id,
+                                    'uom': product_uom,
+                                    'company_id': company_id
+                                }"
+                            />
+                            <field name="product_uom" invisible="True" groups="!uom.group_uom" />
+                            <field
+                                name="product_uom"
+                                force_save="1"
+                                string="UoM"
+                                context="{'company_id': company_id}"
+                                groups="uom.group_uom"
+                                options='{"no_open": True}'
+                            />
+                            <field name="product_packaging_qty"
+                                invisible="not product_id or not product_packaging_id"
+                                groups="product.group_stock_packaging" />
+                            <field name="product_packaging_id" invisible="not product_id"
+                                context="{'default_product_id': product_id, 'list_view_ref':'product.product_packaging_list_view', 'form_view_ref':'product.product_packaging_form_view'}"
+                                groups="product.group_stock_packaging" />
+                            <field name="promo_code" />
+                            <field name="price_unit" />
+                            <field
+                                name="tax_id"
+                                widget="many2many_tags"
+                                options="{'no_create': True}"
+                                domain="[('type_tax_use','=','sale'),('company_id','=',company_id), ('country_id', '=', tax_country_id)]"
+                                context="{'active_test': True}"
+                            />
+                            <field name="discount_amount"/>
+                            <field name="discount" string="Disc.%" />
+                            <field name="price_subtotal" widget="monetary" string="Tax excl." invisible="1"/>
+                            <field name="price_total" widget="monetary" string="Tax incl." invisible="1" sum="Total"/>
+                            <!-- Others fields -->
+                            <field name="tax_country_id" invisible="1" />
+                            <field name="price_tax" invisible="1" />
+                        </group>
+                    </group>
+                    <!-- <notebook> -->
+                        <group name="note_group" col="6" class="mt-2 mt-md-0">
+                            <group colspan="4">
+                                <field colspan="2" name="note" nolabel="1"
+                                    placeholder="Terms and conditions..." />
+                            </group>
+                            <group class="oe_subtotal_footer" colspan="2" name="sale_total">
+                                <field name="tax_totals" widget="account-tax-totals-field" nolabel="1"
+                                    colspan="2" readonly="1" />
+                            </group>
+                            <div class="clearfix" />
+                        </group>
+                    <!-- </notebook> -->
+                </sheet>
+                <chatter>
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </chatter>
+            </form>
+        </field>
+    </record>
+    <record id="snk_pos_order_action" model="ir.actions.act_window">
+        <field name="name">Orders</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">snk.pos.order</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="snk_pos_order_view_list" />
+        <field name="search_view_id" ref="snk_pos_order_view_search" />
+        <field name="context">{}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No Order for display
+            </p>
+            <p>
+                The Order will be displayed here.
+            </p>
+        </field>
+    </record>
+
+    <record id="snk_update_taxes_pos" model="ir.actions.server">
+        <field name="name">Update Taxes</field>
+        <field name="model_id" ref="model_snk_pos_order"/>
+        <field name="binding_model_id" ref="model_snk_pos_order"/>
+        <field name="state">code</field>
+        <field name="binding_view_types">list</field>
+        <field name="code">
+            action = records.action_enqueue_update_taxes()
+        </field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+    </record>
+
+    <record id="snk_recompute_amounts_pos_order" model="ir.actions.server">
+        <field name="name">Recompute Amounts</field>
+        <field name="model_id" ref="model_snk_pos_order"/>
+        <field name="binding_model_id" ref="model_snk_pos_order"/>
+        <field name="state">code</field>
+        <field name="binding_view_types">list</field>
+        <field name="code">
+            action = records.action_enqueue_recompute_amounts()
+        </field>
+        <field name="groups_id" eval="[(6, 0, [ref('base.group_system')])]"/>
+    </record>
+
+    <menuitem
+        id="snk_pos_order_order_menu"
+        parent="snk_pos_order_menu"
+        name="Orders"
+        action="snk_pos_order_action"
+        sequence="1" />
+    </data>
+</odoo>

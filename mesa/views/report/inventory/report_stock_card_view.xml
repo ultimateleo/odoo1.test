@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- View List Utama untuk Report Stock Card -->
+    <!-- Di Odoo 18+, <list> digunakan sebagai pengganti <tree> -->
+    <record id="snk_report_stock_card_view_list" model="ir.ui.view">
+        <field name="name">snk.report.stock.card.v2.list.view</field>
+        <field name="model">snk.report.stock.card</field>
+        <field name="arch" type="xml">
+            <list string="Stock Card" create="false" edit="false" delete="false"
+                decoration-bf="reference == 'Initial Balance' or reference == 'Ending Balance'"
+                decoration-danger="(reference == 'Initial Balance' or reference == 'Ending Balance') and balance &lt; 0"
+                decoration-success="(reference == 'Initial Balance' or reference == 'Ending Balance') and balance &gt; 0"
+                decoration-warning="(reference == 'Initial Balance' or reference == 'Ending Balance') and balance == 0"
+                default_order="location_id, product_id, date">
+                <header>
+                    <button name="%(action_snk_report_stock_card_wizard)d" 
+                            type="action" 
+                            string="Generate Stock Card" 
+                            class="btn-primary" 
+                            display="always"/>
+                </header>
+                <field name="date" widget="datetime"/>
+                <field name="date_done" widget="datetime" optional="hide"/>
+                <field name="reference"/>
+                <field name="site_id" optional="hide"/>
+                <field name="location_id" readonly="1"/>
+                <field name="origin" optional="show"/>
+                <field name="product_template_id" optional="hide"/>
+                <field name="product_id" readonly="1"/>
+                <field name="category_id" optional="hide"/>
+                <field name="lot_id" optional="show"/>
+                <field name="analytic_id" optional="hide"/>
+                <field name="snk_grade_id" optional="hide"/>
+                <field name="snk_material_code" optional="hide"/>
+                
+                <field name="initial_balance" readonly="1" optional="show"/>
+                <field name="qty_in" sum="Total In" readonly="1"/>
+                <field name="qty_out" sum="Total Out" readonly="1"/>
+                <field name="incoming_qty" optional="hide" sum="Total Incoming" readonly="1"/>
+                <field name="balance" readonly="1" decoration-danger="balance &lt; 0" decoration-success="balance &gt; 0" decoration-warning="balance == 0"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Pivot View Opsional (Banyak disukai user untuk Analytics Stock) -->
+    <record id="snk_report_stock_card_view_v2_pivot" model="ir.ui.view">
+        <field name="name">snk.report.stock.card.v2.pivot.view</field>
+        <field name="model">snk.report.stock.card</field>
+        <field name="arch" type="xml">
+            <pivot string="Stock Card Analysis" sample="1">
+                <field name="location_id" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="qty_in" type="measure"/>
+                <field name="qty_out" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Search View untuk Group By dan Filter -->
+    <record id="snk_report_stock_card_view_v2_search" model="ir.ui.view">
+        <field name="name">snk.report.stock.card.v2.search.view</field>
+        <field name="model">snk.report.stock.card</field>
+        <field name="arch" type="xml">
+            <search string="Search Stock Card">
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="lot_id"/>
+                <field name="snk_material_code"/>
+                <field name="reference"/>
+                
+                <separator/>
+                <filter string="Location" name="group_by_location" context="{'group_by':'location_id'}"/>
+                <filter string="Category" name="group_by_category" context="{'group_by':'category_id'}"/>
+                <filter string="Brand (Analytic)" name="group_by_analytic_id" context="{'group_by':'analytic_id'}"/>
+                <filter string="Grade" name="group_by_snk_grade_id" context="{'group_by':'snk_grade_id'}"/>
+                <filter string="Product Template" name="group_by_product_template" context="{'group_by':'product_template_id'}"/>
+                <filter string="Product" name="group_by_product" context="{'group_by':'product_id'}"/>
+                <filter string="Lot/Serial Number" name="group_by_lot_id" context="{'group_by':'lot_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Main Action Data List -->
+    <record id="action_snk_report_stock_card_v2" model="ir.actions.act_window">
+        <field name="name">Stock Card V2</field>
+        <field name="res_model">snk.report.stock.card</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="search_view_id" ref="snk_report_stock_card_view_v2_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_card'))]"/>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data Stock Card.
+            </p>
+            <p>
+                Klik tombol <b>Generate Stock Card</b> di samping tulisan New untuk menarik data Mutasi.
+            </p>
+        </field>
+    </record>
+</odoo>

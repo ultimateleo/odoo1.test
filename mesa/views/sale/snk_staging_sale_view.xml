@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--form view-->
+        <record id="snk_staging_sale_view_form" model="ir.ui.view">
+            <field name="name">snk.staging.sale.view.form</field>
+            <field name="model">snk.staging.sale</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="date_order"/>
+                                <field name="snk_site_id"/>
+                                <field name="partner_id"/>
+                                <field name="analytic_account_ids"/>
+                            </group>
+                            <group>
+                                <field name="warehouse_id"/>
+                                <field name="carrier_id"/>
+                                <field name="city_id"/>
+                                <field name="shipping_weight"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="product_id"/>
+                                <field name="product_uom_qty"/>
+                                <field name="price_unit"/>
+                            </group>
+                            <group>
+                                <field name="discount_amount"/>
+                                <field name="snk_has_voucher"/>
+                                <field name="shipping_charge"/>
+                                <field name="snk_discount"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="status"/>
+                            <field name="log_info"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!--list view-->
+        <record id="snk_staging_sale_view_list" model="ir.ui.view">
+            <field name="name">snk.staging.sale.view.list</field>
+            <field name="model">snk.staging.sale</field>
+            <field name="arch" type="xml">
+                <list>
+                    <header>
+<!--                        <button string="Upload" name="action_upload" type="object" class="btn btn-secondary" display="always" groups="mesa.group_snk_order_staging"/>-->
+                        <button string="Post" name="action_execute_staging" type="object" class="btn btn-secondary" display="always" groups="mesa.group_snk_order_staging,base.group_system,sales_team.group_sale_salesman,sales_team.group_sale_salesman_all_leads"/>
+                    </header>
+                    <field name="name"/>
+                    <field name="analytic_account_ids"/>
+                    <field name="status" decoration-success="status == 'post'" decoration-info="status == 'pending'" decoration-warning="status == 'duplicate'" widget="badge"/>
+                    <field name="log_info"/>
+                </list>
+            </field>
+        </record>
+
+         <!--menu action-->
+        <record id="snk_staging_sale_view_action" model="ir.actions.act_window">
+            <field name="name">Staging Sale</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.staging.sale</field>
+            <field name="path">snk-staging-sale</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem id="snk_staging_menu"
+                name="Staging"
+                parent="sale.sale_order_menu"
+                sequence="50"/>
+
+            <menuitem id="snk_staging_sale_menu"
+                action="snk_staging_sale_view_action"
+                name="Staging Sale"
+                parent="snk_staging_menu"
+                sequence="50"/>
+    </data>
+</odoo>

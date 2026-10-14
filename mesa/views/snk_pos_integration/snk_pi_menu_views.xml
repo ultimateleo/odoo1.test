@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="snk_pi_menu_root"
+            name="POS Integration"
+            web_icon="mesa,static/description/icon_pos_integration.png"
+            groups="mesa.group_snk_pos_integration"
+            sequence="601"/>
+
+        <menuitem
+            id="snk_pi_integration_menu"
+            parent="snk_pi_menu_root"
+            name="Integration"
+            sequence="1"/>
+
+        <menuitem
+            id="snk_pi_config_menu"
+            parent="snk_pi_menu_root"
+            name="Configuration"
+            sequence="3"/>
+
+        <record id="snk_pi_ir_cron_act" model="ir.actions.act_window">
+            <field name="name">Integration Scheduled Actions</field>
+            <field name="res_model">ir.cron</field>
+            <field name="view_mode">list,form,calendar</field>
+            <field name="domain">[('model_id.model', 'in', [
+                'snk.pi.outbound',
+                'snk.pi.inbound',
+                    ])]</field>
+            <field name="context">{'search_default_all': 1}</field>
+            <field name="view_id" ref="base.ir_cron_view_tree"/>
+        </record>
+
+        <menuitem
+            id="snk_pi_ir_cron_menu"
+            parent="snk_pi_config_menu"
+            name="Scheduled Action"
+            action="snk_pi_ir_cron_act"
+            sequence="15"/>
+
+        <menuitem id="snk_pos_integrations_menu_general_settings" name="Settings" parent="snk_pi_config_menu"
+            sequence="0" action="stock.action_stock_config_settings" groups="base.group_system"/>
+
+
+
+    </data>
+</odoo>

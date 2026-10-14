@@ -1,0 +1,169 @@
+<odoo>
+    <data noupdate="0">
+    <!-- Root menu -->
+    <menuitem id="menu_reports_mesa" name="Reports"
+        groups="mesa.group_report_sales_analysis,mesa.group_report_pos,mesa.group_report_po_monitoring,mesa.group_report_reserved,mesa.group_report_transfer,mesa.group_report_monitoring_sto,mesa.group_report_sto_summary,mesa.group_report_stock_balance,mesa.group_report_stock_card,mesa.group_report_sites,mesa.group_report_sites_history"/>
+
+    <!-- Sales -->
+    <menuitem id="menu_reports_sales_mesa" name="Sales" parent="menu_reports_mesa" sequence="10"
+        groups="mesa.group_report_sales_analysis"/>
+        <menuitem id="menu_sales_analysis_mesa"
+            name="Sales Analysis"
+            parent="menu_reports_sales_mesa"
+            action="action_sales_analysis_mesa"
+            groups="mesa.group_report_sales_analysis"
+            sequence="100"/>
+
+    <!-- POS -->
+    <menuitem id="menu_sales_pos_mesa_root" name="POS" parent="menu_reports_mesa" sequence="20"
+        groups="mesa.group_report_pos"/>
+        <menuitem id="menu_sales_pos_mesa"
+            name="POS"
+            parent="menu_sales_pos_mesa_root"
+            action="action_pos_sales_mesa"
+            groups="mesa.group_report_pos"
+            sequence="200"/>
+
+    <!-- Purchase submenu under Reports -->
+    <menuitem id="menu_reports_purchase_mesa" name="Purchase" parent="menu_reports_mesa" sequence="30"
+        groups="mesa.group_report_po_monitoring"/>
+        <menuitem id="menu_snk_report_po_monitoring"
+            name="PO Monitoring"
+            parent="menu_reports_purchase_mesa"
+            action="action_snk_report_po_monitoring"
+            groups="mesa.group_report_po_monitoring"
+            sequence="300"/>
+    
+    <!-- Inventory -->
+    <menuitem id="menu_reports_inventory_mesa" name="Inventory" parent="mesa.menu_reports_mesa" sequence="40"/>
+    <!-- Movement -->
+    <menuitem id="menu_reports_movement" name="Movement" parent="menu_reports_inventory_mesa" sequence="41"
+        groups="mesa.group_report_reserved,mesa.group_report_transfer,mesa.group_report_monitoring_sto,mesa.group_report_sto_summary"/>
+        <menuitem id="menu_snk_report_inventory_reserve"
+            name="Reserved"
+            action="snk_report_inventory_reserve_action"
+            parent="menu_reports_movement"
+            groups="mesa.group_report_reserved"
+            sequence="410"/>
+        <menuitem id="menu_snk_report_inventory_transfer"
+            name="Transfer"
+            action="snk_report_inventory_transfer_action"
+            parent="menu_reports_movement"
+            groups="mesa.group_report_transfer"
+            sequence="420"/>
+        <menuitem id="menu_report_monitoring_sto"
+            name="Monitoring STO"
+            parent="menu_reports_movement"
+            action="action_report_monitoring_sto_window"
+            groups="mesa.group_report_monitoring_sto"
+            sequence="430"/>
+        <menuitem id="menu_report_sto_summary"
+            name="STO Summary"
+            parent="menu_reports_movement"
+            action="action_report_sto_summary_window"
+            groups="mesa.group_report_sto_summary"
+            sequence="435"/>
+        <!-- <menuitem id="menu_snk_report_inventory_movement_analysis"
+            name="Movement Analysis"
+            action="snk_report_inventory_movement_analysis_action"
+            parent="menu_reports_movement"
+            sequence="414"/> -->
+    
+    <!-- Stock -->
+    <menuitem id="menu_reports_stock" name="Stock" parent="menu_reports_inventory_mesa" sequence="42"
+        groups="mesa.group_report_stock_balance,mesa.group_report_stock_card"/>
+        <menuitem id="menu_report_stock_balance_site_gudang"
+            name="Stock Balance"
+            parent="menu_reports_stock"
+            action="action_report_stock_balance_site_gudang_window"
+            groups="mesa.group_report_stock_balance"
+            sequence="440"/>
+        <menuitem id="menu_snk_report_stock_card_v2" 
+            name="Stock Card" 
+            action="action_snk_report_stock_card_v2" 
+            parent="menu_reports_stock"
+            groups="mesa.group_report_stock_card"
+            sequence="450"/>
+        <menuitem id="menu_snk_report_stock_periode" 
+            name="Stock Summary"
+            action="action_snk_report_stock_periode_result"
+            parent="menu_reports_stock" 
+            groups="mesa.group_report_stock_summary"
+            sequence="460"/>
+
+    <!-- Sites -->
+    <menuitem id="menu_reports_site" name="Sites" parent="menu_reports_inventory_mesa" sequence="43"/>
+        <menuitem id="menu_snk_site_report"
+            name="Sites"
+            parent="menu_reports_site"
+            action="action_snk_site_report"
+            groups="mesa.group_report_sites"
+            sequence="470"/>
+        <menuitem id="menu_snk_site_history_report"
+            name="Sites History"
+            parent="menu_reports_site"
+            action="action_snk_site_history_report"
+            groups="mesa.group_report_sites_history"
+            sequence="480"/>
+
+    <!-- Basic Menu Standard Access -->
+    <!-- Membuka gembok menu Reporting bawaan Odoo KHUSUS untuk Admin Gudang View History -->
+    <!-- <record id="stock.menu_warehouse_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_admin_gudang_view_history'))]"/>
+    </record> -->
+
+    <!-- Inventory -->
+    <record id="stock.menu_warehouse_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_reserved')),(4, ref('mesa.group_report_transfer')),(4, ref('mesa.group_report_monitoring_sto')),(4, ref('mesa.group_report_stock_balance')),(4, ref('mesa.group_report_stock_card'))]"/>
+    </record>
+    <record id="stock.menu_product_stock" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_balance')),(4, ref('mesa.group_report_stock_card'))]"/>
+    </record>
+    <record id="stock.menu_valuation" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_balance')),(4, ref('mesa.group_report_stock_card'))]"/>
+    </record>
+
+    <!-- Buka akses action stock.quant (Locations) untuk Admin Gudang View History -->
+    <!-- <record id="stock.action_view_quants" model="ir.actions.server">
+        <field name="groups_id" eval="[(4, ref('mesa.group_admin_gudang_view_history'))]"/>
+    </record> -->
+
+    <record id="stock.stock_move_line_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_reserved')),(4, ref('mesa.group_report_transfer')),(4, ref('mesa.group_report_monitoring_sto'))]"/>
+    </record>
+    <record id="stock.stock_move_menu" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_reserved')),(4, ref('mesa.group_report_transfer')),(4, ref('mesa.group_report_monitoring_sto'))]"/>
+    </record>
+    
+    <record id="stock_account.menu_valuation" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_stock_card'))]"/>
+    </record>
+
+    <!-- Purchase -->
+    <record id="purchase.purchase_report_main" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_po_monitoring'))]"/>
+    </record>
+    <record id="purchase.purchase_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_po_monitoring'))]"/>
+    </record>
+
+    <!-- Sales -->
+    <record id="sale.menu_sale_report" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sales_analysis'))]"/>
+    </record>
+    <record id="sale.menu_reporting_sales" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sales_analysis'))]"/>
+    </record>
+    <record id="sale.menu_reporting_salespeople" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sales_analysis'))]"/>
+    </record>
+    <record id="sale.menu_reporting_product" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sales_analysis'))]"/>
+    </record>
+    <record id="sale.menu_reporting_customer" model="ir.ui.menu">
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sales_analysis'))]"/>
+    </record>
+
+    
+    </data>
+</odoo>

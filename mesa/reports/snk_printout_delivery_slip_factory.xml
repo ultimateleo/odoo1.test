@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format -->
+    <record id="paperformat_delivery_slip_factory" model="report.paperformat">
+        <field name="name">Delivery Slip Factory Format</field>
+        <field name="default" eval="False" />
+        <field name="format">custom</field>
+        <field name="orientation">Portrait</field>
+        <field name="page_height">355</field>
+        <field name="page_width">216</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="margin_right">3</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Report Action -->
+    <record id="action_report_delivery_slip_factory" model="ir.actions.report">
+        <field name="name">Surat Jalan Factory</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_delivery_slip_factory_template</field>
+        <field name="report_file">mesa.report_delivery_slip_factory_template</field>
+        <field name="print_report_name">'Surat Jalan Factory - %s' % (object.name)</field>
+
+        <field name="binding_model_id" eval="False"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="mesa.paperformat_delivery_slip_factory" />
+    </record>
+
+    <template id="report_delivery_slip_factory_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="page">
+                    <style>
+
+                        .page {
+                            font-family: Arial, sans-serif;
+                            font-size: 11px;
+                            <!-- padding: 20px; -->
+                            color: #000;
+                            width: 100%;
+                            min-height: 1000px;
+                            background-color: #fff;
+                        }
+                        .header-company {
+                            font-weight: bold;
+                            font-size: 14px;
+                            margin-bottom: 20px;
+                            text-transform: uppercase;
+                        }
+                        .title {
+                            text-align: center;
+                            font-weight: bold;
+                            font-size: 16px;
+                            margin-bottom: 30px;
+                            text-transform: uppercase;
+                        }
+                        .header-info-table {
+                            width: 100%;
+                            margin-bottom: 20px;
+                        }
+                        .header-info-table td {
+                            vertical-align: top;
+                            padding-bottom: 5px;
+                        }
+                        .label-col {
+                            width: 80px;
+                        }
+                        .separator-col {
+                            width: 10px;
+                        }
+                        table.items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 40px;
+                        }
+                        table.items-table th {
+                            border: 1px dashed #000;
+                            border-left: none;
+                            border-right: none;
+                            padding: 8px 5px;
+                            text-align: center;
+                            font-weight: bold;
+                        }
+                        table.items-table td {
+                            padding: 5px;
+                            border-bottom: 1px dashed #ccc;
+                            vertical-align: top;
+                        }
+                        .footer-section {
+                            width: 100%;
+                            display: table;
+                            margin-top: 20px;
+                        }
+                        .footer-col {
+                            display: table-cell;
+                            width: 50%;
+                            vertical-align: top;
+                        }
+                        .signature-line {
+                            margin-top: 60px;
+                            border-top: 1px solid #000;
+                            width: 200px;
+                        }
+                        .note-grid {
+                            display: grid;
+                            grid-template-columns: 100px 1fr 100px 1fr;
+                            gap: 10px;
+                            margin-top: 30px;
+                            font-size: 11px;
+                        }
+                    </style>
+
+                    <!-- (1) Company Name -->
+                    <div class="header-company">
+                        <t t-esc="o.company_id.name.upper()"/>
+                    </div>
+
+                    <!-- (2) Title -->
+                    <div class="title">SURAT JALAN</div>
+
+                    <!-- Reference Section -->
+                    <div style="margin-bottom: 10px;">
+                        <div style="font-size: 10px; font-weight: bold; text-transform: uppercase; color: #000;">REFERENCE</div>
+                        <div style="font-size: 28px; line-height: 1.2;">
+                            <span t-field="o.name"/>
+                        </div>
+                    </div>
+
+                    <!-- Header Info -->
+                    <table class="header-info-table">
+                        <tr>
+                            <!-- Left Side -->
+                            <td colspan="3" style="width: 60%;">
+                                <table>
+                                    <tr>
+                                        <!-- (3) Kepada -->
+                                        <td class="label-col">Kepada</td>
+                                        <td class="separator-col">:</td>
+                                        <td>
+                                            <t t-if="o.snk_site_address_id and o.snk_site_address_id.partner_id">
+                                                <t t-esc="o.snk_site_address_id.partner_id.name"/><br/>
+                                                <span style="font-size: 10px;"><t t-esc="o.snk_site_address_id.partner_id.street or ''"/></span>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <!-- (4) Dari -->
+                                        <td class="label-col">Dari</td>
+                                        <td class="separator-col">:</td>
+                                        <td>
+                                             <t t-if="o.snk_site_id">
+                                                <t t-esc="o.snk_site_id.snk_name"/>
+                                             </t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <!-- (5) Remark -->
+                                        <td class="label-col">Remark</td>
+                                        <td class="separator-col">:</td>
+                                        <td>
+                                            <span t-field="o.origin"/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                            
+                            <!-- Right Side -->
+                            <td style="width: 40%; text-align: right; vertical-align: bottom;">
+                                <div style="margin-bottom: 5px;">
+                                    <!-- (6) Tanggal -->
+                                    <span style="margin-right: 10px;">Tanggal :</span>
+                                    <t t-esc="o.scheduled_date and o.scheduled_date.strftime('%d/%m/%Y') or ''"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Items Table -->
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%; text-align: left;">IC</th> <!-- (7) Product ID -->
+                                <th style="width: 25%; text-align: left;">Desc</th> <!-- (8) Name -->
+                                <th style="width: 10%; text-align: left;">MC</th> <!-- (9) Material Code -->
+                                <th style="width: 15%; text-align: left;">Attribute</th> <!-- (10) Attr Value -->
+                                <th style="width: 10%; text-align: left;">BATCH</th> <!-- (11) Lot -->
+                                <th style="width: 10%; text-align: left;">Gr_date</th> <!-- (12) Date -->
+                                <th style="width: 15%; text-align: left;">Qty</th> <!-- (13) Quantity -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="o.move_line_ids" t-as="line">
+                                <!-- (7) IC: Product ID ?? Using default_code or id -->
+                                <td><span t-field="line.product_id.product_tmpl_id.id"/></td>
+                                
+                                <!-- (8) Desc -->
+                                <td><span t-field="line.product_id.name"/></td>
+                                
+                                <!-- (9) MC: snk_material_code -->
+                                <td><span t-esc="line.product_id.snk_material_code"/></td>
+                                
+                                <!-- (10) Attribute: Template Attributes -->
+                                <td>
+                                    <span t-esc="' '.join(line.product_id.product_template_attribute_value_ids.mapped('name'))"/>
+                                </td>
+                                
+                                <!-- (11) Batch: Lot -->
+                                <td style="text-align: center;"><span t-field="line.lot_id.name"/></td>
+                                
+                                <!-- (12) GR_date: Move date -->
+                                <td style="text-align: center;">
+                                    <t t-if="o.snk_physical_date">
+                                        <span t-field="o.snk_physical_date" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    </t>
+                                    <t t-elif="o.date_done">
+                                        <span t-field="o.date_done" t-options='{"format": "dd/MM/yyyy"}'/>
+                                    </t>
+                                </td>
+                                
+                                <!-- (13) Qty -->
+                                <td style="text-align: left;">
+                                    <span t-esc="'{0:,.1f}'.format(line.quantity).replace('.', ',')"/> <span t-field="line.product_uom_id.name"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Footer Signatures -->
+                    <div class="footer-section">
+                        <div class="footer-col">
+                            <div style="text-align: center;">Dipersiapkan Oleh</div> <!-- (14) -->
+                            <div style="text-align:center; margin-top: 70px;" >[______________________]</div>
+                        </div>
+                        <div class="footer-col">
+                            <div style="text-align: center;">Diterima oleh</div> <!-- (15) -->
+                             <div style="text-align:center; margin-top: 70px;" >[______________________]</div>
+                        </div>
+                    </div>
+
+                    <!-- Footer Notes -->
+                    <!-- Footer Notes Replaced with Table (Grid not supported) -->
+                    <table style="width: 100%; margin-top: 30px; border: none;">
+                        <tr style="border: none;">
+                            <td style="width: 100px; border: none; padding: 2px;">Putih</td>
+                            <td style="border: none; padding: 2px;">: PRODUKSI</td> <!-- (16) -->
+                            <td style="width: 100px; border: none; padding: 2px;">Kuning</td>
+                            <td style="border: none; padding: 2px;">: Follow up</td> <!-- (18) -->
+                        </tr>
+                        <tr>
+                            <td style="border: none; padding: 2px;">Pink</td>
+                            <td style="border: none; padding: 2px;">: WH</td> <!-- (17) -->
+                            <td style="border: none; padding: 2px;">Hijau</td>
+                            <td style="border: none; padding: 2px;">: Accounting</td> <!-- (19) -->
+                        </tr>
+                    </table>
+
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

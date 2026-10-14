@@ -1,0 +1,23 @@
+<odoo>
+    <data>
+        <!-- Form View for snk.site.close.wizard -->
+        <record id="view_snk_site_close_wizard_form" model="ir.ui.view">
+            <field name="name">snk.site.close.wizard.form</field>
+            <field name="model">snk.site.close.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Close Site">
+                    <group>
+                        <field name="name" required="1"/> 
+                        <field name="site_ids" invisible="1"/>
+                        <field name="action" invisible="1"/>
+                        <field name="datetime" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" string="Confirm" type="object" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/> 
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

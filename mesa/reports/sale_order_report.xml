@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="paperformat_sale_order_template" model="report.paperformat">
+            <field name="name">Sale Order Mesa Format</field>
+            <field name="default" eval="False" />
+            <field name="format">custom</field>
+            <field name="orientation">Portrait</field>
+            <field name="page_height">355</field>
+            <field name="page_width">216</field>
+            <field name="margin_top">9</field>
+            <field name="margin_bottom">8</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">3</field>
+            <field name="header_line" eval="False" />
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="snk_report_sale_order" model="ir.actions.report">
+            <field name="name">Sale Order</field>
+            <field name="model">sale.order</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">mesa.snk_sale_order_template</field>
+            <field name="report_file">mesa.snk_sale_order_template</field>
+            <field name="print_report_name">'Sale Order - ' + object.name</field>
+            <field name="paperformat_id" ref="paperformat_sale_order_template" />
+            <field name="binding_model_id" ref="model_sale_order" />
+            <field name="binding_type">report</field>
+        </record>
+    </data>
+</odoo>

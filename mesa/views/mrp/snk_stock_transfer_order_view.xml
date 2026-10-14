@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!--list view - OPTIMIZED for 10k+ records-->
+        <record id="snk_stock_transfer_order_view_list" model="ir.ui.view">
+            <field name="name">snk.stock.transfer.order.view.list</field>
+            <field name="model">snk.stock.transfer.order</field>
+            <field name="arch" type="xml">
+                <list limit="80" default_order="date desc, id desc">
+                    <field name="name" />
+                    <!-- <field name="warehouse_id" optional="show" /> -->
+                    <!-- <field name="warehouse_ids" optional="show" widget="many2many_tags" /> -->
+                    <field name="source_site_ids" />
+                    <field name="destination_site_id"/>
+                    <field name="sto_date" />
+                    <field name="date" />
+                    <field name="date_end" invisible="1" />
+                    <field name="confirm_date" optional="hide" />
+                    <field name="done_date" optional="hide" />
+                    <field name="ref" optional="show" />
+                    <field name="state" />
+                </list>
+            </field>
+        </record>
+
+        <record id="snk_stock_transfer_order_view_form" model="ir.ui.view">
+            <field name="name">snk.stock.transfer.order.view.form</field>
+            <field name="model">snk.stock.transfer.order</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <field name="state" widget="statusbar" />
+                        <field name="show_cancel_button" invisible="1" />
+                        <button name="action_draft" type="object" string="Mark as Draft"
+                            class="btn btn-primary" invisible="state != 'cancel'" />
+                        <button name="action_generate_schedule" type="object" string="Generate"
+                            invisible="state != 'draft'" />
+                        <button name="action_calculate" type="object" string="Calculate Stock"
+                            invisible="state != 'draft'" />
+                        <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="state != 'draft'" />
+                        <button name="action_cancel" type="object" string="Cancel"
+                            class="btn btn-secondary"
+                        />
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_open_transfer_to" type="object"
+                                class="oe_stat_button" icon="fa-exchange">
+                                <div class="o_stat_info">
+                                    <span class="o_stat_text">Transfer</span>
+                                </div>
+                            </button>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="name" />
+                                <field name="warehouse_id" invisible="1" />
+                                <field name="warehouse_ids" invisible="1" />
+                                <field name="source_site_ids" />
+                                <field name="destination_site_id" />
+                                <field name="user_id" />
+                            </group>
+
+                            <group>
+                                <field name="date" />
+                                <field name="sto_date" readonly="1" />
+                                <field name="date_end" invisible="1" />
+                                <field name="create_date" string="Order Date" />
+                                <field name="confirm_date" invisible="state == 'draft'" readonly="1" />
+                                <field name="done_date" invisible="state != 'done'" readonly="1" />
+                                <field name="ref" />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Schedule" name="schedule">
+                                <field name='line_ids' context="{'default_date': date}">
+                                    <list editable="bottom" limit="100">
+                                        <field name="name" />
+                                        <field name="partner_id" optional="hide" readonly="1" />
+                                        <field name="source_site_id" optional="show" />
+                                        <field name="destination_site_id" optional="show" />
+                                        <field name="warehouse_id"
+                                            domain="[('id', 'in', parent.warehouse_ids)]" />
+                                        <field name="location_id" readonly="1" optional="hide" />
+                                        <field name="date" />
+                                        <field name="days" />
+
+                                        <field name="product_id" />
+                                        <field name="default_code" optional="hide" readonly="1" />
+                                        <field name="uom_id" readonly="1" />
+                                        <field name="analytic_id" optional="hide" readonly="1" />
+                                        <field name="snk_grade_id" optional="hide" readonly="1" />
+                                        <field name="available_quantity" optional="show" readonly="1" />
+                                        <field name="on_hand" optional="show" readonly="1"/>
+                                        <field name="rule_id" optional="hide" />
+                                        <!-- <field name="route_id" invisible="1" /> -->
+                                        <field name="to_order" />
+                                        <button name="action_open_transfer" string="Transfer"
+                                            type="object" class="btn btn-primary" />
+                                        <field name="state" />
+
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+
+                    </sheet>
+
+                </form>
+            </field>
+        </record>
+
+        <record id="snk_stock_transfer_order_view_search" model="ir.ui.view">
+            <field name="name">snk.stock.transfer.order.search</field>
+            <field name="model">snk.stock.transfer.order</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name" />
+                    <field name="warehouse_id" />
+                    <field name="warehouse_ids" />
+                    <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]" />
+                    <filter string="Confirm" name="confirm" domain="[('state', '=', 'confirm')]" />
+                    <filter string="Waiting" name="waiting" domain="[('state', '=', 'waiting')]" />
+                    <filter string="Done" name="done" domain="[('state', '=', 'done')]" />
+                    <filter string="Cancelled" name="cancel" domain="[('state', '=', 'cancel')]" />
+                    <filter name="date" string="Date" context="{'group_by': 'date'}" />
+                    <filter name="state" string="Status" context="{'group_by': 'state'}" />
+                </search>
+            </field>
+        </record>
+
+        <record id="snk_stock_transfer_order_action" model="ir.actions.act_window">
+            <field name="name">Purchase Request</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.stock.transfer.order</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{}</field>
+        </record>
+        <!-- Action untuk buka model snk.stock.schedule -->
+
+        <menuitem
+            id="snk_mrp_view_menu_root"
+            name="MRP"
+            sequence="1" />
+
+        <menuitem
+            id="snk_mrp_stock_transfer_order_view_main"
+            parent="snk_mrp_view_menu_root"
+            name="Orders"
+            groups="group_snk_mrp_user,group_snk_mrp_admin"
+            sequence="1" />
+
+        <menuitem
+            id="snk_mrp_stock_transfer_purchase_request_menu"
+            parent="snk_mrp_stock_transfer_order_view_main"
+            name="Purchase Request"
+            action="snk_stock_transfer_order_action"
+            sequence="1" />
+
+
+        <!-- Form view for snk.stock.transfer.order.line -->
+        <record id="snk_stock_transfer_order_line_view_form" model="ir.ui.view">
+            <field name="name">snk.stock.transfer.order.line.view.form</field>
+            <field name="model">snk.stock.transfer.order.line</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="product_id"/>
+                                <field name="default_code"/>
+                                <field name="uom_id"/>
+                                <field name="analytic_id"/>
+                                <field name="snk_grade_id"/>
+                            </group>
+                            <group>
+                                <field name="source_site_id"/>
+                                <field name="destination_site_id"/>
+                                <field name="warehouse_id"/>
+                                <field name="location_id"/>
+                                <field name="date"/>
+                                <field name="days"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <field name="available_quantity"/>
+                                <field name="to_order"/>
+                                <field name="rule_id"/>
+                                <field name="route_id" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="partner_id"/>
+                                <field name="state"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- List view for stock.picking transfer (with analytic_ids) -->
+        <record id="snk_stock_picking_transfer_view_list" model="ir.ui.view">
+            <field name="name">snk.stock.picking.transfer.view.list</field>
+            <field name="model">stock.picking</field>
+            <field name="inherit_id" ref="stock.vpicktree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='origin']" position="after">
+                    <field name="analytic_ids" widget="many2many_tags"/>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

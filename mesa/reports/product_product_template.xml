@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Paperformat untuk ukuran MESA 3x1.8 - Disesuaikan -->
+    <record id="paperformat_label_sheet_mesa_3x18" model="report.paperformat">
+        <field name="name">MESA Label Sheet 3x1.8</field>
+        <field name="format">custom</field>
+        <field name="page_height">155</field>
+        <field name="page_width">110</field>
+        <field name="margin_top">1</field>
+        <field name="margin_bottom">1</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="header_line">false</field>
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Action report untuk MESA 3x1.8 -->
+    <record id="report_product_template_label_mesa_3x18" model="ir.actions.report">
+        <field name="name">MESA Product Label 3x1.8</field>
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_mesa_3x18</field>
+        <field name="report_file">mesa.report_mesa_3x18</field>
+        <field name="paperformat_id" ref="mesa.paperformat_label_sheet_mesa_3x18" />
+        <field name="print_report_name">'MESA_Label_%s' % (object.name)</field>
+        <field name="binding_type">report</field>
+    </record>
+    <record id="report_product_template_label_mesa_3x18_sku" model="ir.actions.report">
+        <field name="name">MESA Product Label 3x1.8 sku</field>
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_mesa_3x18_sku</field>
+        <field name="report_file">mesa.report_mesa_3x18_sku</field>
+        <field name="paperformat_id" ref="mesa.paperformat_label_sheet_mesa_3x18" />
+        <field name="print_report_name">'MESA_Label_%s' % (object.name)</field>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Template QWeb untuk cetak label -->
+    <template id="report_mesa_3x18_cell">
+        <td t-att-style="(make_invisible and 'visibility:hidden;' or '') + 'height:13mm; padding-bottom:6.6mm; padding-right:7mm; box-sizing:border-box; background-color:#fff;'">
+            <div style="font-size:5.7pt; text-align:center; margin-bottom:1mm; line-height:1.2;">MESA MESA MESA MESA</div>
+            <div style="font-size:11pt; font-weight:bold; margin:2mm 0; text-align:center; line-height:1.1;">
+                <t t-if="product and pricelist">
+                    <span
+                        class="o_label_price"
+                        t-out="pricelist._get_product_price(product, 1, pricelist.currency_id or product.currency_id)"
+                        t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id or product.currency_id, 'label_price': True}" />
+                </t>
+                <t t-else="">
+                    <span>Rp. 0</span>
+                </t>
+            </div>
+            <div style="font-size:5.7pt; text-align:center; margin-top:1mm; line-height:1.2;">MESA MESA MESA MESA</div>
+        </td>
+    </template>
+
+    <template id="report_mesa_3x18_sku_cell">
+        <td t-att-style="(make_invisible and 'visibility:hidden;' or '') + 'height:13mm; padding-bottom:6.3mm; padding-right:7mm; box-sizing:border-box; background-color:#fff;'">
+            <div style="font-size:5.7pt; text-align:center; margin-bottom:0.5mm; line-height:1.2;">MESA MESA MESA MESA</div>
+            <!-- SKU/Extra HTML di tengah -->
+            <div style="font-size:5pt; text-align:center; font-weight:bold;">
+                <t t-out="extra_html or ''" />
+            </div>
+            <div style="font-size:11pt; font-weight:bold; margin:1mm 0; text-align:center; line-height:1.1;">
+                <t t-if="product and pricelist">
+                    <span
+                        t-out="pricelist._get_product_price(product, 1, pricelist.currency_id or product.currency_id)"
+                        t-options="{'widget': 'monetary', 'display_currency': pricelist.currency_id or product.currency_id}" />
+                </t>
+                <t t-else="">
+                    <span>Rp. 0</span>
+                </t>
+            </div>
+            <div style="font-size:5.7pt; text-align:center; margin-top:0.5mm; line-height:1.2;">MESA MESA MESA MESA</div>
+        </td>
+    </template>
+
+    <template id="report_productlabel_mesa">
+        <t t-call="web.html_container">
+            <t t-if="columns and rows">
+                <t t-if="columns == 3 and rows == 4">
+                    <t t-set="padding_page" t-value="'padding: 0mm'" />
+                    <t t-if="sku_included">
+                        <t t-set="report_to_call" t-value="'3x18_sku'" />
+                    </t>
+                    <t t-else="">
+                        <t t-set="report_to_call" t-value="'3x18'" />
+                    </t>
+                </t>
+
+                <t t-foreach="range(page_numbers)" t-as="page">
+                    <div class="o_label_sheet"
+                         t-att-style="padding_page"
+                         style="page-break-after: always; margin-top: 0 !important; font-family: 'Arial', sans-serif;">
+                        <table class="my-0 table-borderless" style="width:98%; table-layout:fixed; margin: 0; margin-left:-2mm;">
+                            <colgroup>
+                                <col style="width:33%;" />
+                                <col style="width:33%;" />
+                                <col style="width:33%;" />
+                            </colgroup>
+                            <t t-foreach="range(rows)" t-as="row">
+                                <tr style="height:15mm;">
+                                    <t t-foreach="range(columns)" t-as="column">
+                                        <t
+                                            t-if="not current_quantity and quantity and not (current_data and current_data[1])">
+                                            <t t-set="current_data" t-value="quantity.popitem()" />
+                                            <t t-set="product" t-value="current_data[0]" />
+                                            <t t-set="barcode_and_qty"
+                                                t-value="current_data[1].pop()" />
+                                            <t t-set="barcode" t-value="barcode_and_qty[0]" />
+                                            <t t-set="current_quantity" t-value="barcode_and_qty[1]" />
+                                        </t>
+                                        <t t-if="current_quantity">
+                                            <t t-set="make_invisible" t-value="False" />
+                                            <t t-set="current_quantity"
+                                                t-value="current_quantity - 1" />
+                                        </t>
+                                        <t t-elif="current_data and current_data[1]">
+                                            <t t-set="barcode_and_qty"
+                                                t-value="current_data[1].pop()" />
+                                            <t t-set="barcode" t-value="barcode_and_qty[0]" />
+                                            <t t-set="current_quantity"
+                                                t-value="barcode_and_qty[1] - 1" />
+                                        </t>
+                                        <t t-else="">
+                                            <t t-set="make_invisible" t-value="True" />
+                                        </t>
+
+                                        <!-- IMPORTANT: explictly call templates in place of
+                                                {{template}} otherwise studio won't load report correctly -->
+                                        <t t-if="report_to_call == '3x18'">
+                                            <t t-call="mesa.report_mesa_3x18_cell" />
+                                        </t>
+                                        <t t-else="">
+                                            <t t-call="mesa.report_mesa_3x18_sku_cell" />
+                                        </t>
+                                    </t>
+                                </tr>
+                            </t>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_mesa_3x18">
+        <t t-call="web.html_container">
+            <div class="page" style="page-break-after: avoid; font-family: 'Arial', sans-serif;">
+                <t t-set="columns" t-value="3" />
+                <t t-set="rows" t-value="4" />
+
+                <t t-set="total_labels" t-value="sum([sum([q for b, q in barcodes]) for prod, barcodes in quantity.items()])" />
+
+                <!-- Ensure minimum 12 labels per page (3x4) -->
+                <t t-set="labels_per_page" t-value="12" />
+                <t t-set="page_numbers" t-value="max(1, int((total_labels + labels_per_page - 1) / labels_per_page))" />
+
+                <t t-call="mesa.report_productlabel_mesa" />
+            </div>
+        </t>
+    </template>
+
+    <template id="report_mesa_3x18_sku">
+        <t t-call="web.html_container">
+            <div class="page" style="page-break-after: avoid; font-family: 'Arial', sans-serif;">
+                <t t-set="columns" t-value="3" />
+                <t t-set="rows" t-value="4" />
+                <t t-set="sku_included" t-value="True" />
+
+                <t t-set="total_labels" t-value="sum([sum([q for b, q in barcodes]) for prod, barcodes in quantity.items()])" />
+
+                <!-- Ensure minimum 12 labels per page (3x4) -->
+                <t t-set="labels_per_page" t-value="12" />
+                <t t-set="page_numbers" t-value="max(1, int((total_labels + labels_per_page - 1) / labels_per_page))" />
+
+                <t t-call="mesa.report_productlabel_mesa" />
+            </div>
+        </t>
+    </template>
+
+</odoo>

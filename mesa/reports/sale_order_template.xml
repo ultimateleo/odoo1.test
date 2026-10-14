@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template PDF QWeb with Automatic Pagination -->
+    <template id="snk_sale_order_template">
+        <t t-call="web.basic_layout">
+            <style>
+                body, main, div, span, table, th, td {
+                    font-family: Arial, sans-serif !important;
+                }
+
+                /* Page settings */
+                @page {
+                    size: A4;
+                    margin: 20px;
+                }
+
+                /* Table header repeats on each page automatically */
+                .o_main_table thead {
+                    display: table-header-group;
+                }
+
+                /* Prevent row break in middle */
+                .o_main_table tbody tr {
+                    page-break-inside: avoid;
+                }
+
+                /* Force page break after every 38 rows */
+                .o_main_table tbody tr:nth-child(38n) {
+                    page-break-after: always;
+                }
+
+                /* Keep totals together */
+                .totals-section {
+                    page-break-inside: avoid;
+                }
+
+                .table-borderless {
+                    border: none !important;
+                }
+                .table-borderless th,
+                .table-borderless td {
+                    border: none !important;
+                }
+                .noborder td {
+                    border: none !important;
+                }
+            </style>
+
+            <main>
+                <t t-foreach="docs" t-as="doc">
+                    <t t-set="ref_length" t-value="len(doc.client_order_ref or '')"/>
+                    <!-- Base padding values for page 1 (with letterhead space) -->
+                    <t t-set="base_top_padding" t-value="60 if ref_length > 100 else (75 if ref_length > 70 else (89 if ref_length > 53 else 110))"/>
+                    <t t-set="base_header_padding" t-value="10 if ref_length > 53 else 35"/>
+
+                    <!-- Lines per page settings -->
+                    <t t-set="lines_per_page_normal" t-value="35"/>
+                    <t t-set="lines_per_page_with_footer" t-value="24"/>
+                    <t t-set="total_lines" t-value="len(doc.order_line)"/>
+                    
+                    <!-- Calculate number of pages dynamically -->
+                    <!-- If total lines fit in one page with footer, 1 page. Otherwise calculate -->
+                    <t t-set="num_pages" t-value="1 if total_lines &lt;= lines_per_page_with_footer else (1 + int((total_lines - lines_per_page_with_footer + lines_per_page_normal - 1) / lines_per_page_normal))"/>
+
+                    <!-- Loop through each page -->
+                    <t t-foreach="range(num_pages)" t-as="page_num">
+                        <t t-set="is_last_page" t-value="page_num == num_pages - 1"/>
+                        
+                        <!-- Dynamic lines per page: last page has fewer lines for footer -->
+                        <t t-set="lines_per_page" t-value="lines_per_page_with_footer if is_last_page else lines_per_page_normal"/>
+                        
+                        <!-- Calculate start and end index for this page -->
+                        <t t-set="start_idx" t-value="0 if page_num == 0 else (lines_per_page_normal * page_num if num_pages > 1 else 0)"/>
+                        <t t-set="end_idx" t-value="min(start_idx + lines_per_page, total_lines)"/>
+                        <t t-set="page_lines" t-value="doc.order_line[start_idx:end_idx]"/>
+                        
+                        <!-- All pages use same header layout -->
+                        <t t-set="top_padding" t-value="base_top_padding"/>
+                        <t t-set="header_padding" t-value="base_header_padding"/>
+
+                        <div class="page" t-att-style="'page-break-after: always;' if not is_last_page else ''">
+                            <div class="oe_structure"/>
+
+                            <!-- Main Table -->
+                            <table class="table table-borderless o_main_table"
+                                style="width: 100%; border-collapse: collapse; font-size: 12pt; padding-top: 10px">
+
+                                <!-- HEADER - Will repeat on each page -->
+                                <thead style="display: table-header-group;">
+                                    <!-- Address & Partner Info -->
+                                    <tr>
+                                        <th colspan="6" style="border: none; padding: 0;">
+                                            <div t-attf-style="padding-top: {{top_padding}}px; padding-bottom: 5px;">
+                                                <table style="width: 100%; border: none;">
+                                                    <tr>
+                                                        <td style="width: 50%; border: none;"></td>
+                                                        <td style="width: 50%; text-align: right; border: none; padding-right: 20px;">
+                                                            <span t-field="doc.partner_id"
+                                                                t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}' />
+                                                            <p t-if="doc.partner_id.vat">
+                                                                <t t-if="doc.company_id.account_fiscal_country_id.vat_label"
+                                                                    t-out="doc.company_id.account_fiscal_country_id.vat_label" />
+                                                                <t t-else="">Tax ID</t>: <span t-field="doc.partner_id.vat" />
+                                                            </p>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </th>
+                                    </tr>
+
+                                    <!-- Order Title -->
+                                    <tr>
+                                        <th colspan="6" style="border: none; padding: 0; text-align:left;">
+                                            <div style="padding: 5px 0;">
+                                                <h2 style="margin: 0;">
+                                                    <span t-if="env.context.get('proforma', False)">Pro-Forma Invoice # </span>
+                                                    <span t-elif="doc.state in ['draft','sent']">Quotation # </span>
+                                                    <span t-else="">Order # </span>
+                                                    <span t-field="doc.name" />
+                                                </h2>
+                                            </div>
+                                        </th>
+                                    </tr>
+
+                                    <!-- Reference, Date, Salesperson -->
+                                    <tr>
+                                        <th colspan="6" style="border: none; padding: 0;">
+                                            <!-- Dynamic height based on reference length: short=35px, medium=50px, long=65px -->
+                                            <t t-set="ref_row_height" t-value="65 if ref_length > 60 else (50 if ref_length > 30 else 35)"/>
+                                            <table t-attf-style="width: 100%; margin-bottom: 0px; border-collapse: collapse; table-layout: fixed; height: {{ref_row_height}}px;">
+                                                <tr t-attf-style="height: {{ref_row_height}}px;">
+                                                    <td t-attf-style="width: 40%; text-align: left; vertical-align: top; padding: 0; word-wrap: break-word; height: {{ref_row_height}}px;">
+                                                        <strong>Your Reference</strong><br />
+                                                        <t t-if="doc.client_order_ref">
+                                                            <span t-field="doc.client_order_ref" style="font-weight: normal;" />
+                                                        </t>
+                                                    </td>
+                                                    <td style="width: 30%; text-align: right; vertical-align: bottom; padding: 0;">
+                                                        <strong>Order Date</strong><br />
+                                                        <t t-if="doc.date_order">
+                                                            <span t-out="doc.date_order.strftime('%d %b %Y').lstrip('0') if doc.date_order else ''" />
+                                                        </t>
+                                                    </td>
+                                                    <td style="width: 30%; text-align: right; vertical-align: bottom; padding-right: 20px;">
+                                                        <strong>Salesperson</strong><br />
+                                                        <t t-if="doc.user_id.name">
+                                                            <span t-field="doc.user_id.name" />
+                                                        </t>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </th>
+                                    </tr>
+
+                                    <!-- Column Headers -->
+                                    <tr style="text-align: center;">
+                                        <th t-attf-style="text-align: center; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 5px; padding-right: 5px;">Article</th>
+                                        <th t-attf-style="text-align: left; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 19px; padding-right: 5px; width: 40%;">Description</th>
+                                        <th t-attf-style="text-align: center; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 5px; padding-right: 5px;">Quantity</th>
+                                        <th t-attf-style="text-align: center; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 5px; padding-right: 5px;">Unit Price</th>
+                                        <th t-attf-style="text-align: center; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 5px; padding-right: 5px;">Disc%</th>
+                                        <th t-attf-style="text-align: center; border: none; padding-top: {{header_padding + 15}}px; padding-bottom: 20px; padding-left: 5px; padding-right: 5px;">Amount</th>
+                                    </tr>
+                                </thead>
+
+                                <!-- BODY - Lines for this page only -->
+                                <tbody style="font-size: 12pt;">
+                                    <t t-foreach="page_lines" t-as="line">
+                                        <tr>
+                                            <td style="border: none; padding: 0px 8px 0px 0px; width:30%;">
+                                                <t t-if="line.product_id">
+                                                    <span t-esc="line.template_code or line.product_id.default_code" />
+                                                    <t t-if="line.product_id.product_template_attribute_value_ids">
+                                                        <t t-esc="' '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                                    </t>
+                                                </t>
+                                            </td>
+                                            <td style="border: none; padding: 0px 5px 0px 2px; width: 40%;">
+                                                <!-- Potong nama product sebelum koma -->
+                                                <span t-esc="line.product_id.product_tmpl_id.name.split(',')[0].strip() if line.product_id and line.product_id.product_tmpl_id.name else line.name"/>
+                                            </td>
+                                            <td class="text-center" style="border: none; padding: 0px 5px; width: 15%; white-space: nowrap;">
+                                                <span t-field="line.product_uom_qty" />
+                                                <span t-field="line.product_uom.name" />
+                                            </td>
+                                            <td class="text-end no-wrap" style="border: none; padding: 0px 5px;">
+                                                <span t-field="line.price_unit"
+                                                    t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                            </td>
+                                            <td class="text-end no-wrap" style="border: none; padding: 0px 5px;">
+                                                <t t-set="disc" t-value="(line.snk_discount_amount / (line.price_unit or 1.0)) * 100 if line.snk_discount_amount else (line.discount or 0.0)"/>
+                                                <span t-esc="'%.2f' % disc"/>
+                                            </td>
+                                            <td class="text-end no-wrap" style="border: none; padding: 0px 5px; width: 15%">
+                                                <span t-field="line.price_total" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+
+                            <!-- FOOTER TOTALS - Only on last page -->
+                            <t t-if="is_last_page">
+                                <div class="totals-section">
+                                    <table class="table table-borderless"
+                                        style="width: 100%; border-collapse: collapse; font-size: 12pt; margin-top: 10px;">
+                                        <tbody>
+                                    <tr>
+                                        <td></td>
+                                        <td></td>
+                                        <td colspan="2" style="text-align: right; vertical-align:center; padding:1px 4px 1px 1px;">
+                                            <strong>Total Quantity:</strong>
+                                        </td>
+                                        <td style="text-align: right; padding:1px 30px 1px 1px; width:10%;">
+                                            <t t-esc="sum(line.product_uom_qty for line in doc.order_line)" />
+                                        </td>
+                                        <td style="width: 14%; text-align: right; padding: 1px;">
+                                            <strong>Total Amount:</strong>
+                                        </td>
+                                        <td style="width: 14%; text-align: right; padding: 1px;">
+                                            <span t-field="doc.amount_untaxed"
+                                                t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6" style="text-align: right; padding: 1px;">
+                                            <strong>Total Discount:</strong>
+                                        </td>
+                                        <td style="text-align: right; padding: 1px;">
+                                            <t t-set="total_discount"
+                                                t-value="sum(
+                                                    (l.snk_discount_amount * l.product_uom_qty)
+                                                    if l.snk_discount_amount
+                                                    else (l.price_unit * l.product_uom_qty * (l.discount or 0.0) / 100)
+                                                    for l in doc.order_line
+                                                )"/>
+                                            <t t-esc="total_discount"
+                                                t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                        </td>
+                                    </tr>
+
+                                    <!-- Tax Breakdown -->
+                                    <t t-set="tax_totals" t-value="doc.tax_totals" />
+                                    <t t-if="tax_totals and tax_totals.get('amount_by_group')">
+                                        <t t-foreach="tax_totals['amount_by_group']" t-as="tax_group_data">
+                                            <tr class="noborder">
+                                                <td colspan="6" style="text-align: right; padding: 1px;">
+                                                    <strong><span t-esc="tax_group_data[0]" />:</strong>
+                                                </td>
+                                                <td style="text-align: right; padding: 1px;">
+                                                    <span t-esc="tax_group_data[1]"
+                                                        t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                                </td>
+                                            </tr>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-if="doc.amount_tax != 0">
+                                            <t t-set="tax_breakdown" t-value="{}" />
+                                            <t t-foreach="doc.order_line" t-as="line">
+                                                <t t-foreach="line.tax_id" t-as="tax">
+                                                    <t t-set="tax_amount" t-value="line.price_subtotal * tax.amount / 100" />
+                                                    <t t-set="group_name" t-value="tax.tax_group_id.name" />
+                                                    <t t-set="current_amount" t-value="tax_breakdown.get(group_name, 0)" />
+                                                    <t t-set="dummy" t-value="tax_breakdown.update({group_name: current_amount + tax_amount})" />
+                                                </t>
+                                            </t>
+
+                                            <t t-foreach="tax_breakdown.items()" t-as="tax_item">
+                                                <tr class="noborder">
+                                                    <td colspan="6" style="text-align: right; padding: 1px;">
+                                                        <strong><span t-esc="tax_item[0]" />:</strong>
+                                                    </td>
+                                                    <td style="text-align: right; padding: 1px;">
+                                                        <span t-esc="tax_item[1]"
+                                                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                                    </td>
+                                                </tr>
+                                            </t>
+
+                                            <t t-if="not tax_breakdown">
+                                                <tr>
+                                                    <td colspan="6" style="text-align: right; padding: 1px;">
+                                                        <strong>Total Taxes:</strong>
+                                                    </td>
+                                                    <td style="text-align: right; padding: 1px;">
+                                                        <t t-esc="doc.amount_tax"
+                                                            t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </t>
+                                    </t>
+
+                                    <tr>
+                                        <td colspan="6" style="border: none; text-align: right; padding: 1px;">
+                                            <strong>Net Amount:</strong>
+                                        </td>
+                                        <td style="border: none; text-align: right; padding: 1px;">
+                                            <t t-esc="doc.amount_total"
+                                                t-options='{"widget": "monetary", "display_currency": doc.currency_id}' />
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </t>
+
+                            <div class="oe_structure"/>
+                        </div>
+                    </t>
+                </t>
+            </main>
+        </t>
+    </template>
+</odoo>

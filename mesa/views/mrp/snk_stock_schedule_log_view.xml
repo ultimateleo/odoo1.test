@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Tree View -->
+        <record id="view_snk_stock_schedule_log_tree" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.log.tree</field>
+            <field name="model">snk.stock.schedule.log</field>
+            <field name="arch" type="xml">
+                <list string="Schedule Execution Log" create="false" limit="80"
+                    decoration-danger="state == 'failed'">
+                    <field name="effective_date" string="Effective Date" />
+                    <field name="site_id" string="Site" />
+                    <field name="schedule_id" string="Schedule" optional="hide" />
+                    <field name="run_date" string="Run Date" />
+                    <field name="state" string="Status" widget="badge"
+                        decoration-success="state == 'success'"
+                        decoration-danger="state == 'failed'" />
+                    <field name="duration" string="Duration (s)" />
+                    <field name="order_point_id" string="Order Point" optional="show" />
+                    <field name="error" string="Error" optional="hide" />
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_snk_stock_schedule_log_form" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.log.form</field>
+            <field name="model">snk.stock.schedule.log</field>
+            <field name="arch" type="xml">
+                <form string="Schedule Execution Log" create="false">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="schedule_id" />
+                                <field name="site_id" />
+                                <field name="effective_date" />
+                            </group>
+                            <group>
+                                <field name="state" />
+                                <field name="run_date" />
+                                <field name="duration" />
+                                <field name="order_point_id" />
+                            </group>
+                        </group>
+                        <group string="Error" invisible="state != 'failed'">
+                            <field name="error" nolabel="1" />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_snk_stock_schedule_log_search" model="ir.ui.view">
+            <field name="name">snk.stock.schedule.log.search</field>
+            <field name="model">snk.stock.schedule.log</field>
+            <field name="arch" type="xml">
+                <search string="Search Execution Log">
+                    <field name="site_id" />
+                    <field name="schedule_id" />
+                    <field name="effective_date" />
+                    <separator />
+                    <filter name="filter_success" string="Success" domain="[('state', '=', 'success')]" />
+                    <filter name="filter_failed" string="Failed" domain="[('state', '=', 'failed')]" />
+                    <separator />
+                    <group expand="0" string="Group By">
+                        <filter name="group_by_site" string="Site" context="{'group_by': 'site_id'}" />
+                        <filter name="group_by_state" string="Status" context="{'group_by': 'state'}" />
+                        <filter name="group_by_effective_date" string="Effective Date"
+                            context="{'group_by': 'effective_date'}" />
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="snk_stock_schedule_log_action" model="ir.actions.act_window">
+            <field name="name">Schedule Execution Log</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.stock.schedule.log</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_group_by_site': 1}</field>
+        </record>
+
+        <menuitem id="snk_stock_schedule_log_menu"
+            name="Schedule Execution Log"
+            parent="snk_mrp_stock_transfer_order_configuration_view_main"
+            action="snk_stock_schedule_log_action"
+            sequence="3" />
+
+    </data>
+</odoo>

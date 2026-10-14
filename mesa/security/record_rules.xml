@@ -1,0 +1,146 @@
+<odoo>
+    <data noupdate="0">
+    <!-- Sites -->
+        <!-- All -->
+        <record id="snk_all_sites" model="ir.rule">
+            <field name="name">All Sites</field>
+            <field name="model_id" ref="mesa.model_snk_site"/>
+            <field name="domain_force">[(1,'=', 1)]</field>
+            <field name="groups" eval="[
+                (4, ref('base.group_system'))
+            ]"/>
+                <!-- (4, ref('stock.group_stock_manager')) -->
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <!-- Sites Allowed Only -->
+        <record id="snk_site_allowed_only" model="ir.rule">
+            <field name="name">Allowed Sites</field>
+            <field name="model_id" ref="mesa.model_snk_site"/>
+            <field name="domain_force">[('industry_id', 'in', user.allowed_industry_ids.ids)]</field>
+            <field name="groups" eval="[
+                (4, ref('base.group_user')),
+                (4, ref('stock.group_stock_user')),
+                (4, ref('sales_team.group_sale_salesman_all_leads')),
+                (4, ref('purchase.group_purchase_user')),
+                (4, ref('stock.group_stock_manager'))
+            ]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+    <!-- Sales Order -->
+        <!-- Sales Order - All Orders (Sales Manager) -->
+        <record id="snk_sale_order_see_all" model="ir.rule">
+            <field name="name">See All Sale Orders</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_manager'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <!-- Sales Order - Allowed Site and Brand Only -->
+        <record id="snk_sale_order_allowed_only" model="ir.rule">
+            <field name="name">Sales Order - Allowed Only</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="domain_force">[('snk_site_id.industry_id', 'in', user.allowed_industry_ids.ids),('analytic_account_ids', 'in', user.allowed_analytic_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('sales_team.group_sale_salesman_all_leads'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    <!-- Purchase Requisition -->
+        <!-- Purchase Requisiton - All Orders (Purchase Manager) -->
+        <record id="snk_purchase_requisiton_see_all" model="ir.rule">
+            <field name="name">See All Purchase Requisiton</field>
+            <field name="model_id" ref="purchase_requisition.model_purchase_requisition"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[
+                (4, ref('base.group_system')),
+                (4, ref('purchase.group_purchase_manager'))
+            ]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <!-- Purchase Requisiton - Allowed Site and Brand -->
+        <record id="snk_purchase_requisiton_allowed_only" model="ir.rule">
+            <field name="name">Purchase Requisiton - Allowed Only</field>
+            <field name="model_id" ref="purchase_requisition.model_purchase_requisition"/>
+            <field name="domain_force">[('snk_site_id.industry_id', 'in', user.allowed_industry_ids.ids),('analytic_account_ids', 'in', user.allowed_analytic_ids.ids), ('create_uid', '=', user.id)]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+    <!-- Purchase Order -->
+        <!-- Purchase Order - All Orders (Purchase Administrator) -->
+        <record id="snk_purchase_order_see_all" model="ir.rule">
+            <field name="name">See All Purchase Orders</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="domain_force">[(1,'=',1)]</field>
+            <field name="groups" eval="[
+                (4, ref('base.group_system')),
+                (4, ref('purchase.group_purchase_manager'))
+            ]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        <!-- Purchase Order - Allowed ownership, site, and full brand subset -->
+        <record id="snk_purchase_order_allowed_only" model="ir.rule">
+            <field name="name">Purchase Order - Allowed Only</field>
+            <field name="model_id" ref="purchase.model_purchase_order"/>
+            <field name="domain_force">[
+                ('snk_site_id.industry_id', 'in', user.allowed_industry_ids.ids),
+                ('analytic_account_ids', '!=', False),
+                ('analytic_account_ids', 'not any', [('id', 'not in', user.allowed_analytic_ids.ids)]),
+                '|',
+                ('create_uid', '=', user.id),
+                ('user_id', '=', user.id)
+            ]</field>
+            <field name="groups" eval="[(4, ref('purchase.group_purchase_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+    <!-- Stock Picking -->
+        <!-- Stock Picking - Allowed Site Only -->
+        <!-- <record id="snk_stock_picking_allowed_site_only" model="ir.rule">
+            <field name="name">Stock Picking - Allowed Site Only</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="domain_force">[('snk_site_id', 'in', user.allowed_site_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record> -->
+
+        <!-- Stock Picking - Allowed Brand Only -->
+        <!-- <record id="snk_stock_picking_allowed_brand_only" model="ir.rule">
+            <field name="name">Stock Picking - Allowed Brand Only</field>
+            <field name="model_id" ref="stock.model_stock_picking"/>
+            <field name="domain_force">[('snk_analytic_id', 'in', user.allowed_analytic_ids.ids)]</field>
+            <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record> -->
+    </data>
+</odoo>

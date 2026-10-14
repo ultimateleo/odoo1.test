@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!--list view-->
+        <record id="snk_pi_inbound_view_list" model="ir.ui.view">
+            <field name="name">snk.pi.inbound.view.list</field>
+            <field name="model">snk.pi.inbound</field>
+            <field name="arch" type="xml">
+                <list create="0" edit="1" duplicate="0" limit="100" sample="1">
+                    <field name="name"/>
+                    <field name="ref_data"/>
+                    <field name="output" optional="hide"/>
+                    <field name="data" optional="hide"/>
+                    <field name="state"
+                        decoration-success="state == 'done'"
+                        decoration-warning="state == 'duplicate'"
+                        decoration-info="state == 'pending'"
+                        decoration-danger="state == 'failed'"
+                        widget="badge"/>
+                    <field name="log_info" optional="hide"/>
+                    <field name="create_uid" optional="hide"/>
+                    <field name="create_date" optional="hide"/>
+                    <field name="write_uid" optional="hide"/>
+                    <field name="write_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
+        <record id="snk_pi_inbound_view_form" model="ir.ui.view">
+            <field name="name">snk.pi.inbound.view.form</field>
+            <field name="model">snk.pi.inbound</field>
+            <field name="arch" type="xml">
+                <form string="Inbound Record">
+                    <sheet>
+                    <group>
+                        <group>
+                            <field name="name" readonly="state in 'done'"/>
+                            <field name="ref_data" readonly="1"/>
+                            <field name="ref_model" readonly="1"/>
+                            <field name="output" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="state"
+                                widget="badge"
+                                decoration-success="state == 'done'"
+                                decoration-warning="state == 'duplicate'"
+                                decoration-info="state == 'pending'"
+                                decoration-danger="state == 'failed'"/>
+                            <field name="log_info" widget="html"/>
+                        </group>
+                    </group>
+                        <group string="Data">
+                            <field name="data" readonly="state in 'done'"/>
+                            <!-- <field name="create_uid" readonly="1"/>
+                            <field name="create_date" readonly="1"/>
+                            <field name="write_uid" readonly="1"/>
+                            <field name="write_date" readonly="1"/> -->
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <!--search view-->
+        <record id="snk_pi_inbound_view_search" model="ir.ui.view">
+            <field name="name">snk.pi.inbound.view_search</field>
+            <field name="model">snk.pi.inbound</field>
+            <field name="arch" type="xml">
+                <search string="Inbound">
+                    <!-- Existing filters -->
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                    <separator/>
+                    <filter string="Pending" name="pending" domain="[('state', '=', 'pending')]"/>
+                    <filter string="Done" name="done" domain="[('state', '=', 'done')]"/>
+                    <filter string="Failed" name="failed" domain="[('state', '=', 'failed')]"/>
+                    <separator/>
+
+                    <!-- New search fields -->
+                    <field name="name" string="Reference"/>
+                    <field name="data" string="Data"/>
+                    <field name="output" string="Output"/>
+                    <filter string="Pos Order" name="ref_order" domain="[('ref_data', '=', 'ORDER')]"/>
+                    <filter string="Pos Sales" name="ref_sales" domain="[('ref_data', '=', 'SALES')]"/>
+                    <filter string="Transfer In" name="ref_ti" domain="[('ref_data', '=', 'TI')]"/>
+                    <filter string="Transfer Out" name="ref_to" domain="[('ref_data', '=', 'TO')]"/>
+                    <separator/>
+
+                    <!-- Group By -->
+                    <group expand="0" string="Group By">
+                        <filter string="Data" name="ref_data" domain="[]" context="{'group_by': 'ref_data'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+
+        <!--menu action-->
+        <record id="snk_pi_inbound_view_action" model="ir.actions.act_window">
+            <field name="name">Inbound</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">snk.pi.inbound</field>
+            <field name="path">snk-pi-inbound</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No Inbound for display
+                </p><p>
+                    The Inbound will be displayed here.
+                </p>
+            </field>
+        </record>
+
+        <!--menus-->
+        <menuitem id="snk_pi_inbound_menu" action="snk_pi_inbound_view_action" parent="snk_pi_integration_menu" sequence="2"/>
+
+
+        <!--action_server-->
+        <record id="snk_action_inbound_process" model="ir.actions.server">
+            <field name="name">Process</field>
+           <field name="model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_process()
+           </field>
+        </record>
+
+        <record id="snk_action_inbound_cancel" model="ir.actions.server">
+            <field name="name">Cancel</field>
+           <field name="model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_cancel()
+           </field>
+            <field name="confirmation_active" eval="True"/>
+            <field name="confirmation">This action will cancel all selected data. Are you sure will perform this action?</field>
+        </record>
+
+        <record id="snk_action_inbound_retry" model="ir.actions.server">
+            <field name="name">Retry</field>
+           <field name="model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="binding_model_id" ref="mesa.model_snk_pi_inbound"/>
+           <field name="state">code</field>
+           <field name="code">
+               action = records.action_direct_retry()
+           </field>
+        </record>
+
+    </data>
+    <data noupdate="1">
+    <record id="snk_pi_inbound_synchronize_action" model="ir.cron">
+        <field name="name">Integration : incoming data - synchronize sftp</field>
+        <field name="model_id" ref="model_snk_pi_inbound"/>
+        <field name="state">code</field>
+        <field name="code">model.synchronize_sftp(download_workers=5)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_pi_inbound_process_sales" model="ir.cron">
+        <field name="name">Integration : incoming data - process sales</field>
+        <field name="model_id" ref="model_snk_pi_inbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_process(process_type="pos_sales", limit_data=2000, batch_size=500)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_pi_inbound_process_order" model="ir.cron">
+        <field name="name">Integration : incoming data - process order</field>
+        <field name="model_id" ref="model_snk_pi_inbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_process(process_type="pos_order", limit_data=1000, batch_size=500)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_pi_inbound_process_transfer_in" model="ir.cron">
+        <field name="name">Integration : incoming data - process transfer in</field>
+        <field name="model_id" ref="model_snk_pi_inbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_process(process_type="transfer_in", limit_data=1000, batch_size=500)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_pi_inbound_process_transfer_out" model="ir.cron">
+        <field name="name">Integration : incoming data - process transfer out</field>
+        <field name="model_id" ref="model_snk_pi_inbound"/>
+        <field name="state">code</field>
+        <field name="code">model.action_process(process_type="transfer_out", limit_data=1000, batch_size=500)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall"
+                  eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+           <field name="priority">1</field>
+        <field name="active" eval="False"/>
+    </record>
+
+    <record id="snk_cron_apply_inventory_quantity" model="ir.cron">
+        <field name="name">Apply Inventory Quantity (Batch)</field>
+        <field name="model_id" ref="stock.model_stock_quant"/>
+        <field name="state">code</field>
+        <field name="code">model.cron_apply_inventory_quantity(batch_size=500, workers=2, chunk_size=20, max_runtime=300, slow_time=80)</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 12:00:00')"/>
+        <field name="priority">1</field>
+        <!-- <field name="numbercall">-1</field> -->
+        <field name="active" eval="False"/>
+    </record>
+    </data>
+</odoo>

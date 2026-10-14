@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_stock_move_line_detailed_operation_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.operations.list.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_detailed_operation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_id']" position="after">
+                    <field name="snk_grade_id" readonly="1" optional="hide" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="analytic_id" readonly="1" optional="hide" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='package_id']" position="before">
+                    <field name="carrier_id" readonly="1" optional="hide" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='product_uom_id']" position="after">
+                    <field name="snk_notes" readonly="1"/>
+                    <field name="event_ids" readonly="1" optional="hide" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                </xpath>
+                <xpath expr="//field[@name='lot_id']" position="after">
+                    <field name="snk_material_code"/>
+                </xpath>
+
+            </field>
+        </record>
+
+        <record id="view_stock_move_operations_inherit" model="ir.ui.view">
+            <field name="name">stock.move.operations.inherit</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_stock_move_operations"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group/group[1]" position="inside">
+                    <field name="snk_grade_id" readonly="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="analytic_id" readonly="1" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="event_ids" readonly="1" widget="many2many_tags" options="{'no_create': True, 'no_create_edit': True, 'no_open': True}"/>
+                    <field name="snk_material_code" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_move_tree_inherit_mesa" model="ir.ui.view">
+            <field name="name">stock.move.tree.inherit.mesa</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="stock.view_move_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='reference']" position="after">
+                    <field name="origin" string="Source Document" optional="show"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="view_stock_move_line_operation_tree_inherit" model="ir.ui.view">
+            <field name="name">stock.move.line.operation.tree.inherit</field>
+            <field name="model">stock.move.line</field>
+            <field name="inherit_id" ref="stock.view_stock_move_line_operation_tree"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='product_uom_id'][2]" position="after">
+                    <field name="snk_notes"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

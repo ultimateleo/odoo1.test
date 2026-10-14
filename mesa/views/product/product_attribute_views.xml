@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="snk_product_attribute_view_form_inherit" model="ir.ui.view">
+            <field name="name">snk.product.attribute.form.view.inherit</field>
+            <field name="model">product.attribute</field>
+            <field name="inherit_id" ref="product.product_attribute_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='value_ids']/list/field[@name='name']" position="after">
+                    <field name="snk_description"/>
+                </xpath>
+
+                <xpath expr="//sheet" position="before">
+                    <header>
+                        <button name="snk_action_xml_attribute" string="Generate XML" type="object"
+                            invisible="(id == False)"/>
+                    </header>
+                </xpath>
+
+                <xpath expr="//sheet" position="after">
+                    <chatter/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="snk_action_xml_attribute" model="ir.actions.server">
+            <field name="name">Generate XML Attribute</field>
+            <field name="model_id" ref="product.model_product_attribute"/>
+            <field name="binding_model_id" ref="product.model_product_attribute"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">records.snk_action_xml_attribute()</field>
+        </record>
+    </data>
+</odoo>

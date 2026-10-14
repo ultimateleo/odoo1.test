@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ================================================================== -->
+    <!-- LIST VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_report_sto_summary_list" model="ir.ui.view">
+        <field name="name">report.sto.summary.list</field>
+        <field name="model">report.sto.summary</field>
+        <field name="arch" type="xml">
+            <list string="STO Summary" create="0" edit="0" delete="0">
+                <header>
+                    <button name="%(action_report_sto_summary_wizard)d" 
+                            type="action" 
+                            string="Generate Report" 
+                            class="btn-primary" 
+                            display="always"/>
+                </header>
+
+                <!-- Delivery Information -->
+                <field name="delivery_no" optional="show"
+                       decoration-bf="delivery_no"/>
+                <field name="no_dus" string="No Dus" optional="show"
+                       decoration-bf="no_dus"/>
+                <field name="state" string="Delivery Status" optional="show"
+                       decoration-success="state == 'Done'"
+                       decoration-info="state == 'Ready'"
+                       decoration-warning="state == 'Waiting' or state == 'Waiting Availability'"
+                       decoration-muted="state == 'Cancelled'"/>
+                <field name="site_id" string="Source Site" optional="show"/>
+                <field name="destination_site_id" string="Destination Site" optional="show"/>
+                <field name="demand_qty" string="Demand" sum="Total Demand" optional="show"/>
+                <field name="actual_qty" string="Delivered" sum="Total Delivered" optional="show"
+                       decoration-success="actual_qty == demand_qty and actual_qty &gt; 0"
+                       decoration-warning="actual_qty &gt; 0 and actual_qty &lt; demand_qty"
+                       decoration-danger="actual_qty == 0 or actual_qty &gt; demand_qty"/>
+                <field name="delivery_date" optional="show"/>
+                <field name="brands" optional="show"/>
+
+                <!-- Receipt Information -->
+                <field name="receipt_no" optional="show"
+                       decoration-info="receipt_no"/>
+                <field name="receipt_status" optional="show"
+                       decoration-success="receipt_status == 'Fully Received'"
+                       decoration-warning="receipt_status == 'Partially Received'"
+                       decoration-info="receipt_status == 'Waiting Receipt'"
+                       decoration-danger="receipt_status == 'Receipt Short' or receipt_status == 'Over Received'"
+                       decoration-muted="receipt_status == 'Cancelled' or receipt_status == 'No Receipt'"/>
+                <field name="receipt_qty" string="Received" sum="Total Received" optional="show"
+                       decoration-success="receipt_qty == actual_qty and actual_qty &gt; 0"
+                       decoration-warning="receipt_qty &gt; 0 and receipt_qty &lt; actual_qty"
+                       decoration-danger="(actual_qty &gt; 0 and receipt_qty == 0) or receipt_qty &gt; actual_qty"/>
+                <field name="receipt_date" optional="show"/>
+
+                <!-- Progress / Output -->
+                <field name="akurat" string="Akurasi (%)"
+                       decoration-success="akurat == 100"
+                       decoration-warning="akurat &lt; 100 and akurat &gt; 0"
+                       decoration-danger="akurat == 0 or akurat &gt; 100"
+                       optional="show"/>
+                <field name="jumlah_hari" optional="show"/>
+
+                <!-- Supporting Details -->
+                <field name="snk_pos_ref" optional="hide"/>
+                <field name="pos_status_site" optional="hide"
+                       decoration-success="pos_status_site == 'active'"
+                       decoration-info="pos_status_site == 'gudang'"
+                       decoration-muted="pos_status_site == 'inactive'"/>
+                <field name="site_name" string="Source Site Name" optional="hide"/>
+                <field name="destination_site_name" string="Destination Site Name" optional="hide"/>
+                <field name="destination_name" string="Destination Name" optional="hide"/>
+                <field name="requisitioner" optional="hide"/>
+                <field name="sto_date" optional="hide"/>
+                <field name="validate_date" optional="hide"/>
+                <field name="physical_delivery_date" optional="hide"/>
+                <field name="physical_receipt_date" optional="hide"/>
+                <field name="carrier_name" optional="hide"/>
+                <field name="city_name" optional="hide"/>
+                <field name="district_name" optional="hide"/>
+                <field name="tracking_ref" optional="hide"/>
+                <field name="shipping_cost" optional="hide"/>
+                <field name="shipping_weight" optional="hide"/>
+                <field name="total_shipping_cost" sum="Total Biaya" optional="hide"/>
+                <field name="bill_no" optional="hide"/>
+                <field name="remarks" optional="hide"/>
+                <field name="notes" optional="hide"/>
+                <field name="total_amount" sum="Total Amount" optional="hide"/>
+                <field name="net_amount" sum="Net Amount" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- PIVOT VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_report_sto_summary_pivot" model="ir.ui.view">
+        <field name="name">report.sto.summary.pivot</field>
+        <field name="model">report.sto.summary</field>
+        <field name="arch" type="xml">
+            <pivot string="STO Summary" disable_linking="True">
+                <field name="site_name" type="row"/>
+                <field name="brands" type="col"/>
+                <field name="demand_qty" type="measure"/>
+                <field name="actual_qty" type="measure"/>
+                <field name="receipt_qty" type="measure"/>
+                <field name="akurat" type="measure"/>
+                <field name="total_shipping_cost" type="measure"/>
+                <field name="total_amount" type="measure"/>
+                <field name="net_amount" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- SEARCH VIEW -->
+    <!-- ================================================================== -->
+    <record id="view_report_sto_summary_search" model="ir.ui.view">
+        <field name="name">report.sto.summary.search</field>
+        <field name="model">report.sto.summary</field>
+        <field name="arch" type="xml">
+            <search string="Search STO Summary">
+                <field name="delivery_no"/>
+                <field name="site_id" string="Source Site"/>
+                <field name="site_name" string="Source Site Name"/>
+                <field name="destination_site_id" string="Destination Site"/>
+                <field name="destination_name" string="Destination Name"/>
+                <field name="brands"/>
+                <field name="requisitioner"/>
+                <field name="carrier_name"/>
+                <field name="city_name"/>
+                <field name="tracking_ref"/>
+                <field name="receipt_no"/>
+                <field name="snk_pos_ref"/>
+                <field name="remarks"/>
+
+                <filter name="filter_status_done" string="Done" domain="[('state', '=', 'Done')]"/>
+                <filter name="filter_status_ready" string="Ready" domain="[('state', '=', 'Ready')]"/>
+                <separator/>
+                <filter name="filter_receipt_fully_received" string="Fully Received"
+                        domain="[('receipt_status', '=', 'Fully Received')]"/>
+                <filter name="filter_receipt_partially_received" string="Partially Received"
+                        domain="[('receipt_status', '=', 'Partially Received')]"/>
+                <filter name="filter_receipt_waiting" string="Waiting Receipt"
+                        domain="[('receipt_status', '=', 'Waiting Receipt')]"/>
+                <filter name="filter_receipt_problem" string="Receipt Problem"
+                        domain="[('receipt_status', 'in', ['Receipt Short', 'Over Received'])]"/>
+                <filter name="filter_receipt_none" string="No Receipt"
+                        domain="[('receipt_status', '=', 'No Receipt')]"/>
+                <separator/>
+                <filter name="filter_akurat_100" string="Receipt 100%"
+                        domain="[('akurat', '=', 100)]"/>
+                <filter name="filter_akurat_below" string="Receipt Below 100%"
+                        domain="[('akurat', '&gt;', 0), ('akurat', '&lt;', 100)]"/>
+                <filter name="filter_akurat_over" string="Receipt Over 100%"
+                        domain="[('akurat', '&gt;', 100)]"/>
+                <separator/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_delivery_no" string="Delivery No" context="{'group_by':'delivery_no'}"/>
+                    <filter name="group_source_site" string="Source Site" context="{'group_by':'site_id'}"/>
+                    <filter name="group_dest_site" string="Destination Site" context="{'group_by':'destination_site_id'}"/>
+                    <filter name="group_brands" string="Brands" context="{'group_by':'brands'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by':'state'}"/>
+                    <filter name="group_carrier" string="Ekspedisi" context="{'group_by':'carrier_name'}"/>
+                    <filter name="group_city" string="City" context="{'group_by':'city_name'}"/>
+                    <filter name="group_sto_date" string="STO Date" context="{'group_by':'sto_date:month'}"/>
+                    <filter name="group_delivery_date" string="Delivery Date" context="{'group_by':'delivery_date:month'}"/>
+                    <filter name="group_receipt_status" string="Receipt Status" context="{'group_by':'receipt_status'}"/>
+                    <filter name="group_receipt_date" string="Receipt Date" context="{'group_by':'receipt_date:month'}"/>
+                    <filter name="group_pos_status" string="POS Status" context="{'group_by':'pos_status_site'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ================================================================== -->
+    <!-- ACTION WINDOW -->
+    <!-- ================================================================== -->
+    <record id="action_report_sto_summary_window" model="ir.actions.act_window">
+        <field name="name">STO Summary</field>
+        <field name="res_model">report.sto.summary</field>
+        <field name="view_mode">list,pivot</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="search_view_id" ref="view_report_sto_summary_search"/>
+        <field name="groups_id" eval="[(4, ref('mesa.group_report_sto_summary'))]"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada data STO Summary.
+            </p>
+            <p>
+                Klik tombol <b>Generate Report</b> untuk menarik data STO Summary berdasarkan periode delivery.
+            </p>
+        </field>
+    </record>
+</odoo>

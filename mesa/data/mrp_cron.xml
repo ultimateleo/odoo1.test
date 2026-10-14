@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="snk_mrp_ir_cron_act" model="ir.actions.act_window">
+            <field name="name">MRP Scheduled Actions</field>
+            <field name="res_model">ir.cron</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('model_id.model', 'in', ['snk.order.point'])]</field>
+            <field name="context">{'search_default_all': 1}</field>
+            <field name="view_id" ref="base.ir_cron_view_tree"/>
+        </record>
+
+        <!-- Cron Job Master: Run All MRP Schedule Processes -->
+        <!-- <record id="ir_cron_mrp_schedule_all_in_one" model="ir.cron">
+            <field name="name">MRP: Schedule All-In-One (Generate Order Point + Update Rules + Generate Transfer Order)</field>
+            <field name="model_id" ref="model_snk_order_point"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_mrp_schedule_all_in_one()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="priority">1</field>
+            <field name="active" eval="False"/>
+        </record> -->
+
+        <!-- Cron Job 1: Generate Order Point by Schedule (Manual/Individual) -->
+        <!-- <record id="ir_cron_generate_order_point" model="ir.cron">
+            <field name="name">MRP: Generate Order Point by Schedule</field>
+            <field name="model_id" ref="model_snk_order_point"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_generate_order_point()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="priority">5</field>
+            <field name="active" eval="False"/>
+        </record> -->
+
+        <!-- Cron Job 2: Update Stock Rules from Order Point (Manual/Individual) -->
+        <!-- <record id="ir_cron_update_rules_from_order_point" model="ir.cron">
+            <field name="name">MRP: Update Stock Rules from Order Point</field>
+            <field name="model_id" ref="model_snk_order_point"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_update_rules_from_order_point()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="priority">10</field>
+            <field name="active" eval="False"/>
+        </record> -->
+
+        <!-- Cron Job 3: Generate Transfer Order by Schedule (Manual/Individual) -->
+        <!-- <record id="ir_cron_generate_transfer_order_by_schedule" model="ir.cron">
+            <field name="name">MRP: Generate Transfer Order by Schedule</field>
+            <field name="model_id" ref="model_snk_stock_transfer_order"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_generate_transfer_order_by_schedule()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="priority">15</field>
+            <field name="active" eval="False"/>
+        </record> -->
+
+        <!-- ================================================================== -->
+        <!-- FIXED BATCH MRP CRON JOBS                                         -->
+        <!-- ================================================================== -->
+
+        <!-- Main Fixed Batch Cron: Runs every 5 minutes, processes 10 sites -->
+        <record id="ir_cron_mrp_fixed_batch" model="ir.cron">
+            <field name="name">MRP Fixed Batch Processor (10 Sites per Run)</field>
+            <field name="model_id" ref="model_snk_order_point"/>
+            <field name="state">code</field>
+            <field name="code">model.cron_mrp_schedule_fixed_batch()</field>
+            <field name="interval_number">5</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">False</field>
+            <field name="priority">5</field>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+        <!-- Daily Reset Cron: Reset processing status at midnight -->
+        <record id="ir_cron_mrp_daily_reset" model="ir.cron">
+            <field name="name">MRP Daily Reset (Midnight)</field>
+            <field name="model_id" ref="model_snk_stock_schedule"/>
+            <field name="state">code</field>
+            <field name="code">model.reset_daily_processing_status()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="active">False</field>
+            <field name="priority">1</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(days=1)).replace(hour=0, minute=0, second=0)"/>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+        <!-- Stuck Schedule Checker: Check for stuck processing every 30 minutes -->
+        <record id="ir_cron_mrp_stuck_checker" model="ir.cron">
+            <field name="name">MRP Stuck Schedule Checker</field>
+            <field name="model_id" ref="model_snk_stock_schedule"/>
+            <field name="state">code</field>
+            <field name="code">model.get_stuck_processing_schedules()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active">False</field>
+            <field name="priority">8</field>
+            <field name="user_id" ref="base.user_root"/>
+        </record>
+
+    </data>
+</odoo>

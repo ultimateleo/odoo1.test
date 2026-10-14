@@ -1,0 +1,794 @@
+<odoo>
+    <!-- Paper Format Definition -->
+    <record id="paperformat_purchase_order_mesa" model="report.paperformat">
+        <field name="name">Purchase Order Mesa Format</field>
+        <field name="default" eval="False" />
+        <field name="format">A4</field>
+        <field name="page_height">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">0</field>
+        <field name="margin_right">0</field>
+    </record>
+
+    <!-- Template Definition -->
+    <template id="report_purchase_order_simple">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)" />
+
+            <div class="page">
+                <!-- Header Section -->
+                <div
+                    style="text-align: center; padding: 20px 0 30px 0;  margin-bottom: 20px;">
+                    <h1 style="font-size: 18px; font-weight: bold;  margin: 0;">
+                        PURCHASE ORDER
+                    </h1>
+                </div>
+
+                <!-- Main Info Section -->
+                <table class="table table-borderless"
+                    style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <tr>
+                        <!-- Left Column -->
+                        <td
+                            style="width: 60%; vertical-align: top; padding-right: 30px; ">
+                            <table style="display: flex; align-items: flex-start;">
+                                <tr>
+                                    <th
+                                        style="font-size: 13px; vertical-align:top; padding-right: 12px;">
+                                        <p style="font-weight: bold; font-size: 13px; color: #333;">
+                                            To:</p>
+                                    </th>
+                                    <th style="font-size: 13px;">
+                                        <!-- Name -->
+                                        <div style="font-weight: bold; ">
+                                            <span t-field="o.partner_id.name" />
+                                        </div>
+
+                                        <!-- Address Line 1 -->
+                                        <div t-if="o.partner_id.street">
+                                            <span t-field="o.partner_id.street" />
+                                            <t t-if="o.partner_id.street2">, <span
+                                                    t-field="o.partner_id.street2" /></t>
+                                            <t t-if="o.partner_id.city">, <span
+                                                    t-field="o.partner_id.city" /></t>
+                                            <t t-if="o.partner_id.state_id">, <span
+                                                    t-field="o.partner_id.state_id.name" /></t>
+                                            <t t-if="o.partner_id.zip">, <span
+                                                    t-field="o.partner_id.zip" /></t>
+                                            <t t-if="o.partner_id.country_id">, <span
+                                                    t-field="o.partner_id.country_id.name" /></t>
+                                        </div>
+
+
+                                        <!-- City, State, Zip - dalam satu baris dengan conditional -->
+
+
+                                    </th>
+                                </tr>
+                            </table>
+
+
+                            <div style="margin-bottom: 20px; margin-top:5px;">
+                                <p
+                                    style="font-weight: bold; margin-bottom: 8px; font-size: 13px; color: #333;">Contact
+                                    Person:</p>
+
+                            </div>
+
+                            <t t-if="o.picking_type_id">
+                                <div>
+                                    <p
+                                        style="font-weight: bold; margin-bottom: 3px; font-size: 13px; color: #333;">Please
+                                        Delivery to:</p>
+                                    <div style="font-size: 13px;">
+                                        <!-- Name -->
+                                        <div style="font-weight: bold;">
+                                            <span
+                                                t-field="o.picking_type_id.warehouse_id.partner_id.name" />
+                                        </div>
+
+                                        <!-- Address -->
+                                        <div>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.street">
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.street" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.street2">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.street2" />
+                                            </t>
+                                            <t t-if="o.picking_type_id.warehouse_id.partner_id.city">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.city" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.state_id">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.state_id.name" />
+                                            </t>
+                                            <t t-if="o.picking_type_id.warehouse_id.partner_id.zip">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city or o.picking_type_id.warehouse_id.partner_id.state_id">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.zip" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.country_id">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city or o.picking_type_id.warehouse_id.partner_id.state_id or o.picking_type_id.warehouse_id.partner_id.zip">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.country_id.name" />
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </td>
+
+                        <!-- Right Column -->
+                        <td style="width: 40%; vertical-align: top; padding-left: 30px;">
+                            <table
+                                style="width: 100%; border-collapse: collapse; font-size: 13px;">
+
+                                <tr>
+                                    <td
+                                        style="width: 40%; padding-left: 10px; font-weight: bold;">PO
+                                        No.</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.snk_po_number" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding-left: 10px; font-weight: bold;">PO
+                                        Date</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.date_order"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding-left: 10px; font-weight: bold;">Delivery
+                                        Date</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.date_planned"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 10px; font-weight: bold;">PR No.</td>
+                                    <td style="">
+                                        <span t-field="o.requisition_id.snk_pr_number" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Items Table -->
+                <table
+                    style="width: 100%; border-collapse: collapse; border: 1px solid #333; margin-top: 20px; margin-bottom: 0;">
+
+                    <!-- Table Body -->
+                    <tbody>
+                        <!-- Table Header -->
+                        <tr style="background-color: #e9ecef;">
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; width: 40%; font-size: 13px;">
+                                Article
+                            </th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; width: 15%; font-size: 13px;">
+                                Attribut</th>
+
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; width: 15%; font-size: 13px;">
+                                Description</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                Qty</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                UoM</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">Unit
+                                Price</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                Amount</th>
+                        </tr>
+                        <t t-foreach="o.order_line" t-as="line">
+                            <tr style="background-color: white;">
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; width:40%; font-size: 12px;">
+                                    <span t-esc="line.template_code or line.product_id.default_code" />
+                                    - <span t-field="line.product_id.name" />
+                                    <t
+                                        t-if="line.product_id.snk_material_code">
+                                        <span t-field="line.product_id.snk_material_code" />
+                                    </t>
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; font-size: 12px; width: 15%;">
+                                    <t t-if="line.product_id.product_template_attribute_value_ids"
+                                        t-esc="' | '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                    <t t-else="">-</t>
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; font-size: 12px; width: 15%;">
+                                    <t t-if="line.snk_description">
+                                        <span t-field="line.snk_description" />
+                                    </t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: center; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.product_qty" />
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: center; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.product_uom.name" />
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: right; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.price_unit"
+                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: right; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.price_subtotal"
+                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                </td>
+                            </tr>
+                        </t>
+
+                        <!-- Total Qty Row -->
+                        <tr style="background-color: #f8f9fa; font-weight: bold;">
+                            <td colspan="3"
+                                style="border: 1px solid #333; padding: 12px; text-align: right; font-size: 12px;">
+                                <strong>Total Qty</strong>
+                            </td>
+                            <td
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-size: 12px;">
+                                <t t-set="total_qty" t-value="0" />
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="total_qty" t-value="total_qty + line.product_qty" />
+                                </t>
+                                <strong>
+                                    <span t-esc="total_qty" />
+                                </strong>
+                            </td>
+                            <td colspan="4" style="border: 1px solid #333; padding: 12px;"></td>
+                        </tr>
+
+                        <!-- Summary Row -->
+                        <tr>
+                            <!-- Remark section -->
+                            <td colspan="4"
+                                style="padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Remark:</strong>
+                                <div style="margin-top: 8px;">
+                                    <t t-if="o.origin">
+                                        <span t-field="o.origin" />
+                                    </t>
+                                    <t t-else="">-</t>
+                                </div>
+                            </td>
+
+                            <!-- Financial summary section -->
+                            <td colspan="4"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <div>
+                                    <!-- Subtotal -->
+                                    <div
+                                        style="display: flex; justify-content: space-between; margin-bottom: 8px; padding: 5px 0;">
+                                        <span style="font-weight: bold;">Subtotal:</span>
+                                        <span style="font-weight: bold;">
+
+                                            <span t-field="o.amount_untaxed"
+                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+
+
+                                        </span>
+                                    </div>
+                                    <!-- Tax Breakdown -->
+                                    <t t-set="tax_totals" t-value="o.tax_totals" />
+                                    <t t-if="tax_totals and tax_totals.get('amount_by_group')">
+                                        <!-- Menggunakan amount_by_group dari tax_totals -->
+                                        <t t-foreach="tax_totals['amount_by_group']"
+                                            t-as="tax_group_data">
+                                            <div
+                                                style="display: flex; justify-content: space-between; margin-bottom: 5px; padding: 3px 0;">
+                                                <span style="font-weight: bold;"><span
+                                                        t-esc="tax_group_data[0]" />:</span>
+                                                <span style="font-weight: bold;">
+                                                    <span t-esc="tax_group_data[1]"
+                                                        t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                </span>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <!-- Fallback manual calculation -->
+                                        <t t-if="o.amount_tax != 0">
+                                            <!-- Kumpulkan tax groups dari order lines -->
+                                            <t t-set="tax_breakdown" t-value="{}" />
+                                            <t t-foreach="o.order_line" t-as="line">
+                                                <t t-foreach="line.taxes_id" t-as="tax">
+                                                    <t t-set="tax_amount"
+                                                        t-value="line.price_subtotal * tax.amount / 100" />
+                                                    <t t-set="group_name"
+                                                        t-value="tax.tax_group_id.name" />
+                                                    <t t-set="current_amount"
+                                                        t-value="tax_breakdown.get(group_name, 0)" />
+                                                    <t t-set="dummy"
+                                                        t-value="tax_breakdown.update({group_name: current_amount + tax_amount})" />
+                                                </t>
+                                            </t>
+
+                                            <!-- Tampilkan breakdown -->
+                                            <t t-foreach="tax_breakdown.items()" t-as="tax_item">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; margin-bottom: 5px; padding: 3px 0;">
+                                                    <span style="font-weight: bold;"><span
+                                                            t-esc="tax_item[0]" />:</span>
+                                                    <span style="font-weight: bold;">
+                                                        <span t-esc="tax_item[1]"
+                                                            t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+                                                    </span>
+                                                </div>
+                                            </t>
+
+                                            <!-- Jika tidak ada breakdown, tampilkan total tax -->
+                                            <t t-if="not tax_breakdown">
+                                                <div
+                                                    style="display: flex; justify-content: space-between; margin-bottom: 5px; padding: 3px 0;">
+                                                    <span style="font-weight: bold;">Tax:</span>
+                                                    <span style="font-weight: bold;">
+                                                        <span t-field="o.amount_tax" />
+                                                    </span>
+                                                </div>
+                                            </t>
+                                        </t>
+                                    </t>
+
+
+                                    <!-- Total -->
+                                    <div
+                                        style="display: flex; justify-content: space-between; border-top: 2px solid #333; padding: 8px 0;">
+                                        <span style="font-weight: bold;">TOTAL:</span>
+                                        <span style="font-weight: bold;">
+
+                                            <span t-field="o.amount_total"
+                                                t-options='{"widget": "monetary", "display_currency": o.currency_id}' />
+
+
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Signature Row -->
+                        <tr>
+                            <td colspan="1"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Requested By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span t-field="o.user_id" />
+                                </div>
+                            </td>
+                            <td colspan="2"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Reviewed By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span></span>
+                                </div>
+                            </td>
+                            <td colspan="4"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Approved By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span t-field="o.snk_approve" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <!-- RFQ Template (Request for Quotation) -->
+    <template id="report_requesition">
+        <t t-call="web.basic_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)" />
+
+            <div class="page">
+                <!-- Header Section -->
+                <div
+                    style="text-align: center; padding: 20px 0 30px 0;  margin-bottom: 20px;">
+                    <h1 style="font-size: 18px; font-weight: bold; margin: 0;">
+                        REQUEST FOR QUOTATION
+                    </h1>
+                </div>
+
+                <!-- Main Info Section (Same as PO) -->
+                <table class="table table-borderless"
+                    style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <tr>
+                        <!-- Left Column -->
+                        <td
+                            style="width: 60%; vertical-align: top; padding-right: 30px; ">
+                            <table style="display: flex; align-items: flex-start;">
+                                <tr>
+                                    <th
+                                        style="font-size: 13px; vertical-align:top; padding-right: 12px;">
+                                        <p style="font-weight: bold; font-size: 13px; color: #333;">
+                                            To:</p>
+                                    </th>
+                                    <th style="font-size: 13px;">
+                                        <!-- Name -->
+                                        <div style="font-weight: bold; ">
+                                            <span t-field="o.partner_id.name" />
+                                        </div>
+
+                                        <!-- Address Line 1 -->
+                                        <div t-if="o.partner_id.street">
+                                            <span t-field="o.partner_id.street" />
+                                            <t t-if="o.partner_id.street2">, <span
+                                                    t-field="o.partner_id.street2" /></t>
+                                            <t t-if="o.partner_id.city">, <span
+                                                    t-field="o.partner_id.city" /></t>
+                                            <t t-if="o.partner_id.state_id">, <span
+                                                    t-field="o.partner_id.state_id.name" /></t>
+                                            <t t-if="o.partner_id.zip">, <span
+                                                    t-field="o.partner_id.zip" /></t>
+                                            <t t-if="o.partner_id.country_id">, <span
+                                                    t-field="o.partner_id.country_id.name" /></t>
+                                        </div>
+
+
+                                        <!-- City, State, Zip - dalam satu baris dengan conditional -->
+
+
+                                    </th>
+                                </tr>
+                            </table>
+
+
+                            <div style="margin-bottom: 20px; margin-top:5px;">
+                                <p
+                                    style="font-weight: bold; margin-bottom: 8px; font-size: 13px; color: #333;">Contact
+                                    Person:</p>
+
+                            </div>
+
+                            <t t-if="o.picking_type_id">
+                                <div>
+                                    <p
+                                        style="font-weight: bold; margin-bottom: 3px; font-size: 13px; color: #333;">Please
+                                        Delivery to:</p>
+                                    <div style="font-size: 13px;">
+                                        <!-- Name -->
+                                        <div style="font-weight: bold;">
+                                            <span
+                                                t-field="o.picking_type_id.warehouse_id.partner_id.name" />
+                                        </div>
+
+                                        <!-- Address -->
+                                        <div>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.street">
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.street" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.street2">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.street2" />
+                                            </t>
+                                            <t t-if="o.picking_type_id.warehouse_id.partner_id.city">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.city" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.state_id">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.state_id.name" />
+                                            </t>
+                                            <t t-if="o.picking_type_id.warehouse_id.partner_id.zip">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city or o.picking_type_id.warehouse_id.partner_id.state_id">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.zip" />
+                                            </t>
+                                            <t
+                                                t-if="o.picking_type_id.warehouse_id.partner_id.country_id">
+                                                <t
+                                                    t-if="o.picking_type_id.warehouse_id.partner_id.street or o.picking_type_id.warehouse_id.partner_id.street2 or o.picking_type_id.warehouse_id.partner_id.city or o.picking_type_id.warehouse_id.partner_id.state_id or o.picking_type_id.warehouse_id.partner_id.zip">
+                                                    , </t>
+                                                <span
+                                                    t-field="o.picking_type_id.warehouse_id.partner_id.country_id.name" />
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </td>
+
+                        <!-- Right Column -->
+                        <td style="width: 40%; vertical-align: top; padding-left: 30px;">
+                            <table
+                                style="width: 100%; border-collapse: collapse; font-size: 13px;">
+
+                                <tr>
+                                    <td
+                                        style="width: 40%; padding-left: 10px; font-weight: bold;">PO
+                                        No.</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.snk_po_number" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding-left: 10px; font-weight: bold;">PO
+                                        Date</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.date_order"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding-left: 10px; font-weight: bold;">Delivery
+                                        Date</td>
+                                    <td
+                                        style="">
+                                        <span t-field="o.date_planned"
+                                            t-options="{'widget': 'date', 'format': 'dd MMM yyyy'}" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 10px; font-weight: bold;">PR No.</td>
+                                    <td style="">
+                                        <span t-field="o.requisition_id.snk_pr_number" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- Items Table (Without Price columns) -->
+                <table
+                    style="width: 100%; border-collapse: collapse; border: 1px solid #333; margin-top: 20px; margin-bottom: 0;">
+
+                    <tbody>
+                        <!-- Table Header -->
+                        <tr style="background-color: #e9ecef;">
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                Article</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px; width: 15%;">
+                                Attribut</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px; width: 15%;">
+                                Description</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                Qty</th>
+                            <th
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-weight: bold; font-size: 13px;">
+                                UoM</th>
+                        </tr>
+                        <t t-foreach="o.order_line" t-as="line">
+                            <tr style="background-color: white;">
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; font-size: 12px;">
+                                    <span t-esc="line.template_code or line.product_id.default_code" />
+                                    - <span t-field="line.product_id.name" />
+                                      <span
+                                        t-field="line.product_id.snk_material_code" />
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; font-size: 12px; width: 15%;">
+                                    <t t-if="line.product_id.product_template_attribute_value_ids"
+                                        t-esc="' | '.join(attr.name for attr in line.product_id.product_template_attribute_value_ids)" />
+                                    <t t-else="">-</t>
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; vertical-align: top; font-size: 12px; width: 15%;">
+                                    <t t-if="line.snk_description">
+                                        <span t-field="line.snk_description" />
+                                    </t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: center; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.product_qty" />
+                                </td>
+                                <td
+                                    style="border: 1px solid #333; padding: 10px; text-align: center; vertical-align: top; font-size: 12px;">
+                                    <span t-field="line.product_uom.name" />
+                                </td>
+                            </tr>
+                        </t>
+
+                        <!-- Total Qty Row -->
+                        <tr style="background-color: #f8f9fa; font-weight: bold;">
+                            <td colspan="3"
+                                style="border: 1px solid #333; padding: 12px; text-align: right; font-size: 12px;">
+                                <strong>Total Qty</strong>
+                            </td>
+                            <td
+                                style="border: 1px solid #333; padding: 12px; text-align: center; font-size: 12px;">
+                                <t t-set="total_qty" t-value="0" />
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-set="total_qty" t-value="total_qty + line.product_qty" />
+                                </t>
+                                <strong>
+                                    <span t-esc="total_qty" />
+                                </strong>
+                            </td>
+                            <td style="border: 1px solid #333; padding: 12px;"></td>
+                        </tr>
+
+                        <!-- Remark Row -->
+                        <tr>
+                            <td colspan="5"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Remark:</strong>
+                                <div style="margin-top: 8px;">
+                                    <t t-if="o.origin">
+                                        <span t-field="o.origin" />
+                                    </t>
+                                    <t t-else="">-</t>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Signature Row -->
+                        <tr>
+                            <td colspan="1"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Requested By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span t-field="o.user_id" />
+                                </div>
+                            </td>
+                            <td colspan="2"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Reviewed By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span></span>
+                                </div>
+                            </td>
+                            <td colspan="2"
+                                style="border: 1px solid #333; padding: 15px; vertical-align: top; font-size: 12px;">
+                                <strong>Approved By:</strong>
+                                <div
+                                    style="margin-top: 60px; border-top: 1px solid #333; padding-top: 5px; text-align: center;">
+                                    <span t-field="o.snk_approve" />
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <!-- Main Report Templates -->
+    <template id="report_purchase_order_custom">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <style>
+                    @media print {
+                    tbody tr { page-break-inside: avoid;}
+                    }
+                    td { font-size: 12px; }
+                    th { font-size: 13px; }
+                </style>
+                <div class="header">
+                    <div
+                        style="text-align: right; font-size: 10px; color: grey; margin-bottom: 10px;">
+                        <span>No. PO : <t t-esc="o.snk_po_number" /></span>
+                    </div>
+                </div>
+                <t t-call="mesa.report_purchase_order_simple" t-lang="o.partner_id.lang" />
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey; margin-top: 20px;">
+                        No. PO : <t t-esc="o.snk_po_number" /> <span style="margin: 0 8px;">|</span>
+                        Page <span class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_rfq">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="header">
+                    <div
+                        style="text-align: right; font-size: 10px; color: grey; margin-bottom: 10px;">
+                        <span>No. PO : <t t-esc="o.snk_po_number" /></span>
+                    </div>
+                </div>
+                <t t-call="mesa.report_requesition" t-lang="o.partner_id.lang" />
+                <div class="footer">
+                    <div style="text-align: right; font-size: 10px; color: grey; margin-top: 20px;">
+                        No. PO : <t t-esc="o.snk_po_number" /> <span style="margin: 0 8px;">|</span>
+                        Page <span class="page" /> of <span class="topage" />
+                    </div>
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Report Actions -->
+    <record id="action_report_purchase_order_simple" model="ir.actions.report">
+        <field name="name">Purchase Order</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_purchase_order_custom</field>
+        <field name="report_file">mesa.report_purchase_order_custom</field>
+        <field name="print_report_name">'Purchase Order - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_purchase_order" />
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_purchase_order_mesa" />
+    </record>
+
+    <record id="action_report_RFQ" model="ir.actions.report">
+        <field name="name">Request for Quotation</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mesa.report_rfq</field>
+        <field name="report_file">mesa.report_rfq</field>
+        <field name="print_report_name">'RFQ - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="model_purchase_order" />
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_purchase_order_mesa" />
+    </record>
+
+</odoo>
